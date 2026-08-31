@@ -342,8 +342,8 @@ class PlayerViewModel(
     dir.mkdirs()
     val file = nextScreenshotFile(dir)
     PlayerActivity.lastMpvError = null
-    MPVLib.command("screenshot-to-file", file.absolutePath, if (withSubtitles) "subtitles" else "video")
     viewModelScope.launch(Dispatchers.IO) {
+      MPVLib.command("screenshot-to-file", file.absolutePath, if (withSubtitles) "subtitles" else "video")
       val message = awaitScreenshotResult(dir, file)
       playerUpdate.update { PlayerUpdates.ShowText(message) }
     }

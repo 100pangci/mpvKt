@@ -84,7 +84,7 @@ object HomeScreen : Screen {
         val uri = rememberTextFieldState()
         var isUrlValid by remember { mutableStateOf(true) }
         LaunchedEffect(uri.text) {
-          isUrlValid = uri.text.isNotEmpty() || isURLValid(uri.text.toString())
+          isUrlValid = uri.text.isEmpty() || isURLValid(uri.text.toString())
         }
         OutlinedTextField(
           state = uri,
