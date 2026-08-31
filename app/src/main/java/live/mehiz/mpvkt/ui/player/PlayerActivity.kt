@@ -437,11 +437,13 @@ class PlayerActivity : AppCompatActivity() {
     val trimmed = family.trim()
     if (trimmed.isEmpty() || !attemptedFontFamilies.add(trimmed)) return
     lifecycleScope.launch(Dispatchers.IO) {
-      val staged = stageIndexedFont(trimmed, fontsCacheDir())
-      if (staged) {
-        MPVLib.command("sub-reload")
-      } else {
-        viewModel.reportMissingFont(trimmed)
+      runCatching {
+        val staged = stageIndexedFont(trimmed, fontsCacheDir())
+        if (staged) {
+          MPVLib.command("sub-reload")
+        } else {
+          viewModel.reportMissingFont(trimmed)
+        }
       }
     }
   }
@@ -777,7 +779,10 @@ class PlayerActivity : AppCompatActivity() {
     val subDelay = getDelay(subtitlesPreferences.defaultSubDelay.get(), state?.subDelay)
     val secondarySubDelay = getDelay(subtitlesPreferences.defaultSecondarySubDelay.get(), state?.secondarySubDelay)
     val audioDelay = getDelay(audioPreferences.defaultAudioDelay.get(), state?.audioDelay)
-    state?.let {
+    // Never-played files have no meaningful track/delay choices; restoring
+    // their zero state would force mpv's auto-selected subtitle/audio tracks
+    // off, so only restore once the video was actually watched.
+    state?.takeIf { it.lastPosition > 0 }?.let {
       player.sid = it.sid
       player.secondarySid = it.secondarySid
       player.aid = it.aid

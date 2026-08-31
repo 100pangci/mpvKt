@@ -9,6 +9,7 @@ val Migrations: Array<Migration> = arrayOf(
   MIGRATION3to4,
   MIGRATION4to5,
   MIGRATION5to6,
+  MIGRATION6to7,
 )
 
 private object MIGRATION1to2 : Migration(1, 2) {
@@ -66,6 +67,12 @@ private object MIGRATION5to6 : Migration(5, 6) {
       )
       """.trimIndent()
     )
+    db.execSQL("CREATE INDEX IF NOT EXISTS `index_FontEntity_family` ON `FontEntity` (`family`)")
+  }
+}
+
+private object MIGRATION6to7 : Migration(6, 7) {
+  override fun migrate(db: SupportSQLiteDatabase) {
     db.execSQL("CREATE INDEX IF NOT EXISTS `index_FontEntity_family` ON `FontEntity` (`family`)")
   }
 }
