@@ -1,6 +1,5 @@
 package live.mehiz.mpvkt.ui.player.controls.components
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.indication
@@ -28,9 +27,9 @@ import live.mehiz.mpvkt.ui.player.controls.LocalPlayerButtonsClickEvent
 import live.mehiz.mpvkt.ui.theme.spacing
 
 private val FrameStepDistance = 32.dp
+private val CancelDistance = 64.dp
 private const val KEEP_ALIVE_INTERVAL_MILLIS = 250L
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FrameStepButton(
   icon: ImageVector,
@@ -38,6 +37,7 @@ fun FrameStepButton(
   onTap: () -> Unit,
   onFrameStep: (forward: Boolean) -> Unit,
   onFrameStepEnd: () -> Unit,
+  onCancelChange: (Boolean) -> Unit,
   modifier: Modifier = Modifier,
   color: Color = Color.White,
   overlay: (@Composable () -> Unit)? = null,
@@ -48,20 +48,23 @@ fun FrameStepButton(
     modifier = modifier
       .clip(CircleShape)
       .indication(interactionSource, ripple())
-      .pointerInput(Unit) {
-        val stepThreshold = FrameStepDistance.toPx()
+      .pointerInput(onTap, onFrameStep, onFrameStepEnd, onCancelChange) {
+        val tracker = FrameStepTracker(
+          stepThreshold = FrameStepDistance.toPx(),
+          cancelThreshold = CancelDistance.toPx(),
+          onTap = onTap,
+          onFrameStep = onFrameStep,
+          onFrameStepEnd = onFrameStepEnd,
+          onCancelChange = onCancelChange,
+        )
         awaitEachGesture {
           val down = awaitFirstDown(requireUnconsumed = false)
           val press = PressInteraction.Press(down.position)
+          tracker.reset()
           interactionSource.tryEmit(press)
           clickEvent()
           var lastKeepAlive = down.uptimeMillis
-          var accumulated = 0f
-          var stepped = false
           var received = false
-          fun capture() {
-            if (stepped) onFrameStepEnd() else onTap()
-          }
           try {
             while (true) {
               val event = awaitPointerEvent()
@@ -72,26 +75,17 @@ fun FrameStepButton(
                 clickEvent()
                 lastKeepAlive = change.uptimeMillis
               }
-              accumulated += change.positionChange().x
-              while (accumulated >= stepThreshold) {
-                onFrameStep(true)
-                accumulated -= stepThreshold
-                stepped = true
-              }
-              while (accumulated <= -stepThreshold) {
-                onFrameStep(false)
-                accumulated += stepThreshold
-                stepped = true
-              }
+              val delta = change.positionChange()
+              tracker.onMove(delta.x, delta.y)
               change.consume()
             }
             interactionSource.tryEmit(PressInteraction.Release(press))
           } catch (e: CancellationException) {
             interactionSource.tryEmit(PressInteraction.Cancel(press))
-            if (received) capture()
+            if (received) tracker.capture()
             throw e
           }
-          capture()
+          tracker.capture()
         }
       }
       .padding(MaterialTheme.spacing.medium),
@@ -106,6 +100,64 @@ fun FrameStepButton(
       overlay?.let {
         Box(modifier = Modifier.align(Alignment.BottomEnd)) { it() }
       }
+    }
+  }
+}
+
+private class FrameStepTracker(
+  stepThreshold: Float,
+  private val cancelThreshold: Float,
+  private val onTap: () -> Unit,
+  private val onFrameStep: (forward: Boolean) -> Unit,
+  private val onFrameStepEnd: () -> Unit,
+  private val onCancelChange: (Boolean) -> Unit,
+) {
+  private val stepThreshold = stepThreshold
+  private var stepped = false
+  private var cancelled = false
+  private var accumulatedX = 0f
+  private var accumulatedY = 0f
+
+  fun reset() {
+    stepped = false
+    cancelled = false
+    accumulatedX = 0f
+    accumulatedY = 0f
+  }
+
+  fun onMove(dx: Float, dy: Float) {
+    accumulatedY += dy
+    if (cancelled) {
+      accumulatedX = 0f
+      if (accumulatedY > -cancelThreshold / 2f) {
+        cancelled = false
+        accumulatedY = 0f
+        onCancelChange(false)
+      }
+    } else if (accumulatedY <= -cancelThreshold) {
+      cancelled = true
+      accumulatedX = 0f
+      onCancelChange(true)
+    } else {
+      accumulatedX += dx
+    }
+    while (accumulatedX >= stepThreshold) {
+      onFrameStep(true)
+      accumulatedX -= stepThreshold
+      stepped = true
+    }
+    while (accumulatedX <= -stepThreshold) {
+      onFrameStep(false)
+      accumulatedX += stepThreshold
+      stepped = true
+    }
+  }
+
+  fun capture() {
+    when {
+      cancelled -> onCancelChange(false)
+      stepped -> onFrameStepEnd()
+      else -> onTap()
     }
   }
 }

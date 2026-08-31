@@ -219,6 +219,7 @@
     <string name="screenshot_raw">原画截图</string>
     <string name="screenshot_saved">截图已保存：%1$s</string>
     <string name="screenshot_failed">截图失败</string>
+    <string name="screenshot_cancel_hint">松手后取消截图</string>
     <string name="screenshot_dir_missing">目录不存在</string>
     <string name="screenshot_dir_unwritable">目录不可写</string>
     <string name="screenshot_error_unknown">未知错误</string>
@@ -231,5 +232,39 @@
     <string name="pref_player_screenshot_resume_playback">切帧截图后恢复播放</string>
     <string name="pref_player_screenshot_all_files_title">需要“所有文件访问”权限</string>
     <string name="pref_player_screenshot_all_files_message">为在所选目录保存截图，请在接下来的页面中授予 mpvKt“所有文件访问”权限。</string>
+
+    <string name="notification_channel_name">播放控制</string>
+    <string name="notification_channel_description">当前正在播放的媒体的控制项</string>
+    <string name="notification_play">播放</string>
+    <string name="notification_pause">暂停</string>
+    <string name="notification_stop">停止</string>
+    <string name="notification_forward">快进</string>
+    <string name="notification_rewind">快退</string>
+    <string name="notification_playing">正在播放</string>
+
+    <string name="player_sheets_video_settings_title">视频设置</string>
+    <string name="player_sheets_deband_title">去色带</string>
+    <string name="player_sheets_deband_none">无</string>
+    <string name="player_sheets_deband_cpu">CPU</string>
+    <string name="player_sheets_deband_gpu">GPU</string>
+    <string name="player_sheets_deband_grain">颗粒</string>
+    <string name="player_sheets_deband_iterations">迭代次数</string>
+    <string name="player_sheets_deband_range">范围</string>
+    <string name="player_sheets_deband_threshold">阈值</string>
+    <string name="player_sheets_chapter_title_substitute_audio">音轨 #%d</string>
+    <string name="player_sheets_chapter_title_substitute_subtitle">字幕 #%d</string>
+
+    <string name="pref_enable_background_playback">启用后台播放</string>
+    <string name="pref_enable_background_playback_summary">应用退到后台时继续播放</string>
+    <string name="pref_advanced_dump_logs_title">导出日志</string>
+    <string name="pref_advanced_dump_logs_summary">导出并复制日志，方便分享给开发者</string>
+    <string name="pref_player_display_panel_transparency_summary">%d%%</string>
+
+    <plurals name="plural_items">
+        <item quantity="other">%1$d 项</item>
+    </plurals>
+    <plurals name="seconds">
+        <item quantity="other">%1$d 秒</item>
+    </plurals>
 
 </resources>

@@ -197,7 +197,7 @@ fun PlayerControls(
         val (bottomRightControls, bottomLeftControls) = createRefs()
         val playerPauseButton = createRef()
         val seekbar = createRef()
-        val (playerUpdates) = createRefs()
+        val (playerUpdates, screenshotCancelHint) = createRefs()
 
         val isBrightnessSliderShown by viewModel.isBrightnessSliderShown.collectAsState()
         val isVolumeSliderShown by viewModel.isVolumeSliderShown.collectAsState()
@@ -296,6 +296,7 @@ fun PlayerControls(
         }
         val holdForMultipleSpeed by playerPreferences.holdForMultipleSpeed.collectAsState()
         val currentPlayerUpdate by viewModel.playerUpdate.collectAsState()
+        val screenshotCancelActive by viewModel.screenshotCancelActive.collectAsState()
         val aspectRatio by playerPreferences.videoAspect.collectAsState()
         LaunchedEffect(currentPlayerUpdate, aspectRatio) {
           if (currentPlayerUpdate is PlayerUpdates.MultipleSpeed || currentPlayerUpdate is PlayerUpdates.None) {
@@ -305,7 +306,7 @@ fun PlayerControls(
           viewModel.playerUpdate.update { PlayerUpdates.None }
         }
         AnimatedVisibility(
-          currentPlayerUpdate !is PlayerUpdates.None,
+          currentPlayerUpdate !is PlayerUpdates.None && !screenshotCancelActive,
           enter = fadeIn(playerControlsEnterAnimationSpec()),
           exit = fadeOut(playerControlsExitAnimationSpec()),
           modifier = Modifier.constrainAs(playerUpdates) {
@@ -319,6 +320,17 @@ fun PlayerControls(
             is PlayerUpdates.ShowText -> TextPlayerUpdate((currentPlayerUpdate as PlayerUpdates.ShowText).value)
             else -> {}
           }
+        }
+        AnimatedVisibility(
+          screenshotCancelActive,
+          enter = fadeIn(playerControlsEnterAnimationSpec()),
+          exit = fadeOut(playerControlsExitAnimationSpec()),
+          modifier = Modifier.constrainAs(screenshotCancelHint) {
+            linkTo(parent.start, parent.end)
+            linkTo(parent.top, parent.bottom, bias = 0.2f)
+          },
+        ) {
+          TextPlayerUpdate(stringResource(R.string.screenshot_cancel_hint))
         }
 
         AnimatedVisibility(
@@ -518,6 +530,7 @@ fun PlayerControls(
             onScreenshotRawTap = { viewModel.screenshot(withSubtitles = false) },
             onFrameStep = viewModel::frameStep,
             onFrameStepEnd = viewModel::frameStepScreenshot,
+            onScreenshotCancelChange = viewModel::setScreenshotCancel,
             onPipClick = {
               if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 activity.enterPictureInPictureMode(activity.createPipParams())

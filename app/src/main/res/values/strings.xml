@@ -265,8 +265,8 @@
     <string name="value_percentage_int" translatable="false">%d%%</string>
     <string name="value_percentage_float" translatable="false">%.2f\%%</string>
 
-    <string name="github_repo_url" translatable="false">https://github.com/abdallahmehiz/mpvKt</string>
-    <string name="privacy_policy_url" translatable="false">https://abdallahmehiz.github.io/mpvKt/privacy_policy.html</string>
+    <string name="github_repo_url" translatable="false">https://github.com/100pangci/mpvKt</string>
+    <string name="privacy_policy_url" translatable="false">https://100pangci.github.io/mpvKt/privacy_policy.html</string>
     <string name="swap_the_volume_and_brightness_slider">Swap volume and brightness slider</string>
     <string name="pref_player_display_reduce_player_animation">Reduce player animation</string>
     <string name="pref_player_display_hide_player_control_time">Hide player control time</string>
@@ -294,6 +294,7 @@
     <string name="screenshot_raw">Raw screenshot</string>
     <string name="screenshot_saved">Screenshot saved: %1$s</string>
     <string name="screenshot_failed">Screenshot failed</string>
+    <string name="screenshot_cancel_hint">Release to cancel screenshot</string>
     <string name="screenshot_dir_missing">directory does not exist</string>
     <string name="screenshot_dir_unwritable">directory not writable</string>
     <string name="screenshot_error_unknown">unknown error</string>

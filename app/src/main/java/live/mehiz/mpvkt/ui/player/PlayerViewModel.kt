@@ -118,6 +118,7 @@ class PlayerViewModel(
   val areControlsLocked = _areControlsLocked.asStateFlow()
 
   val playerUpdate = MutableStateFlow<PlayerUpdates>(PlayerUpdates.None)
+  val screenshotCancelActive = MutableStateFlow(false)
   val isBrightnessSliderShown = MutableStateFlow(false)
   val isVolumeSliderShown = MutableStateFlow(false)
   val currentBrightness = MutableStateFlow(
@@ -439,6 +440,11 @@ class PlayerViewModel(
       MPVLib.setPropertyBoolean("pause", false)
     }
     wasPlayingBeforeFrameStep = false
+  }
+
+  fun setScreenshotCancel(active: Boolean) {
+    if (active) wasPlayingBeforeFrameStep = false
+    screenshotCancelActive.update { active }
   }
 
   private fun showFramePosition() {

@@ -46,6 +46,7 @@ fun BottomRightPlayerControls(
   onScreenshotRawTap: () -> Unit,
   onFrameStep: (forward: Boolean) -> Unit,
   onFrameStepEnd: (withSubtitles: Boolean) -> Unit,
+  onScreenshotCancelChange: (Boolean) -> Unit,
   onAspectClick: () -> Unit,
   onPipClick: () -> Unit,
   modifier: Modifier = Modifier,
@@ -82,6 +83,7 @@ fun BottomRightPlayerControls(
       onTap = onScreenshotSubsTap,
       onFrameStep = onFrameStep,
       onFrameStepEnd = { onFrameStepEnd(true) },
+      onCancelChange = onScreenshotCancelChange,
       overlay = { SubtitlesBadge() },
     )
     FrameStepButton(
@@ -90,6 +92,7 @@ fun BottomRightPlayerControls(
       onTap = onScreenshotRawTap,
       onFrameStep = onFrameStep,
       onFrameStepEnd = { onFrameStepEnd(false) },
+      onCancelChange = onScreenshotCancelChange,
     )
 
     ControlsButton(
