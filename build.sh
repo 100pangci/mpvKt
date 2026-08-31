@@ -10,6 +10,7 @@ SDK_DIR="$ENV_DIR/android-sdk"
 
 if [ ! -x "$JAVA_HOME/bin/java" ]; then
   echo "[mpvKt] Provisioning JDK 21..."
+  rm -rf "$JAVA_HOME"
   mkdir -p "$ENV_DIR"
   curl -L --retry 3 -o "$ENV_DIR/jdk21.tar.gz" \
     "https://api.adoptium.net/v3/binary/latest/21/ga/linux/x64/jdk/hotspot/normal/eclipse"
@@ -20,6 +21,7 @@ fi
 
 if [ ! -f "$SDK_DIR/cmdline-tools/latest/bin/sdkmanager" ]; then
   echo "[mpvKt] Provisioning Android cmdline-tools..."
+  rm -rf "$SDK_DIR/cmdline-tools/latest"
   mkdir -p "$SDK_DIR/cmdline-tools"
   curl -L --retry 3 -o "$ENV_DIR/cmdtools.zip" \
     "https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip"
@@ -28,8 +30,9 @@ if [ ! -f "$SDK_DIR/cmdline-tools/latest/bin/sdkmanager" ]; then
   rm -f "$ENV_DIR/cmdtools.zip"
 fi
 
-if [ ! -d "$SDK_DIR/platforms/android-36" ]; then
+if [ ! -x "$SDK_DIR/build-tools/36.0.0/aapt2" ]; then
   echo "[mpvKt] Installing Android SDK packages (~500 MB)..."
+  rm -rf "$SDK_DIR/build-tools/36.0.0" "$SDK_DIR/platform-tools"
   yes | "$SDK_DIR/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null
   "$SDK_DIR/cmdline-tools/latest/bin/sdkmanager" \
     "platforms;android-36" "build-tools;36.0.0" "platform-tools" > /dev/null
