@@ -34,11 +34,11 @@ class MediaPlaybackService : MediaBrowserServiceCompat(), MPVLib.EventObserver {
     private const val NOTIFICATION_ID = 69420
     private const val NOTIFICATION_CHANNEL_ID = "mpvkt_playback_channel"
 
-    const val ACTION_PLAY = "live.mehiz.mpvkt.action.PLAY"
-    const val ACTION_PAUSE = "live.mehiz.mpvkt.action.PAUSE"
-    const val ACTION_STOP = "live.mehiz.mpvkt.action.STOP"
-    const val ACTION_SKIP_FORWARD = "live.mehiz.mpvkt.action.SKIP_FORWARD"
-    const val ACTION_SKIP_BACKWARD = "live.mehiz.mpvkt.action.SKIP_BACKWARD"
+    const val ACTION_PLAY = "live.ywpc05.mpvkt.action.PLAY"
+    const val ACTION_PAUSE = "live.ywpc05.mpvkt.action.PAUSE"
+    const val ACTION_STOP = "live.ywpc05.mpvkt.action.STOP"
+    const val ACTION_SKIP_FORWARD = "live.ywpc05.mpvkt.action.SKIP_FORWARD"
+    const val ACTION_SKIP_BACKWARD = "live.ywpc05.mpvkt.action.SKIP_BACKWARD"
   }
 
   private val gesturePreferences by inject<GesturePreferences>()

@@ -18,7 +18,7 @@ android {
   compileSdk = 36
 
   defaultConfig {
-    applicationId = "live.mehiz.mpvkt"
+    applicationId = "live.ywpc05.mpvkt"
     minSdk = 21
     targetSdk = 36
     versionCode = 12

@@ -870,7 +870,7 @@ class PlayerActivity : AppCompatActivity() {
 
   companion object {
     // action of result intent
-    private const val RESULT_INTENT = "live.mehiz.mpvkt.ui.player.PlayerActivity.result"
+    private const val RESULT_INTENT = "live.ywpc05.mpvkt.ui.player.PlayerActivity.result"
   }
 }
 
