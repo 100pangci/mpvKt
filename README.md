@@ -18,11 +18,24 @@ A media player for Android based on [mpv-android](https://github.com/mpv-android
 
 ## Building
 
-Open the project in Android Studio, or build from the command line:
+The build toolchain (JDK 21, Android SDK, Gradle) is provisioned automatically
+into the gitignored `.android-env/` directory on first run — nothing is
+installed system-wide and no Android Studio is required.
+
+Linux:
 
 ```sh
-./gradlew assembleDebug
+./build.sh assembleDebug
 ```
+
+Windows:
+
+```bat
+build.bat assembleDebug
+```
+
+Subsequent runs skip provisioning and build directly. APKs land in
+`app/build/outputs/apk/`.
 
 ## Acknowledgments
 - [mpv-android](https://github.com/mpv-android) for the base mpv library to use for this project.
