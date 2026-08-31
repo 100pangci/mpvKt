@@ -3,6 +3,7 @@ package live.mehiz.mpvkt.ui.preferences
 import android.content.Context
 import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -10,7 +11,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Translate
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -19,13 +23,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.core.os.LocaleListCompat
-import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.toImmutableList
 import kotlinx.serialization.Serializable
 import live.mehiz.mpvkt.R
 import live.mehiz.mpvkt.preferences.AppearancePreferences
@@ -34,8 +38,7 @@ import live.mehiz.mpvkt.presentation.Screen
 import live.mehiz.mpvkt.presentation.preferences.MultiChoiceSegmentedButton
 import live.mehiz.mpvkt.ui.theme.DarkMode
 import live.mehiz.mpvkt.ui.utils.LocalBackStack
-import me.zhanghai.compose.preference.ListPreference
-import me.zhanghai.compose.preference.ListPreferenceType
+import me.zhanghai.compose.preference.Preference
 import me.zhanghai.compose.preference.PreferenceCategory
 import me.zhanghai.compose.preference.ProvidePreferenceLocals
 import me.zhanghai.compose.preference.SwitchPreference
@@ -98,20 +101,38 @@ object AppearancePreferencesScreen : Screen {
             enabled = isMaterialYouAvailable,
           )
           val currentLanguageTag = AppCompatDelegate.getApplicationLocales().toLanguageTags()
-          ListPreference(
-            value = currentLanguageTag,
-            onValueChange = { tag ->
-              AppCompatDelegate.setApplicationLocales(
-                if (tag.isEmpty()) LocaleListCompat.getEmptyLocaleList() else LocaleListCompat.forLanguageTags(tag),
-              )
-            },
-            values = languageTags.toImmutableList(),
-            title = { Text(text = stringResource(id = R.string.pref_appearance_language)) },
-            summary = { Text(text = languageDisplayName(currentLanguageTag, context)) },
-            valueToText = { AnnotatedString(languageDisplayName(it, context)) },
-            type = ListPreferenceType.DROPDOWN_MENU,
-            icon = { Icon(Icons.Default.Translate, null) },
-          )
+          var languageMenuOpen by remember { mutableStateOf(false) }
+          Box {
+            Preference(
+              title = { Text(text = stringResource(id = R.string.pref_appearance_language)) },
+              summary = { Text(text = languageDisplayName(currentLanguageTag, context)) },
+              icon = { Icon(Icons.Default.Translate, null) },
+              onClick = { languageMenuOpen = true },
+            )
+            DropdownMenu(
+              expanded = languageMenuOpen,
+              onDismissRequest = { languageMenuOpen = false },
+              scrollState = rememberScrollState(),
+            ) {
+              languageTags.forEach { tag ->
+                DropdownMenuItem(
+                  text = { Text(languageDisplayName(tag, context)) },
+                  trailingIcon = {
+                    if (tag == currentLanguageTag) Icon(Icons.Default.Check, null)
+                  },
+                  onClick = {
+                    languageMenuOpen = false
+                    val locales = if (tag.isEmpty()) {
+                      LocaleListCompat.getEmptyLocaleList()
+                    } else {
+                      LocaleListCompat.forLanguageTags(tag)
+                    }
+                    AppCompatDelegate.setApplicationLocales(locales)
+                  },
+                )
+              }
+            }
+          }
         }
       }
     }
