@@ -265,8 +265,8 @@
     <string name="value_percentage_int" translatable="false">%d%%</string>
     <string name="value_percentage_float" translatable="false">%.2f\%%</string>
 
-    <string name="github_repo_url" translatable="false">https://github.com/abdallahmehiz/mpvKt</string>
-    <string name="privacy_policy_url" translatable="false">https://abdallahmehiz.github.io/mpvKt/privacy_policy.html</string>
+    <string name="github_repo_url" translatable="false">https://github.com/100pangci/mpvKt</string>
+    <string name="privacy_policy_url" translatable="false">https://100pangci.github.io/mpvKt/privacy_policy.html</string>
     <string name="swap_the_volume_and_brightness_slider">音量と明るさのスライダーを入れ替える</string>
     <string name="pref_player_display_reduce_player_animation">プレーヤーのアニメーションを短縮する</string>
     <string name="pref_player_display_hide_player_control_time">プレーヤーコントロールを非表示にするまでの時間</string>
