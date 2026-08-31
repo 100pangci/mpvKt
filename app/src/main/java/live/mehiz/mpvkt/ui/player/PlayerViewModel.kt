@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.pm.ActivityInfo
 import android.media.AudioManager
 import android.net.Uri
+import android.os.Environment
 import android.provider.Settings
 import android.util.DisplayMetrics
 import android.util.Log
@@ -39,6 +40,7 @@ import live.mehiz.mpvkt.preferences.PlayerPreferences
 import live.mehiz.mpvkt.ui.custombuttons.CustomButtonsUiState
 import live.mehiz.mpvkt.ui.custombuttons.getButtons
 import org.koin.java.KoinJavaComponent.inject
+import java.io.File
 import java.util.Locale
 import kotlin.math.roundToInt
 import kotlin.properties.ReadOnlyProperty
@@ -331,8 +333,52 @@ class PlayerViewModel(
     }
   }
 
+  private var screenshotCounter = 0
+
   fun screenshot(withSubtitles: Boolean) {
-    MPVLib.command("screenshot", if (withSubtitles) "subtitles" else "video")
+    val dirPath = playerPreferences.screenshotDirectory.get().ifBlank {
+      File(
+        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+        "mpvKt",
+      ).path
+    }
+    val dir = File(dirPath)
+    dir.mkdirs()
+    val timeText = MPVLib.getPropertyDouble("time-pos")
+      ?.let { formatScreenshotTimestamp(it) }
+      ?: "unknown"
+    var counter = ++screenshotCounter
+    var file = File(dir, "$timeText-N${counter.toString().padStart(4, '0')}.png")
+    while (file.exists()) {
+      counter = ++screenshotCounter
+      file = File(dir, "$timeText-N${counter.toString().padStart(4, '0')}.png")
+    }
+    MPVLib.command("screenshot-to-file", file.absolutePath, if (withSubtitles) "subtitles" else "video")
+    viewModelScope.launch(Dispatchers.IO) {
+      var saved = file.exists() && file.length() > 0L
+      var waited = 0
+      while (!saved && waited < 2000) {
+        delay(200)
+        waited += 200
+        saved = file.exists() && file.length() > 0L
+      }
+      Log.d(TAG, "screenshot ${if (saved) "saved" else "FAILED"}: ${file.absolutePath}")
+      val message = if (saved) {
+        activity.getString(R.string.screenshot_saved, file.name)
+      } else {
+        activity.getString(R.string.screenshot_failed)
+      }
+      playerUpdate.update { PlayerUpdates.ShowText(message) }
+    }
+  }
+
+  private fun formatScreenshotTimestamp(seconds: Double): String {
+    val totalMs = (seconds * 1000).roundToInt()
+    val hours = totalMs / 3_600_000
+    val minutes = (totalMs / 60_000) % 60
+    val seconds = (totalMs / 1_000) % 60
+    val millis = totalMs % 1_000
+    return String.format(Locale.US, "%02d:%02d:%02d.%03d", hours, minutes, seconds, millis)
   }
 
   private var wasPlayingBeforeFrameStep = false
