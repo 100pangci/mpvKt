@@ -32,7 +32,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
-import com.github.k1rakishou.fsaf.FileManager
 import kotlinx.serialization.Serializable
 import live.mehiz.mpvkt.R
 import live.mehiz.mpvkt.preferences.PlayerPreferences
@@ -253,8 +252,8 @@ object PlayerPreferencesScreen : Screen {
             ActivityResultContracts.OpenDocumentTree(),
           ) { uri ->
             if (uri == null) return@rememberLauncherForActivityResult
-            val path = FileManager(context).fromUri(uri)?.getFullPath().orEmpty()
-            if (!path.startsWith("/")) {
+            val path = treeUriToRealPath(uri)
+            if (path == null) {
               Toast.makeText(
                 context,
                 R.string.pref_player_screenshot_directory_unsupported,
@@ -350,5 +349,26 @@ object PlayerPreferencesScreen : Screen {
         }
       }
     }
+  }
+}
+
+private fun treeUriToRealPath(uri: Uri): String? {
+  val valid = uri.authority == "com.android.externalstorage.documents"
+  if (!valid) return null
+  val treeId = uri.toString()
+    .substringBefore('#')
+    .substringBefore('?')
+    .substringAfter("/tree/", "")
+    .let { Uri.decode(it) }
+  val volume = treeId.substringBefore(':', "")
+  val rest = treeId.substringAfter(':', "")
+  val base = when (volume) {
+    "primary" -> Environment.getExternalStorageDirectory().absolutePath
+    else -> "/storage/$volume"
+  }
+  return when {
+    volume.isBlank() || base.isBlank() -> null
+    rest.isBlank() -> base
+    else -> "$base/$rest"
   }
 }
