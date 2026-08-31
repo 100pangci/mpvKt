@@ -340,8 +340,8 @@ class PlayerViewModel(
     val dir = resolveScreenshotDir()
     dir.mkdirs()
     val file = nextScreenshotFile(dir)
-    MPVLib.command("screenshot-to-file", file.absolutePath, if (withSubtitles) "subtitles" else "video")
     PlayerActivity.lastMpvError = null
+    MPVLib.command("screenshot-to-file", file.absolutePath, if (withSubtitles) "subtitles" else "video")
     viewModelScope.launch(Dispatchers.IO) {
       val message = awaitScreenshotResult(dir, file)
       playerUpdate.update { PlayerUpdates.ShowText(message) }
@@ -420,7 +420,7 @@ class PlayerViewModel(
     val minutes = (totalMs / 60_000) % 60
     val seconds = (totalMs / 1_000) % 60
     val millis = totalMs % 1_000
-    return String.format(Locale.US, "%02d:%02d:%02d.%03d", hours, minutes, seconds, millis)
+    return String.format(Locale.US, "%02d-%02d-%02d.%03d", hours, minutes, seconds, millis)
   }
 
   private var wasPlayingBeforeFrameStep = false
