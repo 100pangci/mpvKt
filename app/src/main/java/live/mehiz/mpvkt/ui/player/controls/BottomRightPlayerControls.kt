@@ -2,23 +2,31 @@ package live.mehiz.mpvkt.ui.player.controls
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AspectRatio
-import androidx.compose.material.icons.filled.PhotoCamera
-import androidx.compose.material.icons.filled.PhotoCameraBack
 import androidx.compose.material.icons.filled.PictureInPictureAlt
+import androidx.compose.material.icons.filled.Screenshot
+import androidx.compose.material.icons.filled.Subtitles
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import live.mehiz.mpvkt.R
 import live.mehiz.mpvkt.database.entities.CustomButtonEntity
 import live.mehiz.mpvkt.ui.player.controls.components.ControlsButton
@@ -69,14 +77,15 @@ fun BottomRightPlayerControls(
     }
 
     FrameStepButton(
-      icon = Icons.Default.PhotoCamera,
+      icon = Icons.Default.Screenshot,
       contentDescription = stringResource(R.string.screenshot_subtitles),
       onTap = onScreenshotSubsTap,
       onFrameStep = onFrameStep,
       onFrameStepEnd = { onFrameStepEnd(true) },
+      overlay = { SubtitlesBadge() },
     )
     FrameStepButton(
-      icon = Icons.Default.PhotoCameraBack,
+      icon = Icons.Default.Screenshot,
       contentDescription = stringResource(R.string.screenshot_raw),
       onTap = onScreenshotRawTap,
       onFrameStep = onFrameStep,
@@ -86,6 +95,24 @@ fun BottomRightPlayerControls(
     ControlsButton(
       Icons.Default.AspectRatio,
       onClick = onAspectClick,
+    )
+  }
+}
+
+@Composable
+private fun SubtitlesBadge() {
+  Box(
+    modifier = Modifier
+      .size(12.dp)
+      .background(Color.Black, CircleShape)
+      .border(0.5.dp, Color.White, CircleShape),
+    contentAlignment = Alignment.Center,
+  ) {
+    Icon(
+      Icons.Default.Subtitles,
+      contentDescription = null,
+      tint = Color.White,
+      modifier = Modifier.size(8.dp),
     )
   }
 }
