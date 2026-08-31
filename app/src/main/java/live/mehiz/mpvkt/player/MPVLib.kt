@@ -30,6 +30,7 @@ object MPVLib {
   val mpvLogLevel = MPV.mpvLogLevel
 
   private var mpv: MPV? = null
+  private val mpvLock = Any()
   private val adapter = object : MPV.EventObserver {
     override fun eventProperty(property: String) {
       synchronized(observers) { for (o in observers) o.eventProperty(property) }
@@ -67,7 +68,7 @@ object MPVLib {
     }
   }
 
-  fun attach(instance: MPV) {
+  fun attach(instance: MPV) = synchronized(mpvLock) {
     mpv = instance
     instance.addObserver(adapter)
     instance.addLogObserver(logAdapter)
@@ -80,9 +81,9 @@ object MPVLib {
     propNode.reobserveAll()
   }
 
-  fun create(appctx: Context?) = mpv?.create(appctx!!)
-  fun init() = mpv?.init()
-  fun destroy() {
+  fun create(appctx: Context?) = synchronized(mpvLock) { mpv?.create(appctx!!) }
+  fun init() = synchronized(mpvLock) { mpv?.init() }
+  fun destroy() = synchronized(mpvLock) {
     mpv?.let {
       it.removeObserver(adapter)
       it.removeLogObserver(logAdapter)
@@ -91,37 +92,43 @@ object MPVLib {
     mpv = null
   }
 
-  fun attachSurface(surface: Surface) = mpv?.attachSurface(surface)
-  fun detachSurface() = mpv?.detachSurface()
+  fun attachSurface(surface: Surface) = withMpv { it.attachSurface(surface) }
+  fun detachSurface() = withMpv { it.detachSurface() }
 
-  private val initialized: MPV? get() = mpv?.takeIf { it.isInitialized }
+  private fun <T> withMpv(block: (MPV) -> T?): T? = synchronized(mpvLock) {
+    mpv?.takeIf { it.isInitialized }?.let(block)
+  }
 
-  fun command(vararg cmd: String) = mpv?.command(*cmd)
-  fun commandNode(vararg cmd: String): MPVNode? = mpv?.commandNode(*cmd)
+  fun command(vararg cmd: String) = withMpv { it.command(*cmd) }
+  fun commandNode(vararg cmd: String): MPVNode? = withMpv { it.commandNode(*cmd) }
 
-  fun setOptionString(name: String, value: String): Int = mpv?.setOptionString(name, value) ?: -1
+  fun setOptionString(name: String, value: String): Int =
+    withMpv { it.setOptionString(name, value) } ?: -1
 
-  fun grabThumbnail(dimension: Int): Bitmap? = mpv?.grabThumbnail(dimension)
+  fun grabThumbnail(dimension: Int): Bitmap? = withMpv { it.grabThumbnail(dimension) }
 
-  fun getPropertyInt(property: String): Int? = initialized?.getPropertyInt(property)
-  fun setPropertyInt(property: String, value: Int) = initialized?.setPropertyInt(property, value)
-  fun getPropertyDouble(property: String): Double? = initialized?.getPropertyDouble(property)
-  fun setPropertyDouble(property: String, value: Double) =
-    initialized?.setPropertyDouble(property, value)
+  fun getPropertyInt(property: String): Int? = withMpv { it.getPropertyInt(property) }
+  fun setPropertyInt(property: String, value: Int) = withMpv { it.setPropertyInt(property, value) }
+  fun getPropertyDouble(property: String): Double? = withMpv { it.getPropertyDouble(property) }
+  fun setPropertyDouble(property: String, value: Double) = withMpv {
+    it.setPropertyDouble(property, value)
+  }
 
-  fun getPropertyBoolean(property: String): Boolean? =
-    initialized?.getPropertyBoolean(property)
+  fun getPropertyBoolean(property: String): Boolean? = withMpv { it.getPropertyBoolean(property) }
 
-  fun setPropertyBoolean(property: String, value: Boolean) =
-    initialized?.setPropertyBoolean(property, value)
+  fun setPropertyBoolean(property: String, value: Boolean) = withMpv {
+    it.setPropertyBoolean(property, value)
+  }
 
-  fun getPropertyString(property: String): String? = initialized?.getPropertyString(property)
-  fun setPropertyString(property: String, value: String) =
-    initialized?.setPropertyString(property, value)
+  fun getPropertyString(property: String): String? = withMpv { it.getPropertyString(property) }
+  fun setPropertyString(property: String, value: String) = withMpv {
+    it.setPropertyString(property, value)
+  }
 
-  fun getPropertyNode(property: String): MPVNode? = initialized?.getPropertyNode(property)
-  fun setPropertyNode(property: String, node: MPVNode) =
-    initialized?.setPropertyNode(property, node)
+  fun getPropertyNode(property: String): MPVNode? = withMpv { it.getPropertyNode(property) }
+  fun setPropertyNode(property: String, node: MPVNode) = withMpv {
+    it.setPropertyNode(property, node)
+  }
 
   fun getPropertyFloat(property: String) = getPropertyDouble(property)?.toFloat()
   fun setPropertyFloat(property: String, value: Float) =
@@ -130,8 +137,9 @@ object MPVLib {
   fun getPropertyLong(property: String) = getPropertyInt(property)?.toLong()
   fun setPropertyLong(property: String, value: Long) = setPropertyInt(property, value.toInt())
 
-  fun observeProperty(property: String, format: Int) =
-    initialized?.observeProperty(property, format)
+  fun observeProperty(property: String, format: Int) = withMpv {
+    it.observeProperty(property, format)
+  }
 
   private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -149,7 +157,7 @@ object MPVLib {
         .stateIn(
           scope,
           SharingStarted.Lazily,
-          initialized?.let { getProperty(property) },
+          withMpv { getProperty(property) },
         )
     }
 

@@ -33,6 +33,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,6 +47,7 @@ import com.github.k1rakishou.fsaf.FileManager
 import com.yubyf.truetypeparser.TTFFile
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import live.mehiz.mpvkt.R
 import live.mehiz.mpvkt.player.MPVLib
@@ -55,6 +57,7 @@ import live.mehiz.mpvkt.preferences.preference.deleteAndGet
 import live.mehiz.mpvkt.presentation.components.ExpandableCard
 import live.mehiz.mpvkt.presentation.components.ExposedTextDropDownMenu
 import live.mehiz.mpvkt.presentation.components.SliderItem
+import live.mehiz.mpvkt.ui.player.PlayerActivity
 import live.mehiz.mpvkt.ui.player.controls.CARDS_MAX_WIDTH
 import live.mehiz.mpvkt.ui.player.controls.panelCardsColors
 import live.mehiz.mpvkt.ui.theme.spacing
@@ -72,6 +75,7 @@ fun SubtitleSettingsTypographyCard(
   val context = LocalContext.current
   val preferences = koinInject<SubtitlesPreferences>()
   val fileManager = koinInject<FileManager>()
+  val scope = rememberCoroutineScope()
   var isExpanded by remember { mutableStateOf(true) }
   val fonts by remember { mutableStateOf(mutableListOf(preferences.font.defaultValue())) }
   var fontsLoadingIndicator: (@Composable () -> Unit)? by remember {
@@ -93,7 +97,7 @@ fun SubtitleSettingsTypographyCard(
           fileManager.isFile(it) && fileManager.getName(it).lowercase().matches(".*\\.[ot]tf$".toRegex())
         }.mapNotNull {
           runCatching { TTFFile.open(fileManager.getInputStream(it)!!).families.values.first() }.getOrNull()
-        }.distinct(),
+        }.distinct().sortedBy { it.lowercase() },
       )
       fontsLoadingIndicator = null
     }
@@ -207,7 +211,10 @@ fun SubtitleSettingsTypographyCard(
           label = stringResource(R.string.player_sheets_sub_typography_font),
           onValueChangedEvent = {
             preferences.font.set(it)
-            MPVLib.setPropertyString("sub-font", it)
+            scope.launch(Dispatchers.IO) {
+              (context as? PlayerActivity)?.copyMPVFonts()
+              MPVLib.setPropertyString("sub-font", it)
+            }
           },
           leadingIcon = fontsLoadingIndicator,
         )

@@ -295,6 +295,7 @@
     <string name="screenshot_saved">Screenshot saved: %1$s</string>
     <string name="screenshot_failed">Screenshot failed</string>
     <string name="screenshot_cancel_hint">Release to cancel screenshot</string>
+    <string name="error_unsupported_file">Cannot play this file type</string>
     <string name="screenshot_dir_missing">directory does not exist</string>
     <string name="screenshot_dir_unwritable">directory not writable</string>
     <string name="screenshot_error_unknown">unknown error</string>

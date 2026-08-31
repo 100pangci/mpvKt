@@ -337,6 +337,7 @@ class MediaPlaybackService : MediaBrowserServiceCompat(), MPVLib.EventObserver {
 
   private fun updatePlaybackState() {
     Log.d(TAG, "$positionMs / $durationMs")
+    if (!::mediaSession.isInitialized) return
     try {
       val stateBuilder = PlaybackStateCompat.Builder()
         .setActions(getAvailableActions())
@@ -435,6 +436,7 @@ class MediaPlaybackService : MediaBrowserServiceCompat(), MPVLib.EventObserver {
   }
 
   private fun updateNotification() {
+    if (!::mediaSession.isInitialized) return
     val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     notificationManager.notify(NOTIFICATION_ID, createNotification())
   }

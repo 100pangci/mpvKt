@@ -25,6 +25,7 @@ import android.util.Rational
 import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -50,6 +51,7 @@ import `is`.xyz.mpv.Utils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import live.mehiz.mpvkt.R
 import live.mehiz.mpvkt.database.entities.CustomButtonEntity
 import live.mehiz.mpvkt.database.entities.PlaybackStateEntity
 import live.mehiz.mpvkt.databinding.PlayerLayoutBinding
@@ -115,6 +117,11 @@ class PlayerActivity : AppCompatActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     enableEdgeToEdge()
     super.onCreate(savedInstanceState)
+    if (!isSupportedPlayable(intent)) {
+      rejectUnsupportedFile()
+      finish()
+      return
+    }
     setContentView(binding.root)
 
     setupMPV()
@@ -367,7 +374,7 @@ class PlayerActivity : AppCompatActivity() {
     MPVLib.command("load-script", file.absolutePath)
   }
 
-  private fun copyMPVFonts() {
+  fun copyMPVFonts() {
     try {
       val cachePath = cacheDir.path
       val fontsDir = fileManager.fromUri(subtitlesPreferences.fontsFolder.get().toUri())
@@ -494,7 +501,7 @@ class PlayerActivity : AppCompatActivity() {
       Intent.ACTION_VIEW -> intent.data?.resolveUri(this)
       Intent.ACTION_SEND -> {
         if (intent.hasExtra(Intent.EXTRA_STREAM)) {
-          intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)!!.resolveUri(this)
+          intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)?.resolveUri(this)
         } else {
           intent.getStringExtra(Intent.EXTRA_TEXT)?.let {
             val uri = it.trim().toUri()
@@ -505,6 +512,22 @@ class PlayerActivity : AppCompatActivity() {
 
       else -> intent.getStringExtra("uri")
     }
+  }
+
+  private fun isSupportedPlayable(intent: Intent): Boolean {
+    val uri = parsePathFromIntent(intent) ?: return true
+    val extension = uri.toUri().lastPathSegment?.substringBefore('?')?.substringAfterLast('.')?.lowercase()
+    val mime = intent.type
+    val mimeOk = mime == null || mime.startsWith("video/") ||
+      mime.startsWith("audio/") || mime.startsWith("image/") ||
+      mime == "application/octet-stream" || mime.startsWith("text/")
+    val extensionOk = extension == null || extension in videoExtensions ||
+      extension in audioExtensions || extension in imageExtensions
+    return mimeOk && extensionOk
+  }
+
+  private fun rejectUnsupportedFile() {
+    Toast.makeText(this, R.string.error_unsupported_file, Toast.LENGTH_LONG).show()
   }
 
   private fun getFileName(intent: Intent): String {
@@ -635,8 +658,8 @@ class PlayerActivity : AppCompatActivity() {
       player.secondarySid = it.secondarySid
       player.aid = it.aid
       MPVLib.setPropertyDouble("sub-delay", subDelay)
-      MPVLib.setPropertyDouble("sub-delay", secondarySubDelay)
-      MPVLib.setPropertyDouble("sub-delay", it.playbackSpeed)
+      MPVLib.setPropertyDouble("secondary-sub-delay", secondarySubDelay)
+      MPVLib.setPropertyDouble("speed", it.playbackSpeed)
       MPVLib.setPropertyDouble("audio-delay", audioDelay)
     }
     if (playerPreferences.savePositionOnQuit.get()) {
@@ -658,6 +681,10 @@ class PlayerActivity : AppCompatActivity() {
 
   override fun onNewIntent(intent: Intent) {
     super.onNewIntent(intent)
+    if (!isSupportedPlayable(intent)) {
+      rejectUnsupportedFile()
+      return
+    }
 
     getPlayableUri(intent)?.let { MPVLib.command("loadfile", it) }
     setIntent(intent)
