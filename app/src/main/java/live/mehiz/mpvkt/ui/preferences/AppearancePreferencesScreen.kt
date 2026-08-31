@@ -3,32 +3,38 @@ package live.mehiz.mpvkt.ui.preferences
 import android.content.Context
 import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Translate
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.core.os.LocaleListCompat
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
@@ -103,37 +109,52 @@ object AppearancePreferencesScreen : Screen {
             enabled = isMaterialYouAvailable,
           )
           val currentLanguageTag = AppCompatDelegate.getApplicationLocales().toLanguageTags()
-          var languageMenuOpen by remember { mutableStateOf(false) }
-          Box {
-            Preference(
+          var languageDialogOpen by remember { mutableStateOf(false) }
+          Preference(
+            title = { Text(text = stringResource(id = R.string.pref_appearance_language)) },
+            summary = { Text(text = languageDisplayName(currentLanguageTag, context)) },
+            icon = { Icon(Icons.Default.Translate, null) },
+            onClick = { languageDialogOpen = true },
+          )
+          if (languageDialogOpen) {
+            AlertDialog(
+              onDismissRequest = { languageDialogOpen = false },
               title = { Text(text = stringResource(id = R.string.pref_appearance_language)) },
-              summary = { Text(text = languageDisplayName(currentLanguageTag, context)) },
-              icon = { Icon(Icons.Default.Translate, null) },
-              onClick = { languageMenuOpen = true },
-            )
-            DropdownMenu(
-              expanded = languageMenuOpen,
-              onDismissRequest = { languageMenuOpen = false },
-              scrollState = rememberScrollState(),
-            ) {
-              languageTags.forEach { tag ->
-                DropdownMenuItem(
-                  text = { Text(languageDisplayName(tag, context)) },
-                  trailingIcon = {
-                    if (tag == currentLanguageTag) Icon(Icons.Default.Check, null)
-                  },
-                  onClick = {
-                    languageMenuOpen = false
-                    val locales = if (tag.isEmpty()) {
-                      LocaleListCompat.getEmptyLocaleList()
-                    } else {
-                      LocaleListCompat.forLanguageTags(tag)
+              text = {
+                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                  languageTags.forEach { tag ->
+                    Row(
+                      modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 48.dp)
+                        .clickable {
+                          languageDialogOpen = false
+                          val locales = if (tag.isEmpty()) {
+                            LocaleListCompat.getEmptyLocaleList()
+                          } else {
+                            LocaleListCompat.forLanguageTags(tag)
+                          }
+                          AppCompatDelegate.setApplicationLocales(locales)
+                        },
+                      verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                      RadioButton(selected = tag == currentLanguageTag, onClick = null)
+                      Text(
+                        text = languageDisplayName(tag, context),
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.padding(start = 12.dp),
+                      )
                     }
-                    AppCompatDelegate.setApplicationLocales(locales)
-                  },
-                )
-              }
-            }
+                  }
+                }
+              },
+              confirmButton = {},
+              dismissButton = {
+                TextButton(onClick = { languageDialogOpen = false }) {
+                  Text(text = stringResource(id = R.string.generic_cancel))
+                }
+              },
+            )
           }
         }
       }
