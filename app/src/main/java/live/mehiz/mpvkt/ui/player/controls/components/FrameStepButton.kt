@@ -27,6 +27,7 @@ import live.mehiz.mpvkt.ui.player.controls.LocalPlayerButtonsClickEvent
 import live.mehiz.mpvkt.ui.theme.spacing
 
 private val FrameStepDistance = 32.dp
+private const val KEEP_ALIVE_INTERVAL_MILLIS = 250L
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -43,8 +44,8 @@ fun FrameStepButton(
   val clickEvent = LocalPlayerButtonsClickEvent.current
   Box(
     modifier = modifier
-      .indication(interactionSource, ripple())
       .clip(CircleShape)
+      .indication(interactionSource, ripple())
       .pointerInput(Unit) {
         val stepThreshold = FrameStepDistance.toPx()
         awaitEachGesture {
@@ -52,13 +53,23 @@ fun FrameStepButton(
           val press = PressInteraction.Press(down.position)
           interactionSource.tryEmit(press)
           clickEvent()
+          var lastKeepAlive = down.uptimeMillis
           var accumulated = 0f
           var stepped = false
+          var received = false
+          fun capture() {
+            if (stepped) onFrameStepEnd() else onTap()
+          }
           try {
             while (true) {
               val event = awaitPointerEvent()
               val change = event.changes.firstOrNull { it.id == down.id }
               if (change == null || !change.pressed) break
+              received = true
+              if (change.uptimeMillis - lastKeepAlive > KEEP_ALIVE_INTERVAL_MILLIS) {
+                clickEvent()
+                lastKeepAlive = change.uptimeMillis
+              }
               accumulated += change.positionChange().x
               while (accumulated >= stepThreshold) {
                 onFrameStep(true)
@@ -75,9 +86,10 @@ fun FrameStepButton(
             interactionSource.tryEmit(PressInteraction.Release(press))
           } catch (e: CancellationException) {
             interactionSource.tryEmit(PressInteraction.Cancel(press))
+            if (received) capture()
             throw e
           }
-          if (stepped) onFrameStepEnd() else onTap()
+          capture()
         }
       }
       .padding(MaterialTheme.spacing.medium),
