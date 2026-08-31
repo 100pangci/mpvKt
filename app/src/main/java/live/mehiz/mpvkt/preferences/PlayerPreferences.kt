@@ -41,6 +41,9 @@ class PlayerPreferences(
   val automaticBackgroundPlayback = preferenceStore.getBoolean("automatic_background_playback")
   val closeAfterReachingEndOfVideo = preferenceStore.getBoolean("close_after_eof")
 
+  val screenshotDirectory = preferenceStore.getString("screenshot_directory", "")
+  val screenshotResumePlayback = preferenceStore.getBoolean("screenshot_resume_playback", true)
+
   val rememberBrightness = preferenceStore.getBoolean("remember_rightness")
   val defaultBrightness = preferenceStore.getFloat("default_brightness", -1f)
 

@@ -1,5 +1,6 @@
 package live.mehiz.mpvkt.ui.player
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.PictureInPictureParams
 import android.content.BroadcastReceiver
@@ -25,6 +26,7 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -32,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toAndroidRect
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.core.text.isDigitsOnly
 import androidx.core.view.WindowCompat
@@ -42,7 +45,6 @@ import androidx.media.AudioAttributesCompat
 import androidx.media.AudioFocusRequestCompat
 import androidx.media.AudioManagerCompat
 import com.github.k1rakishou.fsaf.FileManager
-import `is`.xyz.mpv.MPVLib
 import `is`.xyz.mpv.MPVNode
 import `is`.xyz.mpv.Utils
 import kotlinx.coroutines.Dispatchers
@@ -52,6 +54,7 @@ import live.mehiz.mpvkt.database.entities.CustomButtonEntity
 import live.mehiz.mpvkt.database.entities.PlaybackStateEntity
 import live.mehiz.mpvkt.databinding.PlayerLayoutBinding
 import live.mehiz.mpvkt.domain.playbackstate.repository.PlaybackStateRepository
+import live.mehiz.mpvkt.player.MPVLib
 import live.mehiz.mpvkt.preferences.AdvancedPreferences
 import live.mehiz.mpvkt.preferences.AudioPreferences
 import live.mehiz.mpvkt.preferences.GesturePreferences
@@ -88,6 +91,8 @@ class PlayerActivity : AppCompatActivity() {
   private var restoreAudioFocus: () -> Unit = {}
 
   private var pipRect: android.graphics.Rect? = null
+  private val storagePermissionLauncher =
+    registerForActivityResult(ActivityResultContracts.RequestPermission()) {}
   val isPipSupported by lazy {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
       false
@@ -260,8 +265,20 @@ class PlayerActivity : AppCompatActivity() {
 
   private fun setupMPV() {
     copyMPVAssets()
+    requestStoragePermission()
     player.initialize(filesDir.path, cacheDir.path)
+    MPVLib.attach(player.mpv)
     MPVLib.addObserver(playerObserver)
+  }
+
+  private fun requestStoragePermission() {
+    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.S_V2) return
+    if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
+      PackageManager.PERMISSION_GRANTED
+    ) {
+      return
+    }
+    storagePermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
   }
 
   private fun setupAudio() {

@@ -37,8 +37,8 @@ import androidx.core.graphics.blue
 import androidx.core.graphics.green
 import androidx.core.graphics.red
 import androidx.core.graphics.toColorInt
-import `is`.xyz.mpv.MPVLib
 import live.mehiz.mpvkt.R
+import live.mehiz.mpvkt.player.MPVLib
 import live.mehiz.mpvkt.preferences.SubtitlesPreferences
 import live.mehiz.mpvkt.preferences.preference.Preference
 import live.mehiz.mpvkt.preferences.preference.deleteAndGet

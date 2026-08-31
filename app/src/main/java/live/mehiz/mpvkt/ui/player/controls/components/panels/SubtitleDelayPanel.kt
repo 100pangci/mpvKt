@@ -42,9 +42,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
-import `is`.xyz.mpv.MPVLib
 import kotlinx.coroutines.delay
 import live.mehiz.mpvkt.R
+import live.mehiz.mpvkt.player.MPVLib
 import live.mehiz.mpvkt.preferences.SubtitlesPreferences
 import live.mehiz.mpvkt.presentation.components.OutlinedNumericChooser
 import live.mehiz.mpvkt.ui.player.controls.CARDS_MAX_WIDTH

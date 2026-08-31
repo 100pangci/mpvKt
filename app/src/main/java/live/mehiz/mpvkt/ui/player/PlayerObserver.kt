@@ -1,7 +1,7 @@
 package live.mehiz.mpvkt.ui.player
 
-import `is`.xyz.mpv.MPVLib
 import `is`.xyz.mpv.MPVNode
+import live.mehiz.mpvkt.player.MPVLib
 
 class PlayerObserver(
   private val activity: PlayerActivity

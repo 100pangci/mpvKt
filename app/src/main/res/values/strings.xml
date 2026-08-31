@@ -290,6 +290,18 @@
         <item quantity="other">%1$d items</item>
     </plurals>
 
+    <string name="screenshot_subtitles">Screenshot with subtitles</string>
+    <string name="screenshot_raw">Raw screenshot</string>
+
+    <string name="pref_player_screenshots_title">Screenshots</string>
+    <string name="pref_player_screenshot_directory">Screenshot directory</string>
+    <string name="pref_player_screenshot_directory_default">Default (Pictures)</string>
+    <string name="pref_player_screenshot_directory_unsupported">Unsupported directory: a real filesystem path on the device storage is required</string>
+    <string name="pref_player_screenshot_directory_reset">Reset screenshot directory</string>
+    <string name="pref_player_screenshot_resume_playback">Resume playback after frame-step screenshot</string>
+    <string name="pref_player_screenshot_all_files_title">All files access required</string>
+    <string name="pref_player_screenshot_all_files_message">To save screenshots in the chosen directory, grant the \"All files access\" permission to mpvKt on the next screen.</string>
+
     <plurals name="seconds">
         <item quantity="one">%1$d second</item>
         <item quantity="other">%1$d seconds</item>

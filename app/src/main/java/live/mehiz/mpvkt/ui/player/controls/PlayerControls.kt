@@ -58,13 +58,13 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
-import `is`.xyz.mpv.MPVLib
 import `is`.xyz.mpv.Utils
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.update
 import live.mehiz.mpvkt.R
+import live.mehiz.mpvkt.player.MPVLib
 import live.mehiz.mpvkt.preferences.AudioPreferences
 import live.mehiz.mpvkt.preferences.PlayerPreferences
 import live.mehiz.mpvkt.preferences.preference.collectAsState
@@ -514,6 +514,10 @@ fun PlayerControls(
             customButton = customButton,
             customButtonTitle = customButtonTitle,
             isPipAvailable = activity.isPipSupported,
+            onScreenshotSubsTap = { viewModel.screenshot(withSubtitles = true) },
+            onScreenshotRawTap = { viewModel.screenshot(withSubtitles = false) },
+            onFrameStep = viewModel::frameStep,
+            onFrameStepEnd = viewModel::frameStepScreenshot,
             onPipClick = {
               if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 activity.enterPictureInPictureMode(activity.createPipParams())

@@ -1,6 +1,15 @@
 package live.mehiz.mpvkt.ui.preferences
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
+import android.os.Environment
+import android.provider.Settings
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -16,19 +25,25 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
+import com.github.k1rakishou.fsaf.FileManager
 import kotlinx.serialization.Serializable
 import live.mehiz.mpvkt.R
 import live.mehiz.mpvkt.preferences.PlayerPreferences
 import live.mehiz.mpvkt.preferences.preference.collectAsState
 import live.mehiz.mpvkt.presentation.Screen
+import live.mehiz.mpvkt.presentation.components.ConfirmDialog
 import live.mehiz.mpvkt.ui.player.PlayerOrientation
 import live.mehiz.mpvkt.ui.player.controls.components.sheets.toFixed
 import live.mehiz.mpvkt.ui.utils.LocalBackStack
 import me.zhanghai.compose.preference.ListPreference
+import me.zhanghai.compose.preference.Preference
 import me.zhanghai.compose.preference.PreferenceCategory
 import me.zhanghai.compose.preference.ProvidePreferenceLocals
 import me.zhanghai.compose.preference.SliderPreference
@@ -223,6 +238,72 @@ object PlayerPreferencesScreen : Screen {
             title = { Text(stringResource(R.string.pref_player_controls_show_chapter_indicator)) },
             summary = { Text(stringResource(R.string.pref_player_controls_show_chapters_summary)) },
           )
+
+          PreferenceCategory(
+            title = { Text(stringResource(R.string.pref_player_screenshots_title)) },
+          )
+          val screenshotResumePlayback by preferences.screenshotResumePlayback.collectAsState()
+          SwitchPreference(
+            value = screenshotResumePlayback,
+            onValueChange = preferences.screenshotResumePlayback::set,
+            title = { Text(stringResource(R.string.pref_player_screenshot_resume_playback)) },
+          )
+          var showAllFilesDialog by remember { mutableStateOf(false) }
+          val directoryPicker = rememberLauncherForActivityResult(
+            ActivityResultContracts.OpenDocumentTree(),
+          ) { uri ->
+            if (uri == null) return@rememberLauncherForActivityResult
+            val path = FileManager(context).fromUri(uri)?.getFullPath().orEmpty()
+            if (!path.startsWith("/")) {
+              Toast.makeText(
+                context,
+                R.string.pref_player_screenshot_directory_unsupported,
+                Toast.LENGTH_SHORT,
+              ).show()
+            } else {
+              preferences.screenshotDirectory.set(path)
+              if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !Environment.isExternalStorageManager()) {
+                showAllFilesDialog = true
+              }
+            }
+          }
+          val screenshotDirectory by preferences.screenshotDirectory.collectAsState()
+          Preference(
+            title = { Text(stringResource(R.string.pref_player_screenshot_directory)) },
+            summary = {
+              Text(
+                screenshotDirectory.ifBlank {
+                  stringResource(R.string.pref_player_screenshot_directory_default)
+                },
+              )
+            },
+            onClick = { directoryPicker.launch(null) },
+          )
+          if (screenshotDirectory.isNotBlank()) {
+            Preference(
+              title = { Text(stringResource(R.string.pref_player_screenshot_directory_reset)) },
+              onClick = { preferences.screenshotDirectory.set("") },
+            )
+          }
+          if (showAllFilesDialog) {
+            ConfirmDialog(
+              title = stringResource(R.string.pref_player_screenshot_all_files_title),
+              subtitle = stringResource(R.string.pref_player_screenshot_all_files_message),
+              onConfirm = {
+                showAllFilesDialog = false
+                val intent = Intent(
+                  Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,
+                  Uri.parse("package:${context.packageName}"),
+                )
+                try {
+                  context.startActivity(intent)
+                } catch (_: ActivityNotFoundException) {
+                  context.startActivity(Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION))
+                }
+              },
+              onCancel = { showAllFilesDialog = false },
+            )
+          }
 
           PreferenceCategory(
             title = { Text(stringResource(R.string.pref_player_display)) },

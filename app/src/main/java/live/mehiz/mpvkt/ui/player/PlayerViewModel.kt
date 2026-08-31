@@ -15,7 +15,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
-import `is`.xyz.mpv.MPVLib
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
@@ -33,12 +32,15 @@ import kotlinx.serialization.json.Json
 import live.mehiz.mpvkt.R
 import live.mehiz.mpvkt.database.MpvKtDatabase
 import live.mehiz.mpvkt.database.entities.CustomButtonEntity
+import live.mehiz.mpvkt.player.MPVLib
 import live.mehiz.mpvkt.preferences.AudioPreferences
 import live.mehiz.mpvkt.preferences.GesturePreferences
 import live.mehiz.mpvkt.preferences.PlayerPreferences
 import live.mehiz.mpvkt.ui.custombuttons.CustomButtonsUiState
 import live.mehiz.mpvkt.ui.custombuttons.getButtons
 import org.koin.java.KoinJavaComponent.inject
+import java.util.Locale
+import kotlin.math.roundToInt
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
@@ -327,6 +329,43 @@ class PlayerViewModel(
         ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
       }
     }
+  }
+
+  fun screenshot(withSubtitles: Boolean) {
+    MPVLib.command("screenshot", if (withSubtitles) "subtitles" else "video")
+  }
+
+  private var wasPlayingBeforeFrameStep = false
+
+  fun frameStep(forward: Boolean) {
+    if (!wasPlayingBeforeFrameStep) {
+      wasPlayingBeforeFrameStep = MPVLib.getPropertyBoolean("pause") == false
+    }
+    MPVLib.command(if (forward) "frame-step" else "frame-back-step")
+    showFramePosition()
+  }
+
+  fun frameStepScreenshot(withSubtitles: Boolean) {
+    screenshot(withSubtitles)
+    if (wasPlayingBeforeFrameStep && playerPreferences.screenshotResumePlayback.get()) {
+      MPVLib.setPropertyBoolean("pause", false)
+    }
+    wasPlayingBeforeFrameStep = false
+  }
+
+  private fun showFramePosition() {
+    val position = MPVLib.getPropertyDouble("time-pos") ?: return
+    val totalMs = (position * 1000).roundToInt()
+    val hours = totalMs / 3_600_000
+    val minutes = (totalMs / 60_000) % 60
+    val seconds = (totalMs / 1_000) % 60
+    val millis = totalMs % 1_000
+    val text = if (hours > 0) {
+      String.format(Locale.US, "%d:%02d:%02d.%03d", hours, minutes, seconds, millis)
+    } else {
+      String.format(Locale.US, "%02d:%02d.%03d", minutes, seconds, millis)
+    }
+    playerUpdate.update { PlayerUpdates.ShowText(text) }
   }
 
   @Suppress("CyclomaticComplexMethod", "LongMethod")

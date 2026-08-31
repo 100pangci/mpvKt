@@ -22,9 +22,9 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.media.MediaBrowserServiceCompat
 import androidx.media.session.MediaButtonReceiver
-import `is`.xyz.mpv.MPVLib
 import `is`.xyz.mpv.MPVNode
 import live.mehiz.mpvkt.R
+import live.mehiz.mpvkt.player.MPVLib
 import live.mehiz.mpvkt.preferences.GesturePreferences
 import org.koin.android.ext.android.inject
 
@@ -48,12 +48,16 @@ class MediaPlaybackService : MediaBrowserServiceCompat(), MPVLib.EventObserver {
   private var mediaArtist = ""
   private var positionMs: Long?
     get() = MPVLib.getPropertyDouble("time-pos")?.times(1000L)?.toLong()
-    set(value) = MPVLib.command("seek", (value!! / 1000f).toString(), "absolute")
+    set(value) {
+      MPVLib.command("seek", (value!! / 1000f).toString(), "absolute")
+    }
   private val durationMs: Long?
     get() = (MPVLib.getPropertyDouble("duration")?.times(1000L))?.toLong()
   private var paused: Boolean?
     get() = MPVLib.getPropertyBoolean("pause")
-    set(value) = MPVLib.command("set", "pause", if (value == true) "yes" else "no")
+    set(value) {
+      MPVLib.command("set", "pause", if (value == true) "yes" else "no")
+    }
 
   private lateinit var mediaSession: MediaSessionCompat
 

@@ -9,7 +9,7 @@ import android.view.KeyCharacterMap
 import android.view.KeyEvent
 import `is`.xyz.mpv.BaseMPVView
 import `is`.xyz.mpv.KeyMapping
-import `is`.xyz.mpv.MPVLib
+import live.mehiz.mpvkt.player.MPVLib
 import live.mehiz.mpvkt.preferences.AdvancedPreferences
 import live.mehiz.mpvkt.preferences.AudioPreferences
 import live.mehiz.mpvkt.preferences.DecoderPreferences
@@ -18,6 +18,7 @@ import live.mehiz.mpvkt.preferences.SubtitlesPreferences
 import live.mehiz.mpvkt.ui.player.controls.components.panels.toColorHexString
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import java.io.File
 import kotlin.reflect.KProperty
 
 class MPVView(context: Context, attributes: AttributeSet) : BaseMPVView(context, attributes), KoinComponent {
@@ -76,9 +77,12 @@ class MPVView(context: Context, attributes: AttributeSet) : BaseMPVView(context,
     MPVLib.setOptionString("demuxer-max-bytes", "${cacheMegs * 1024 * 1024}")
     MPVLib.setOptionString("demuxer-max-back-bytes", "${cacheMegs * 1024 * 1024}")
     //
-    val screenshotDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
-    screenshotDir.mkdirs()
-    MPVLib.setOptionString("screenshot-directory", screenshotDir.path)
+    val screenshotDir = playerPreferences.screenshotDirectory.get().ifBlank {
+      Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).path
+    }
+    File(screenshotDir).mkdirs()
+    MPVLib.setOptionString("screenshot-directory", screenshotDir)
+    MPVLib.setOptionString("screenshot-format", "png")
 
     VideoFilters.entries.forEach {
       MPVLib.setOptionString(it.mpvProperty, it.preference(decoderPreferences).get().toString())
