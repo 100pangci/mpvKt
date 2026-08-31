@@ -295,7 +295,7 @@
 
     <string name="pref_player_screenshots_title">Screenshots</string>
     <string name="pref_player_screenshot_directory">Screenshot directory</string>
-    <string name="pref_player_screenshot_directory_default">Default (Pictures)</string>
+    <string name="pref_player_screenshot_directory_default">Default (Pictures/mpvKt)</string>
     <string name="pref_player_screenshot_directory_unsupported">Unsupported directory: a real filesystem path on the device storage is required</string>
     <string name="pref_player_screenshot_directory_reset">Reset screenshot directory</string>
     <string name="pref_player_screenshot_resume_playback">Resume playback after frame-step screenshot</string>

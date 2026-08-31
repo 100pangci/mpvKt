@@ -220,7 +220,7 @@
 
     <string name="pref_player_screenshots_title">截图</string>
     <string name="pref_player_screenshot_directory">截图目录</string>
-    <string name="pref_player_screenshot_directory_default">默认（Pictures）</string>
+    <string name="pref_player_screenshot_directory_default">默认（Pictures/mpvKt）</string>
     <string name="pref_player_screenshot_directory_unsupported">不支持该目录：需要设备存储上的真实文件路径</string>
     <string name="pref_player_screenshot_directory_reset">恢复默认截图目录</string>
     <string name="pref_player_screenshot_resume_playback">切帧截图后恢复播放</string>

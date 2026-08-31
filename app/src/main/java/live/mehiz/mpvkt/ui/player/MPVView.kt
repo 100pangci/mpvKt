@@ -78,7 +78,7 @@ class MPVView(context: Context, attributes: AttributeSet) : BaseMPVView(context,
     MPVLib.setOptionString("demuxer-max-back-bytes", "${cacheMegs * 1024 * 1024}")
     //
     val screenshotDir = playerPreferences.screenshotDirectory.get().ifBlank {
-      Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).path
+      File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "mpvKt").path
     }
     File(screenshotDir).mkdirs()
     MPVLib.setOptionString("screenshot-directory", screenshotDir)
