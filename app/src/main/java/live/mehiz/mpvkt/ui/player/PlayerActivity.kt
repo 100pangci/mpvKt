@@ -269,6 +269,14 @@ class PlayerActivity : AppCompatActivity() {
     player.initialize(filesDir.path, cacheDir.path)
     MPVLib.attach(player.mpv)
     MPVLib.addObserver(playerObserver)
+    MPVLib.addLogObserver(object : MPVLib.LogObserver {
+      override fun logMessage(prefix: String, level: Int, text: String) {
+        Log.i(TAG, "mpv [$prefix/$level] $text")
+        if (level <= MPVLib.mpvLogLevel.MPV_LOG_LEVEL_ERROR) {
+          PlayerActivity.lastMpvError = "$prefix: $text"
+        }
+      }
+    })
   }
 
   private fun requestStoragePermission() {
@@ -871,6 +879,9 @@ class PlayerActivity : AppCompatActivity() {
   companion object {
     // action of result intent
     private const val RESULT_INTENT = "live.ywpc05.mpvkt.ui.player.PlayerActivity.result"
+
+    @Volatile
+    var lastMpvError: String? = null
   }
 }
 

@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.pm.ActivityInfo
 import android.media.AudioManager
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
 import android.provider.Settings
 import android.util.DisplayMetrics
@@ -336,14 +337,27 @@ class PlayerViewModel(
   private var screenshotCounter = 0
 
   fun screenshot(withSubtitles: Boolean) {
-    val dirPath = playerPreferences.screenshotDirectory.get().ifBlank {
+    val dir = resolveScreenshotDir()
+    dir.mkdirs()
+    val file = nextScreenshotFile(dir)
+    MPVLib.command("screenshot-to-file", file.absolutePath, if (withSubtitles) "subtitles" else "video")
+    PlayerActivity.lastMpvError = null
+    viewModelScope.launch(Dispatchers.IO) {
+      val message = awaitScreenshotResult(dir, file)
+      playerUpdate.update { PlayerUpdates.ShowText(message) }
+    }
+  }
+
+  private fun resolveScreenshotDir(): File = File(
+    playerPreferences.screenshotDirectory.get().ifBlank {
       File(
         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
         "mpvKt",
       ).path
-    }
-    val dir = File(dirPath)
-    dir.mkdirs()
+    },
+  )
+
+  private fun nextScreenshotFile(dir: File): File {
     val timeText = MPVLib.getPropertyDouble("time-pos")
       ?.let { formatScreenshotTimestamp(it) }
       ?: "unknown"
@@ -353,23 +367,51 @@ class PlayerViewModel(
       counter = ++screenshotCounter
       file = File(dir, "$timeText-N${counter.toString().padStart(4, '0')}.png")
     }
-    MPVLib.command("screenshot-to-file", file.absolutePath, if (withSubtitles) "subtitles" else "video")
-    viewModelScope.launch(Dispatchers.IO) {
-      var saved = file.exists() && file.length() > 0L
-      var waited = 0
-      while (!saved && waited < 2000) {
-        delay(200)
-        waited += 200
-        saved = file.exists() && file.length() > 0L
-      }
-      Log.d(TAG, "screenshot ${if (saved) "saved" else "FAILED"}: ${file.absolutePath}")
-      val message = if (saved) {
-        activity.getString(R.string.screenshot_saved, file.name)
-      } else {
-        activity.getString(R.string.screenshot_failed)
-      }
-      playerUpdate.update { PlayerUpdates.ShowText(message) }
+    return file
+  }
+
+  private suspend fun awaitScreenshotResult(dir: File, file: File): String {
+    var saved = file.exists() && file.length() > 0L
+    var waited = 0
+    while (!saved && waited < 2000) {
+      delay(200)
+      waited += 200
+      saved = file.exists() && file.length() > 0L
     }
+    val appCanWrite = if (!saved) isDirectoryWritable(dir) else true
+    Log.d(TAG, screenshotDiagnostic(saved, dir, file, appCanWrite))
+    val reason = when {
+      saved -> null
+      !dir.exists() -> activity.getString(R.string.screenshot_dir_missing)
+      !appCanWrite -> activity.getString(R.string.screenshot_dir_unwritable)
+      PlayerActivity.lastMpvError != null -> PlayerActivity.lastMpvError
+      else -> activity.getString(R.string.screenshot_error_unknown)
+    }
+    return if (saved) {
+      activity.getString(R.string.screenshot_saved, file.name)
+    } else {
+      activity.getString(R.string.screenshot_failed) + ": " + reason
+    }
+  }
+
+  private fun isDirectoryWritable(dir: File): Boolean = try {
+    val probe = File(dir, ".mpvkt_probe")
+    probe.writeText("t")
+    probe.delete()
+    true
+  } catch (_: Exception) {
+    false
+  }
+
+  private fun screenshotDiagnostic(saved: Boolean, dir: File, file: File, appCanWrite: Boolean): String {
+    val storageManager = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+      Environment.isExternalStorageManager().toString()
+    } else {
+      "n/a"
+    }
+    return "screenshot ${if (saved) "saved" else "FAILED"}: file=${file.absolutePath} " +
+      "dirExists=${dir.exists()} appCanWrite=$appCanWrite " +
+      "storageManager=$storageManager mpvError=${PlayerActivity.lastMpvError}"
   }
 
   private fun formatScreenshotTimestamp(seconds: Double): String {

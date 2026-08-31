@@ -70,6 +70,7 @@ object MPVLib {
   fun attach(instance: MPV) {
     mpv = instance
     instance.addObserver(adapter)
+    instance.addLogObserver(logAdapter)
     propBoolean.reobserveAll()
     propString.reobserveAll()
     propDouble.reobserveAll()
@@ -84,6 +85,7 @@ object MPVLib {
   fun destroy() {
     mpv?.let {
       it.removeObserver(adapter)
+      it.removeLogObserver(logAdapter)
       it.destroy()
     }
     mpv = null
@@ -214,6 +216,13 @@ object MPVLib {
 
   interface LogObserver {
     fun logMessage(prefix: String, level: Int, text: String)
+  }
+
+  private val logAdapter = object : MPV.LogObserver {
+    override fun logMessage(prefix: String, level: Int, text: String) {
+      synchronized(log_observers) { for (o in log_observers) o.logMessage(prefix, level, text) }
+      scope.launch { logFlow.emit(Triple(prefix, level, text)) }
+    }
   }
 
   private val log_observers: MutableList<LogObserver> = ArrayList()

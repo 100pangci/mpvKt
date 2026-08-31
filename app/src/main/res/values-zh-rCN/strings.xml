@@ -219,6 +219,9 @@
     <string name="screenshot_raw">原画截图</string>
     <string name="screenshot_saved">截图已保存：%1$s</string>
     <string name="screenshot_failed">截图失败</string>
+    <string name="screenshot_dir_missing">目录不存在</string>
+    <string name="screenshot_dir_unwritable">目录不可写</string>
+    <string name="screenshot_error_unknown">未知错误</string>
 
     <string name="pref_player_screenshots_title">截图</string>
     <string name="pref_player_screenshot_directory">截图目录</string>

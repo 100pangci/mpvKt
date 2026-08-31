@@ -294,6 +294,9 @@
     <string name="screenshot_raw">Raw screenshot</string>
     <string name="screenshot_saved">Screenshot saved: %1$s</string>
     <string name="screenshot_failed">Screenshot failed</string>
+    <string name="screenshot_dir_missing">directory does not exist</string>
+    <string name="screenshot_dir_unwritable">directory not writable</string>
+    <string name="screenshot_error_unknown">unknown error</string>
 
     <string name="pref_player_screenshots_title">Screenshots</string>
     <string name="pref_player_screenshot_directory">Screenshot directory</string>
