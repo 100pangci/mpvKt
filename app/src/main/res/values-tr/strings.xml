@@ -264,4 +264,8 @@
         <item quantity="one">%1$d öğe</item>
         <item quantity="other">%1$d öğe</item>
     </plurals>
+    <!-- missing keys -->
+    <string name="pref_player_screenshot_sw_title">Yazılımsal işlenmiş ekran görüntüleri</string>
+    <string name="pref_player_screenshot_sw_summary">Ekran görüntülerini takılma olmadan kaydetmek için yazılımsal işlemeyle oluşturur. Bazı videolarda siyah çıkarsa kapatın.</string>
+
 </resources>

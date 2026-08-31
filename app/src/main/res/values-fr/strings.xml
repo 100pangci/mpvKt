@@ -264,4 +264,8 @@
         <item quantity="one">%1$d élément</item>
         <item quantity="other">%1$d éléments</item>
     </plurals>
+    <!-- missing keys -->
+    <string name="pref_player_screenshot_sw_title">Captures avec rendu logiciel</string>
+    <string name="pref_player_screenshot_sw_summary">Génère les captures par rendu logiciel, sans à-coups. Désactivez l\'option si certaines captures apparaissent noires.</string>
+
 </resources>

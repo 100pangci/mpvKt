@@ -293,4 +293,8 @@
     <string name="pref_player_screenshot_all_files_title">Требуется доступ ко всем файлам</string>
     <string name="pref_player_screenshot_all_files_message">Чтобы сохранять скриншоты в выбранный каталог, предоставьте mpvKt разрешение «Доступ ко всем файлам» на следующем экране.</string>
 
+    <!-- missing keys -->
+    <string name="pref_player_screenshot_sw_title">Скриншоты с программным рендерингом</string>
+    <string name="pref_player_screenshot_sw_summary">Создаёт скриншоты с программным рендерингом без подёргиваний. Отключите, если на некоторых видео скриншоты получаются чёрными.</string>
+
 </resources>

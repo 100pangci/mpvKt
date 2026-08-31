@@ -262,4 +262,8 @@
     <plurals name="plural_items">
         <item quantity="other">%1$d mục</item>
     </plurals>
+    <!-- missing keys -->
+    <string name="pref_player_screenshot_sw_title">Chụp ảnh bằng kết xuất phần mềm</string>
+    <string name="pref_player_screenshot_sw_summary">Tạo ảnh chụp bằng kết xuất phần mềm để không bị giật. Tắt nếu ảnh bị đen trên một số video.</string>
+
 </resources>

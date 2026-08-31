@@ -272,4 +272,8 @@
         <item quantity="many">%1$d عنصرًا</item>
         <item quantity="other">%1$d عنصر</item>
     </plurals>
+    <!-- missing keys -->
+    <string name="pref_player_screenshot_sw_title">لقطات شاشة بمعالجة برمجية</string>
+    <string name="pref_player_screenshot_sw_summary">إنشاء اللقطات بمعالجة برمجية دون تقطيع. أوقف الخيار إذا ظهرت لقطات سوداء في بعض الفيديوهات.</string>
+
 </resources>

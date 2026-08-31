@@ -268,4 +268,8 @@
         <item quantity="many">%1$d elementów</item>
         <item quantity="other">%1$d el.</item>
     </plurals>
+    <!-- missing keys -->
+    <string name="pref_player_screenshot_sw_title">Zrzuty renderowane programowo</string>
+    <string name="pref_player_screenshot_sw_summary">Tworzy zrzuty z renderowaniem programowym, bez przycinek. Wyłącz, jeśli zrzuty na niektórych wideo są czarne.</string>
+
 </resources>

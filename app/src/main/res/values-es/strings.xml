@@ -285,4 +285,8 @@
         <item quantity="other">%1$d segundos</item>
     </plurals>
 
+    <!-- missing keys -->
+    <string name="pref_player_screenshot_sw_title">Capturas con renderizado por software</string>
+    <string name="pref_player_screenshot_sw_summary">Genera las capturas con renderizado de software para evitar tirones. Desactiva la opción si algunas capturas salen en negro.</string>
+
 </resources>

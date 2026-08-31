@@ -83,6 +83,9 @@ class MPVView(context: Context, attributes: AttributeSet) : BaseMPVView(context,
     File(screenshotDir).mkdirs()
     MPVLib.setOptionString("screenshot-directory", screenshotDir)
     MPVLib.setOptionString("screenshot-format", "png")
+    MPVLib.setOptionString("screenshot-sw", if (playerPreferences.screenshotSoftwareRendering.get()) "yes" else "no")
+    MPVLib.setOptionString("screenshot-png-compression", "3")
+    MPVLib.setOptionString("screenshot-png-filter", "0")
     MPVLib.setOptionString("screenshot-template", "%tH-%tM-%tS-N%n")
 
     VideoFilters.entries.forEach {

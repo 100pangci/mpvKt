@@ -268,4 +268,8 @@
         <item quantity="many">%1$d елементів</item>
         <item quantity="other">%1$d ел.</item>
     </plurals>
+    <!-- missing keys -->
+    <string name="pref_player_screenshot_sw_title">Знімки з програмним рендерингом</string>
+    <string name="pref_player_screenshot_sw_summary">Створює знімки з програмним рендерингом без підривань. Вимкніть, якщо на деяких відео знімки виходять чорними.</string>
+
 </resources>

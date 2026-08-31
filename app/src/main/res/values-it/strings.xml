@@ -264,4 +264,8 @@
         <item quantity="one">%1$d elemento</item>
         <item quantity="other">%1$d elementi</item>
     </plurals>
+    <!-- missing keys -->
+    <string name="pref_player_screenshot_sw_title">Screenshot con rendering software</string>
+    <string name="pref_player_screenshot_sw_summary">Genera gli screenshot con rendering software senza scatti. Disattiva l\'opzione se su alcuni video appaiono neri.</string>
+
 </resources>

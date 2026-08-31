@@ -262,4 +262,8 @@
     <plurals name="plural_items">
         <item quantity="other">%1$d รายการ</item>
     </plurals>
+    <!-- missing keys -->
+    <string name="pref_player_screenshot_sw_title">จับภาพหน้าจอด้วยการเรนเดอร์ซอฟต์แวร์</string>
+    <string name="pref_player_screenshot_sw_summary">สร้างภาพหน้าจอด้วยการเรนเดอร์ซอฟต์แวร์เพื่อไม่ให้กระตุก ปิดได้หากภาพเป็นสีดำในบางวิดีโอ</string>
+
 </resources>

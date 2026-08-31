@@ -310,4 +310,8 @@
     <string name="pref_player_screenshot_all_files_title">すべてのファイルへのアクセスが必要です</string>
     <string name="pref_player_screenshot_all_files_message">選択したディレクトリにスクリーンショットを保存するため、次の画面で mpvKt に「すべてのファイルへのアクセス」権限を付与してください。</string>
 
+    <!-- missing keys -->
+    <string name="pref_player_screenshot_sw_title">ソフトウェアレンダリングでスクリーンショット</string>
+    <string name="pref_player_screenshot_sw_summary">ソフトウェアレンダリングでスクリーンショットを撮影し、コマ落ちなしで保存します。一部の動画で真っ黒に写る場合はオフにしてください。</string>
+
 </resources>

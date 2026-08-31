@@ -303,4 +303,8 @@
         <item quantity="other">%1$d segundos</item>
     </plurals>
 
+    <!-- missing keys -->
+    <string name="pref_player_screenshot_sw_title">Capturas com renderização por software</string>
+    <string name="pref_player_screenshot_sw_summary">Gera as capturas com renderização por software para evitar travadas. Desative se alguma captura sair preta.</string>
+
 </resources>

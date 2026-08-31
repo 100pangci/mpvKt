@@ -310,4 +310,8 @@
     <string name="pref_player_screenshot_all_files_title">Perlu akses ke semua berkas</string>
     <string name="pref_player_screenshot_all_files_message">Untuk menyimpan tangkapan layar di direktori pilihan, berikan izin \"Akses ke semua berkas\" kepada mpvKt di layar berikutnya.</string>
 
+    <!-- missing keys -->
+    <string name="pref_player_screenshot_sw_title">Tangkapan layar dengan rendering perangkat lunak</string>
+    <string name="pref_player_screenshot_sw_summary">Membuat tangkapan layar dengan rendering perangkat lunak tanpa tersendat. Matikan jika tangkapan layar tampak hitam pada beberapa video.</string>
+
 </resources>

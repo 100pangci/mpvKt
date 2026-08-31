@@ -43,6 +43,7 @@ class PlayerPreferences(
 
   val screenshotDirectory = preferenceStore.getString("screenshot_directory", "")
   val screenshotResumePlayback = preferenceStore.getBoolean("screenshot_resume_playback", true)
+  val screenshotSoftwareRendering = preferenceStore.getBoolean("screenshot_software_rendering", true)
 
   val rememberBrightness = preferenceStore.getBoolean("remember_rightness")
   val defaultBrightness = preferenceStore.getFloat("default_brightness", -1f)

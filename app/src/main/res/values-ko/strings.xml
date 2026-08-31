@@ -262,4 +262,8 @@
     <plurals name="plural_items">
         <item quantity="other">항목 %1$d개</item>
     </plurals>
+    <!-- missing keys -->
+    <string name="pref_player_screenshot_sw_title">소프트웨어 렌더링 스크린샷</string>
+    <string name="pref_player_screenshot_sw_summary">소프트웨어 렌더링으로 스크린샷을 찍어 끊김 없이 저장합니다. 일부 영상에서 검게 나오면 끄세요.</string>
+
 </resources>

@@ -264,4 +264,8 @@
         <item quantity="one">%1$d आइटम</item>
         <item quantity="other">%1$d आइटम</item>
     </plurals>
+    <!-- missing keys -->
+    <string name="pref_player_screenshot_sw_title">सॉफ़्टवेयर-रेंडर किए स्क्रीनशॉट</string>
+    <string name="pref_player_screenshot_sw_summary">बिना रुकावट कैप्चर के लिए स्क्रीनशॉट सॉफ़्टवेयर रेंडरिंग से बनाएँ। कुछ वीडियो पर काले दिखें तो बंद करें।</string>
+
 </resources>

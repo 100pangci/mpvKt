@@ -305,6 +305,8 @@
     <string name="pref_player_screenshot_directory_default">Default (Pictures/mpvKt)</string>
     <string name="pref_player_screenshot_directory_unsupported">Unsupported directory: a real filesystem path on the device storage is required</string>
     <string name="pref_player_screenshot_directory_reset">Reset screenshot directory</string>
+    <string name="pref_player_screenshot_sw_title">Software-rendered screenshots</string>
+    <string name="pref_player_screenshot_sw_summary">Render screenshots in software for stutter-free capture. Turn off if screenshots appear black on some videos.</string>
     <string name="pref_player_screenshot_resume_playback">Resume playback after frame-step screenshot</string>
     <string name="pref_player_screenshot_all_files_title">All files access required</string>
     <string name="pref_player_screenshot_all_files_message">To save screenshots in the chosen directory, grant the \"All files access\" permission to mpvKt on the next screen.</string>

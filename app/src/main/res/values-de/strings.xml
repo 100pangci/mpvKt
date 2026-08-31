@@ -264,4 +264,8 @@
         <item quantity="one">%1$d Element</item>
         <item quantity="other">%1$d Elemente</item>
     </plurals>
+    <!-- missing keys -->
+    <string name="pref_player_screenshot_sw_title">Software-gerenderte Screenshots</string>
+    <string name="pref_player_screenshot_sw_summary">Erstellt Screenshots per Software-Rendering ohne Ruckeln. Deaktiviere die Option, falls Screenshots bei manchen Videos schwarz erscheinen.</string>
+
 </resources>

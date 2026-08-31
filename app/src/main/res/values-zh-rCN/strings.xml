@@ -230,6 +230,8 @@
     <string name="pref_player_screenshot_directory_default">默认（Pictures/mpvKt）</string>
     <string name="pref_player_screenshot_directory_unsupported">不支持该目录：需要设备存储上的真实文件路径</string>
     <string name="pref_player_screenshot_directory_reset">恢复默认截图目录</string>
+    <string name="pref_player_screenshot_sw_title">软件渲染截图</string>
+    <string name="pref_player_screenshot_sw_summary">用软件渲染方式生成截图，保存时零卡顿。若某些视频截图出现黑屏请关闭此项。</string>
     <string name="pref_player_screenshot_resume_playback">切帧截图后恢复播放</string>
     <string name="pref_player_screenshot_all_files_title">需要“所有文件访问”权限</string>
     <string name="pref_player_screenshot_all_files_message">为在所选目录保存截图，请在接下来的页面中授予 mpvKt“所有文件访问”权限。</string>
