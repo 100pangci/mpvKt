@@ -109,7 +109,8 @@ object PlayerPreferencesScreen : Screen {
           SwitchPreference(
             value = enterBackgroundPlaybackAutomatically,
             onValueChange = preferences.automaticBackgroundPlayback::set,
-            title = { Text("Background Playback") },
+            title = { Text(stringResource(R.string.pref_enable_background_playback)) },
+            summary = { Text(stringResource(R.string.pref_enable_background_playback_summary)) },
           )
           val closeAtEOF by preferences.closeAfterReachingEndOfVideo.collectAsState()
           SwitchPreference(

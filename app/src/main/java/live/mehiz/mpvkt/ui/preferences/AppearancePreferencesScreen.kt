@@ -1,6 +1,8 @@
 package live.mehiz.mpvkt.ui.preferences
 
+import android.content.Context
 import android.os.Build
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -8,6 +10,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -19,6 +22,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.core.os.LocaleListCompat
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.serialization.Serializable
@@ -29,10 +34,13 @@ import live.mehiz.mpvkt.presentation.Screen
 import live.mehiz.mpvkt.presentation.preferences.MultiChoiceSegmentedButton
 import live.mehiz.mpvkt.ui.theme.DarkMode
 import live.mehiz.mpvkt.ui.utils.LocalBackStack
+import me.zhanghai.compose.preference.ListPreference
+import me.zhanghai.compose.preference.ListPreferenceType
 import me.zhanghai.compose.preference.PreferenceCategory
 import me.zhanghai.compose.preference.ProvidePreferenceLocals
 import me.zhanghai.compose.preference.SwitchPreference
 import org.koin.compose.koinInject
+import java.util.Locale
 
 @Serializable
 object AppearancePreferencesScreen : Screen {
@@ -89,8 +97,37 @@ object AppearancePreferencesScreen : Screen {
             },
             enabled = isMaterialYouAvailable,
           )
+          PreferenceCategory(
+            title = { Text(text = stringResource(id = R.string.pref_appearance_language)) },
+          )
+          val currentLanguageTag = AppCompatDelegate.getApplicationLocales().toLanguageTags()
+          ListPreference(
+            value = currentLanguageTag,
+            onValueChange = { tag ->
+              AppCompatDelegate.setApplicationLocales(
+                if (tag.isEmpty()) LocaleListCompat.getEmptyLocaleList() else LocaleListCompat.forLanguageTags(tag),
+              )
+            },
+            values = languageTags.toImmutableList(),
+            title = { Text(text = stringResource(id = R.string.pref_appearance_language)) },
+            summary = { Text(text = languageDisplayName(currentLanguageTag, context)) },
+            valueToText = { AnnotatedString(languageDisplayName(it, context)) },
+            type = ListPreferenceType.DROPDOWN_MENU,
+            icon = { Icon(Icons.Default.Translate, null) },
+          )
         }
       }
     }
   }
+
+  private fun languageDisplayName(tag: String, context: Context): String {
+    if (tag.isEmpty()) return context.getString(R.string.pref_appearance_language_system)
+    val locale = Locale.forLanguageTag(tag)
+    return locale.getDisplayName(locale)
+  }
 }
+
+private val languageTags = listOf(
+  "", "ar", "de", "en", "es", "fr", "hi", "id", "it",
+  "ja-JP", "ko", "pl", "pt-BR", "ru", "th", "tr", "uk", "vi", "zh-CN",
+)

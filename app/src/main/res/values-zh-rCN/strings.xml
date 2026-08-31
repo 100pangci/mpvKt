@@ -19,6 +19,8 @@
     <string name="pref_appearance_darkmode_system">系统</string>
     <string name="pref_appearance_darkmode_light">亮色</string>
     <string name="pref_appearance_darkmode_dark">暗色</string>
+    <string name="pref_appearance_language">语言</string>
+    <string name="pref_appearance_language_system">跟随系统</string>
     <string name="pref_appearance_material_you_title">Material You</string>
     <string name="pref_appearance_material_you_summary">启用 Material You 动态颜色</string>
     <string name="pref_appearance_material_you_summary_disabled">只支持 Android 12 及以上版本</string>

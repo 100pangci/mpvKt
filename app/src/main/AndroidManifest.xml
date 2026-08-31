@@ -25,6 +25,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MpvKt"
         tools:targetApi="35">
+        <meta-data
+            android:name="autoStoreLocales"
+            android:value="true" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

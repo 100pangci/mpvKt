@@ -5,6 +5,7 @@ import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -35,7 +36,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.core.net.toUri
@@ -56,6 +59,7 @@ object HomeScreen : Screen {
   override fun Content() {
     val context = LocalContext.current
     val backstack = LocalBackStack.current
+    val focusManager = LocalFocusManager.current
     Scaffold(
       topBar = {
         TopAppBar(
@@ -77,6 +81,7 @@ object HomeScreen : Screen {
       Column(
         modifier = Modifier
           .fillMaxSize()
+          .pointerInput(Unit) { detectTapGestures(onTap = { focusManager.clearFocus() }) }
           .padding(padding),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
