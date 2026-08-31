@@ -97,9 +97,6 @@ object AppearancePreferencesScreen : Screen {
             },
             enabled = isMaterialYouAvailable,
           )
-          PreferenceCategory(
-            title = { Text(text = stringResource(id = R.string.pref_appearance_language)) },
-          )
           val currentLanguageTag = AppCompatDelegate.getApplicationLocales().toLanguageTags()
           ListPreference(
             value = currentLanguageTag,
