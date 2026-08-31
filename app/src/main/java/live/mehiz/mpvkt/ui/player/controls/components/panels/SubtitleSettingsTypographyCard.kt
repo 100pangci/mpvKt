@@ -33,7 +33,6 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,7 +46,6 @@ import com.github.k1rakishou.fsaf.FileManager
 import com.yubyf.truetypeparser.TTFFile
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import live.mehiz.mpvkt.R
 import live.mehiz.mpvkt.player.MPVLib
@@ -75,7 +73,6 @@ fun SubtitleSettingsTypographyCard(
   val context = LocalContext.current
   val preferences = koinInject<SubtitlesPreferences>()
   val fileManager = koinInject<FileManager>()
-  val scope = rememberCoroutineScope()
   var isExpanded by remember { mutableStateOf(true) }
   val fonts by remember { mutableStateOf(mutableListOf(preferences.font.defaultValue())) }
   var fontsLoadingIndicator: (@Composable () -> Unit)? by remember {
@@ -211,10 +208,7 @@ fun SubtitleSettingsTypographyCard(
           label = stringResource(R.string.player_sheets_sub_typography_font),
           onValueChangedEvent = {
             preferences.font.set(it)
-            scope.launch(Dispatchers.IO) {
-              (context as? PlayerActivity)?.copyMPVFonts()
-              MPVLib.setPropertyString("sub-font", it)
-            }
+            (context as? PlayerActivity)?.stageSubFont(it)
           },
           leadingIcon = fontsLoadingIndicator,
         )

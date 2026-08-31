@@ -66,5 +66,6 @@ private object MIGRATION5to6 : Migration(5, 6) {
       )
       """.trimIndent()
     )
+    db.execSQL("CREATE INDEX IF NOT EXISTS `index_FontEntity_family` ON `FontEntity` (`family`)")
   }
 }

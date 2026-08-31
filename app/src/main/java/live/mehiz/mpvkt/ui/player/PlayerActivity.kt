@@ -53,7 +53,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import live.mehiz.mpvkt.R
-import live.mehiz.mpvkt.database.dao.FontDao
 import live.mehiz.mpvkt.database.entities.CustomButtonEntity
 import live.mehiz.mpvkt.database.entities.PlaybackStateEntity
 import live.mehiz.mpvkt.databinding.PlayerLayoutBinding
@@ -87,7 +86,6 @@ class PlayerActivity : AppCompatActivity() {
   private val advancedPreferences: AdvancedPreferences by inject()
   private val gesturePreferences: GesturePreferences by inject()
   private val fileManager: FileManager by inject()
-  private val fontDao: FontDao by inject()
   private val fontIndexer: FontIndexer by inject()
 
   private val attemptedFontFamilies = mutableSetOf<String>()
@@ -287,16 +285,29 @@ class PlayerActivity : AppCompatActivity() {
     MPVLib.addObserver(playerObserver)
     MPVLib.addLogObserver(object : MPVLib.LogObserver {
       private val fontRequestRegex = Regex("""\(([^,()]+),\s*\d+,\s*\d+\)""")
+      private val ignoredFontFamilies = setOf("sans-serif", "sans serif", "mpv-osd-symbols")
 
       override fun logMessage(prefix: String, level: Int, text: String) {
         Log.i(TAG, "mpv [$prefix/$level] $text")
         if (level <= MPVLib.mpvLogLevel.MPV_LOG_LEVEL_ERROR) {
           PlayerActivity.lastMpvError = "$prefix: $text"
         }
-        val isFontFailure = text.contains("not found") || text.contains("failed")
-        if (!isFontFailure || !text.contains('(')) return
-        val family = fontRequestRegex.find(text)?.groupValues?.get(1)?.trim() ?: return
+        val family = extractMissingFont(text) ?: return
         runOnUiThread { handleMissingFont(family) }
+      }
+
+      private fun extractMissingFont(text: String): String? {
+        val isFontFallback = "Using default font" in text
+        val isFontFailure = "not found" in text || "failed" in text
+        val family = if (isFontFallback || isFontFailure) {
+          fontRequestRegex.find(text)?.groupValues?.get(1)?.trim()
+        } else {
+          null
+        }
+        val ignored = family.isNullOrEmpty() ||
+          family.lowercase() in ignoredFontFamilies ||
+          family == subtitlesPreferences.font.get()
+        return if (ignored) null else family
       }
     })
   }
@@ -389,29 +400,30 @@ class PlayerActivity : AppCompatActivity() {
     MPVLib.command("load-script", file.absolutePath)
   }
 
-  fun copyMPVFonts() {
+  /**
+   * Stages the font family picked in the typography card (used as the default
+   * subtitle font) through the index — no full-folder copies anywhere.
+   */
+  fun stageSubFont(family: String) {
     lifecycleScope.launch(Dispatchers.IO) {
       val destDir = fontsCacheDir()
       ensureBundledFont(destDir)
-      copyUserFontFolder(destDir, fullCopyLimit = Int.MAX_VALUE)
+      refreshFontIndex(force = true)
+      stageIndexedFont(family, destDir)
+      MPVLib.setPropertyString("sub-font", family)
     }
   }
 
   /**
    * Feeds libass with every font it may need for the current video: fonts
-   * bundled in the video folder, fonts referenced by the subtitle (resolved
-   * through the font index) and — for small libraries — the whole user font
-   * folder. Runs before the first play so the initial render already matches
-   * the desktop.
+   * bundled next to the video plus, for small libraries, the whole user font
+   * folder. Larger libraries resolve per family through the index when libass
+   * reports a missing font. Runs before the first play.
    */
   private suspend fun stageVideoFonts(videoPath: String?) {
     val destDir = fontsCacheDir()
     ensureBundledFont(destDir)
     refreshFontIndex()
-    val userFontCount = fontDao.countForSource(FontIndexer.SOURCE_USER)
-    if (userFontCount == 0 || userFontCount <= SMALL_USER_FONT_FOLDER_LIMIT) {
-      copyUserFontFolder(destDir, fullCopyLimit = SMALL_USER_FONT_FOLDER_LIMIT)
-    }
     stageSiblingFonts(videoPath, destDir)
   }
 
@@ -436,33 +448,15 @@ class PlayerActivity : AppCompatActivity() {
 
   private fun fontsCacheDir(): File = File(cacheDir, "fonts").apply { mkdirs() }
 
-  private suspend fun refreshFontIndex() {
+  private suspend fun refreshFontIndex(force: Boolean = false) {
     val now = System.currentTimeMillis()
-    if (now - subtitlesPreferences.fontIndexScanAt.get() < FONT_INDEX_SCAN_INTERVAL) return
+    if (!force && now - subtitlesPreferences.fontIndexScanAt.get() < FONT_INDEX_SCAN_INTERVAL) return
     runCatching {
       subtitlesPreferences.fontsFolder.get().takeIf { it.isNotBlank() }?.let {
         fontIndexer.reindexUserFolder(it)
       }
       if (subtitlesPreferences.useSystemFonts.get()) fontIndexer.reindexSystemFonts()
       subtitlesPreferences.fontIndexScanAt.set(now)
-    }
-  }
-
-  private suspend fun copyUserFontFolder(destDir: File, fullCopyLimit: Int) {
-    val folderUri = subtitlesPreferences.fontsFolder.get().takeIf { it.isNotBlank() }
-    val root = folderUri?.let { fileManager.fromUri(it.toUri()) }?.takeIf { fileManager.exists(it) }
-      ?: return
-    val files = fontIndexer.collectFontFiles(root)
-    if (files.size > fullCopyLimit) return
-    files.forEach { info ->
-      val target = File(destDir, info.path.substringAfterLast('/'))
-      if (target.length() != info.size) {
-        runCatching {
-          info.openStream()?.use { input ->
-            target.outputStream().use { output -> input.copyTo(output) }
-          }
-        }
-      }
     }
   }
 
