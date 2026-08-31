@@ -49,6 +49,7 @@ import com.github.k1rakishou.fsaf.FileManager
 import `is`.xyz.mpv.MPVNode
 import `is`.xyz.mpv.Utils
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -89,6 +90,8 @@ class PlayerActivity : AppCompatActivity() {
   private val fontIndexer: FontIndexer by inject()
 
   private val attemptedFontFamilies = mutableSetOf<String>()
+  private var restoredTrackState = false
+  private var autoSubSelectedForThisVideo = false
 
   private var fileName = ""
   private var mediaPlaybackService: MediaPlaybackService? = null
@@ -137,6 +140,12 @@ class PlayerActivity : AppCompatActivity() {
       stageVideoFonts(playable)
       withContext(Dispatchers.Main) {
         playable?.let(player::playFile)
+      }
+    }
+    lifecycleScope.launch {
+      MPVLib.eventFlow("track-list").collect {
+        delay(400)
+        autoSelectSubTrackIfNeeded()
       }
     }
     setOrientation()
@@ -420,6 +429,41 @@ class PlayerActivity : AppCompatActivity() {
    * folder. Larger libraries resolve per family through the index when libass
    * reports a missing font. Runs before the first play.
    */
+  /**
+   * Newer mpv no longer auto-selects subtitle tracks that carry neither a
+   * default flag nor a matching language. For sessions without a restoreable
+   * track state, pick the first (default-flagged if any) subtitle track so
+   * embedded subtitles show up like on desktop.
+   */
+  private fun autoSelectSubTrackIfNeeded() {
+    if (restoredTrackState || autoSubSelectedForThisVideo) return
+    autoSubSelectedForThisVideo = true
+    if ((MPVLib.getPropertyInt("sid") ?: 0) > 0) return
+    val count = MPVLib.getPropertyInt("track-list/count") ?: 0
+    val (firstSub, defaultSub) = scanSubTracks(count)
+    val target = if (defaultSub != 0) defaultSub else firstSub
+    if (target != 0) {
+      MPVLib.setPropertyInt("sid", target)
+      Log.d(TAG, "auto-selected subtitle track $target")
+    }
+  }
+
+  private fun scanSubTracks(count: Int): Pair<Int, Int> {
+    var firstSub = 0
+    var defaultSub = 0
+    for (i in 0 until count) {
+      val isSub = MPVLib.getPropertyString("track-list/$i/type") == "sub"
+      val id = if (isSub) MPVLib.getPropertyInt("track-list/$i/id") else null
+      if (id != null && id > 0) {
+        if (firstSub == 0) firstSub = id
+        if (defaultSub == 0 && MPVLib.getPropertyString("track-list/$i/default") == "true") {
+          defaultSub = id
+        }
+      }
+    }
+    return firstSub to defaultSub
+  }
+
   private suspend fun stageVideoFonts(videoPath: String?) {
     val destDir = fontsCacheDir()
     ensureBundledFont(destDir)
@@ -783,6 +827,7 @@ class PlayerActivity : AppCompatActivity() {
     // their zero state would force mpv's auto-selected subtitle/audio tracks
     // off, so only restore once the video was actually watched.
     state?.takeIf { it.lastPosition > 0 }?.let {
+      restoredTrackState = true
       player.sid = it.sid
       player.secondarySid = it.secondarySid
       player.aid = it.aid
