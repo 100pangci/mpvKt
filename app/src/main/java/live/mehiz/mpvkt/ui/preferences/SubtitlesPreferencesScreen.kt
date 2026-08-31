@@ -21,11 +21,15 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import live.mehiz.mpvkt.R
+import live.mehiz.mpvkt.player.FontIndexer
 import live.mehiz.mpvkt.preferences.SubtitlesPreferences
 import live.mehiz.mpvkt.preferences.preference.collectAsState
 import live.mehiz.mpvkt.presentation.Screen
@@ -42,6 +46,7 @@ object SubtitlesPreferencesScreen : Screen {
   @Composable
   override fun Content() {
     val context = LocalContext.current
+    val fontIndexer = koinInject<FontIndexer>()
     val backstack = LocalBackStack.current
     val preferences = koinInject<SubtitlesPreferences>()
 
@@ -60,6 +65,7 @@ object SubtitlesPreferencesScreen : Screen {
       },
     ) { padding ->
       ProvidePreferenceLocals {
+        val scope = rememberCoroutineScope()
         val locationPicker = rememberLauncherForActivityResult(
           ActivityResultContracts.OpenDocumentTree(),
         ) { uri ->
@@ -68,6 +74,10 @@ object SubtitlesPreferencesScreen : Screen {
           val flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
           context.contentResolver.takePersistableUriPermission(uri, flags)
           preferences.fontsFolder.set(uri.toString())
+          preferences.fontIndexScanAt.set(0L)
+          scope.launch(Dispatchers.IO) {
+            runCatching { fontIndexer.reindexUserFolder(uri.toString()) }
+          }
         }
         val fontsFolder by preferences.fontsFolder.collectAsState()
         Column(
@@ -104,6 +114,18 @@ object SubtitlesPreferencesScreen : Screen {
             iconButtonIcon = { Icon(Icons.Default.Clear, null) },
             onIconButtonClick = { preferences.fontsFolder.delete() },
             iconButtonEnabled = fontsFolder.isNotBlank()
+          )
+          val useSystemFonts by preferences.useSystemFonts.collectAsState()
+          SwitchPreference(
+            value = useSystemFonts,
+            onValueChange = { enabled ->
+              preferences.useSystemFonts.set(enabled)
+              if (enabled) {
+                scope.launch(Dispatchers.IO) { fontIndexer.reindexSystemFonts() }
+              }
+            },
+            title = { Text(stringResource(R.string.pref_subtitles_use_system_fonts_title)) },
+            summary = { Text(stringResource(R.string.pref_subtitles_use_system_fonts_summary)) },
           )
           val autoloadExternal by preferences.autoLoadExternal.collectAsState()
           SwitchPreference(

@@ -8,6 +8,7 @@ val Migrations: Array<Migration> = arrayOf(
   MIGRATION2to3,
   MIGRATION3to4,
   MIGRATION4to5,
+  MIGRATION5to6,
 )
 
 private object MIGRATION1to2 : Migration(1, 2) {
@@ -46,6 +47,23 @@ private object MIGRATION4to5 : Migration(4, 5) {
     db.execSQL(
       """
         ALTER TABLE CustomButtonEntity ADD COLUMN longPressContent TEXT NOT NULL DEFAULT ''
+      """.trimIndent()
+    )
+  }
+}
+
+private object MIGRATION5to6 : Migration(5, 6) {
+  override fun migrate(db: SupportSQLiteDatabase) {
+    db.execSQL(
+      """
+      CREATE TABLE IF NOT EXISTS `FontEntity` (
+        `path` TEXT NOT NULL,
+        `family` TEXT NOT NULL,
+        `lastModified` INTEGER NOT NULL,
+        `size` INTEGER NOT NULL,
+        `source` TEXT NOT NULL,
+        PRIMARY KEY(`path`, `family`)
+      )
       """.trimIndent()
     )
   }

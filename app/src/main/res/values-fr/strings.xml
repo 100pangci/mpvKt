@@ -268,4 +268,11 @@
     <string name="pref_player_screenshot_sw_title">Captures avec rendu logiciel</string>
     <string name="pref_player_screenshot_sw_summary">Génère les captures par rendu logiciel, sans à-coups. Désactivez l\'option si certaines captures apparaissent noires.</string>
 
+    <!-- missing keys -->
+    <string name="pref_subtitles_use_system_fonts_title">Inclure les polices système</string>
+    <string name="pref_subtitles_use_system_fonts_summary">Permet au rendu des sous-titres d\'utiliser aussi les polices système de l\'appareil. Un premier scan crée l\'index.</string>
+    <string name="missing_fonts_title">Polices de sous-titres manquantes</string>
+    <string name="missing_fonts_body">Les polices suivantes sont introuvables : certains styles risquent de différer du rendu sur PC. Copiez les noms pour les télécharger, puis placez-les dans votre dossier de polices (ou à côté de la vidéo).</string>
+    <string name="missing_fonts_copy">Copier les noms des polices</string>
+
 </resources>

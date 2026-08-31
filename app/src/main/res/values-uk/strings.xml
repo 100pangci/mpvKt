@@ -272,4 +272,11 @@
     <string name="pref_player_screenshot_sw_title">Знімки з програмним рендерингом</string>
     <string name="pref_player_screenshot_sw_summary">Створює знімки з програмним рендерингом без підривань. Вимкніть, якщо на деяких відео знімки виходять чорними.</string>
 
+    <!-- missing keys -->
+    <string name="pref_subtitles_use_system_fonts_title">Використовувати системні шрифти</string>
+    <string name="pref_subtitles_use_system_fonts_summary">Дозволяє рендерингу субтитрів використовувати системні шрифти пристрою. Перше сканування створює індекс.</string>
+    <string name="missing_fonts_title">Відсутні шрифти субтитрів</string>
+    <string name="missing_fonts_body">Наступні шрифти не знайдено, тому деякі стилі можуть відрізнятися від показу на ПК. Скопіюйте назви, завантажте шрифти та покладіть їх у папку шрифтів субтитрів (або поруч із відео).</string>
+    <string name="missing_fonts_copy">Копіювати назви шрифтів</string>
+
 </resources>

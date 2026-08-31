@@ -266,4 +266,11 @@
     <string name="pref_player_screenshot_sw_title">จับภาพหน้าจอด้วยการเรนเดอร์ซอฟต์แวร์</string>
     <string name="pref_player_screenshot_sw_summary">สร้างภาพหน้าจอด้วยการเรนเดอร์ซอฟต์แวร์เพื่อไม่ให้กระตุก ปิดได้หากภาพเป็นสีดำในบางวิดีโอ</string>
 
+    <!-- missing keys -->
+    <string name="pref_subtitles_use_system_fonts_title">ใช้ฟอนต์ระบบด้วย</string>
+    <string name="pref_subtitles_use_system_fonts_summary">ให้การเรนเดอร์คำบรรยายใช้ฟอนต์ระบบของเครื่องได้ การสแกนครั้งแรกจะสร้างดัชนี</string>
+    <string name="missing_fonts_title">ขาดฟอนต์คำบรรยาย</string>
+    <string name="missing_fonts_body">ไม่พบฟอนต์ต่อไปนี้ รูปแบบบางส่วนอาจแสดงไม่เหมือนบนคอม คัดลอกชื่อฟอนต์ไปดาวน์โหลด แล้ววางไว้ในโฟลเดอร์ฟอนต์คำบรรยาย (หรือข้างวิดีโอ)</string>
+    <string name="missing_fonts_copy">คัดลอกชื่อฟอนต์</string>
+
 </resources>

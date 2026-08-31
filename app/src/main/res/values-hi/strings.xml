@@ -268,4 +268,11 @@
     <string name="pref_player_screenshot_sw_title">सॉफ़्टवेयर-रेंडर किए स्क्रीनशॉट</string>
     <string name="pref_player_screenshot_sw_summary">बिना रुकावट कैप्चर के लिए स्क्रीनशॉट सॉफ़्टवेयर रेंडरिंग से बनाएँ। कुछ वीडियो पर काले दिखें तो बंद करें।</string>
 
+    <!-- missing keys -->
+    <string name="pref_subtitles_use_system_fonts_title">सिस्टम फ़ॉन्ट शामिल करें</string>
+    <string name="pref_subtitles_use_system_fonts_summary">सबटाइटल रेंडरिंग डिवाइस के सिस्टम फ़ॉन्ट भी उपयोग कर सकती है। पहली स्कैन पर इंडेक्स बनता है।</string>
+    <string name="missing_fonts_title">सबटाइटल फ़ॉन्ट अनुपलब्ध</string>
+    <string name="missing_fonts_body">निम्न फ़ॉन्ट नहीं मिले, इसलिए कुछ स्टाइल PC जैसे नहीं दिख सकते। नाम कॉपी करके डाउनलोड करें और अपने सबटाइटल फ़ॉन्ट फ़ोल्डर (या वीडियो के पास) में रखें।</string>
+    <string name="missing_fonts_copy">फ़ॉन्ट नाम कॉपी करें</string>
+
 </resources>

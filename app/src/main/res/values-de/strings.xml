@@ -268,4 +268,11 @@
     <string name="pref_player_screenshot_sw_title">Software-gerenderte Screenshots</string>
     <string name="pref_player_screenshot_sw_summary">Erstellt Screenshots per Software-Rendering ohne Ruckeln. Deaktiviere die Option, falls Screenshots bei manchen Videos schwarz erscheinen.</string>
 
+    <!-- missing keys -->
+    <string name="pref_subtitles_use_system_fonts_title">Systemschriftarten einbeziehen</string>
+    <string name="pref_subtitles_use_system_fonts_summary">Ermöglicht der Untertitel-Renderung auch geräteeigene Systemschriftarten. Das erste Scannen erstellt den Index.</string>
+    <string name="missing_fonts_title">Fehlende Untertitelschriftarten</string>
+    <string name="missing_fonts_body">Die folgenden Schriftarten wurden nicht gefunden, daher können einige Stile vom Desktop-Rendering abweichen. Kopiere die Namen, lade sie herunter und lege sie in deinem Schriftarten-Ordner (oder neben dem Video) ab.</string>
+    <string name="missing_fonts_copy">Schriftartennamen kopieren</string>
+
 </resources>

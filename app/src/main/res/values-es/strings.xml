@@ -289,4 +289,11 @@
     <string name="pref_player_screenshot_sw_title">Capturas con renderizado por software</string>
     <string name="pref_player_screenshot_sw_summary">Genera las capturas con renderizado de software para evitar tirones. Desactiva la opción si algunas capturas salen en negro.</string>
 
+    <!-- missing keys -->
+    <string name="pref_subtitles_use_system_fonts_title">Incluir fuentes del sistema</string>
+    <string name="pref_subtitles_use_system_fonts_summary">Permite que el renderizado de subtítulos también resuelva fuentes del sistema del dispositivo. El primer escaneo crea el índice.</string>
+    <string name="missing_fonts_title">Fuentes de subtítulos faltantes</string>
+    <string name="missing_fonts_body">No se encontraron las siguientes fuentes, por lo que algunos estilos pueden no coincidir con la renderización de escritorio. Copia los nombres para descargarlas y colócalas en tu carpeta de fuentes (o junto al video).</string>
+    <string name="missing_fonts_copy">Copiar nombres de fuentes</string>
+
 </resources>

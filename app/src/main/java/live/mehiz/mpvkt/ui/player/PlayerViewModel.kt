@@ -119,6 +119,16 @@ class PlayerViewModel(
 
   val playerUpdate = MutableStateFlow<PlayerUpdates>(PlayerUpdates.None)
   val screenshotCancelActive = MutableStateFlow(false)
+  val missingFonts = MutableStateFlow<Set<String>>(emptySet())
+  val missingFontsDialogDismissed = MutableStateFlow(false)
+
+  fun reportMissingFont(family: String) {
+    missingFonts.update { it + family }
+  }
+
+  fun dismissMissingFontsDialog() {
+    missingFontsDialogDismissed.value = true
+  }
   val isBrightnessSliderShown = MutableStateFlow(false)
   val isVolumeSliderShown = MutableStateFlow(false)
   val currentBrightness = MutableStateFlow(

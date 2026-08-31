@@ -314,4 +314,11 @@
     <string name="pref_player_screenshot_sw_title">Tangkapan layar dengan rendering perangkat lunak</string>
     <string name="pref_player_screenshot_sw_summary">Membuat tangkapan layar dengan rendering perangkat lunak tanpa tersendat. Matikan jika tangkapan layar tampak hitam pada beberapa video.</string>
 
+    <!-- missing keys -->
+    <string name="pref_subtitles_use_system_fonts_title">Sertakan font sistem</string>
+    <string name="pref_subtitles_use_system_fonts_summary">Render subtitle juga dapat memakai font sistem perangkat. Pemindaian pertama akan membuat indeks.</string>
+    <string name="missing_fonts_title">Font subtitle tidak ditemukan</string>
+    <string name="missing_fonts_body">Font berikut tidak ditemukan sehingga gaya subtitle bisa berbeda dari tampilan di PC. Salin namanya untuk diunduh, lalu letakkan di folder font subtitle (atau di sebelah video).</string>
+    <string name="missing_fonts_copy">Salin nama font</string>
+
 </resources>

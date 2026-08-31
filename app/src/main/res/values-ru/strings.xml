@@ -297,4 +297,11 @@
     <string name="pref_player_screenshot_sw_title">Скриншоты с программным рендерингом</string>
     <string name="pref_player_screenshot_sw_summary">Создаёт скриншоты с программным рендерингом без подёргиваний. Отключите, если на некоторых видео скриншоты получаются чёрными.</string>
 
+    <!-- missing keys -->
+    <string name="pref_subtitles_use_system_fonts_title">Использовать системные шрифты</string>
+    <string name="pref_subtitles_use_system_fonts_summary">Позволяет рендерингу субтитров также находить системные шрифты устройства. Первый запуск создаёт индекс.</string>
+    <string name="missing_fonts_title">Отсутствуют шрифты для субтитров</string>
+    <string name="missing_fonts_body">Следующие шрифты не найдены, поэтому стили могут отличаться от отображения на ПК. Скопируйте названия, скачайте шрифты и положите их в папку шрифтов субтитров (или рядом с видео).</string>
+    <string name="missing_fonts_copy">Скопировать названия</string>
+
 </resources>

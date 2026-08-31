@@ -56,3 +56,7 @@ internal val imageExtensions = listOf(
 )
 
 inline fun <reified T> MPVNode.toObject(json: Json): T = json.decodeFromString<T>(toJson())
+
+internal const val SMALL_USER_FONT_FOLDER_LIMIT = 30
+
+internal const val FONT_INDEX_SCAN_INTERVAL = 6 * 60 * 60 * 1000L

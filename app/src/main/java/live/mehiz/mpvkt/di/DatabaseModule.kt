@@ -7,6 +7,7 @@ import live.mehiz.mpvkt.database.repository.CustomButtonRepositoryImpl
 import live.mehiz.mpvkt.database.repository.PlaybackStateRepositoryImpl
 import live.mehiz.mpvkt.domain.custombuttons.repository.CustomButtonRepository
 import live.mehiz.mpvkt.domain.playbackstate.repository.PlaybackStateRepository
+import live.mehiz.mpvkt.player.FontIndexer
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
@@ -22,4 +23,7 @@ val DatabaseModule = module {
 
   singleOf(::CustomButtonRepositoryImpl).bind(CustomButtonRepository::class)
   singleOf(::PlaybackStateRepositoryImpl).bind(PlaybackStateRepository::class)
+
+  single { get<MpvKtDatabase>().fontDao() }
+  singleOf(::FontIndexer)
 }

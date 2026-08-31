@@ -266,4 +266,11 @@
     <string name="pref_player_screenshot_sw_title">Chụp ảnh bằng kết xuất phần mềm</string>
     <string name="pref_player_screenshot_sw_summary">Tạo ảnh chụp bằng kết xuất phần mềm để không bị giật. Tắt nếu ảnh bị đen trên một số video.</string>
 
+    <!-- missing keys -->
+    <string name="pref_subtitles_use_system_fonts_title">Dùng font hệ thống</string>
+    <string name="pref_subtitles_use_system_fonts_summary">Cho phép kết xuất phụ đề dùng thêm font hệ thống của thiết bị. Lần quét đầu sẽ tạo chỉ mục.</string>
+    <string name="missing_fonts_title">Thiếu font phụ đề</string>
+    <string name="missing_fonts_body">Các font sau không tìm thấy nên một số kiểu có thể khác với hiển thị trên máy tính. Sao chép tên để tải về, rồi đặt vào thư mục font phụ đề (hoặc cạnh video).</string>
+    <string name="missing_fonts_copy">Sao chép tên font</string>
+
 </resources>

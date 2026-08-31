@@ -266,4 +266,11 @@
     <string name="pref_player_screenshot_sw_title">소프트웨어 렌더링 스크린샷</string>
     <string name="pref_player_screenshot_sw_summary">소프트웨어 렌더링으로 스크린샷을 찍어 끊김 없이 저장합니다. 일부 영상에서 검게 나오면 끄세요.</string>
 
+    <!-- missing keys -->
+    <string name="pref_subtitles_use_system_fonts_title">시스템 폰트 포함</string>
+    <string name="pref_subtitles_use_system_fonts_summary">자막 렌더링에서 기기의 시스템 폰트도 사용합니다. 처음 스캔 시 인덱스를 만듭니다.</string>
+    <string name="missing_fonts_title">자막 폰트 누락</string>
+    <string name="missing_fonts_body">다음 폰트를 찾을 수 없어 일부 스타일이 PC와 다르게 표시될 수 있습니다. 폰트 이름을 복사해 다운로드한 뒤 자막 폰트 폴더(또는 영상 옆)에 넣어 주세요.</string>
+    <string name="missing_fonts_copy">폰트 이름 복사</string>
+
 </resources>

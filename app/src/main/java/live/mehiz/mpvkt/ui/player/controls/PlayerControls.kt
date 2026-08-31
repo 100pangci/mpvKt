@@ -81,6 +81,7 @@ import live.mehiz.mpvkt.ui.player.Sheets
 import live.mehiz.mpvkt.ui.player.VideoAspect
 import live.mehiz.mpvkt.ui.player.controls.components.BrightnessSlider
 import live.mehiz.mpvkt.ui.player.controls.components.ControlsButton
+import live.mehiz.mpvkt.ui.player.controls.components.MissingFontsDialog
 import live.mehiz.mpvkt.ui.player.controls.components.MultipleSpeedPlayerUpdate
 import live.mehiz.mpvkt.ui.player.controls.components.SeekbarWithTimers
 import live.mehiz.mpvkt.ui.player.controls.components.TextPlayerUpdate
@@ -331,6 +332,18 @@ fun PlayerControls(
           },
         ) {
           TextPlayerUpdate(stringResource(R.string.screenshot_cancel_hint))
+        }
+
+        val missingFonts by viewModel.missingFonts.collectAsState()
+        val missingFontsDismissed by viewModel.missingFontsDialogDismissed.collectAsState()
+        if (missingFonts.isNotEmpty() && !missingFontsDismissed) {
+          MissingFontsDialog(
+            fonts = missingFonts,
+            onCopy = {
+              viewModel.dismissMissingFontsDialog()
+            },
+            onDismiss = viewModel::dismissMissingFontsDialog,
+          )
         }
 
         AnimatedVisibility(

@@ -268,4 +268,11 @@
     <string name="pref_player_screenshot_sw_title">Yazılımsal işlenmiş ekran görüntüleri</string>
     <string name="pref_player_screenshot_sw_summary">Ekran görüntülerini takılma olmadan kaydetmek için yazılımsal işlemeyle oluşturur. Bazı videolarda siyah çıkarsa kapatın.</string>
 
+    <!-- missing keys -->
+    <string name="pref_subtitles_use_system_fonts_title">Sistem yazı tiplerini dahil et</string>
+    <string name="pref_subtitles_use_system_fonts_summary">Altyazı işleme, cihazın sistem yazı tiplerini de kullanabilir. İlk tarama dizini oluşturur.</string>
+    <string name="missing_fonts_title">Eksik altyazı yazı tipleri</string>
+    <string name="missing_fonts_body">Aşağıdaki yazı tipleri bulunamadı, ilgili stiller PC\'deki görünümle eşleşmeyebilir. İndirmek için adları kopyalayın ve altyazı yazı tipi klasörünüze (veya videonun yanına) yerleştirin.</string>
+    <string name="missing_fonts_copy">Yazı tipi adlarını kopyala</string>
+
 </resources>

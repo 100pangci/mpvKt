@@ -307,4 +307,11 @@
     <string name="pref_player_screenshot_sw_title">Capturas com renderização por software</string>
     <string name="pref_player_screenshot_sw_summary">Gera as capturas com renderização por software para evitar travadas. Desative se alguma captura sair preta.</string>
 
+    <!-- missing keys -->
+    <string name="pref_subtitles_use_system_fonts_title">Incluir fontes do sistema</string>
+    <string name="pref_subtitles_use_system_fonts_summary">Permite que a renderização de legendas também use fontes do sistema do aparelho. A primeira varredura cria o índice.</string>
+    <string name="missing_fonts_title">Fontes de legenda ausentes</string>
+    <string name="missing_fonts_body">As fontes abaixo não foram encontradas, então alguns estilos podem não corresponder à renderização no PC. Copie os nomes para baixá-las e coloque-as na sua pasta de fontes (ou junto ao vídeo).</string>
+    <string name="missing_fonts_copy">Copiar nomes das fontes</string>
+
 </resources>
