@@ -39,3 +39,9 @@ Subsequent runs skip provisioning and build directly. APKs land in
 
 ## Acknowledgments
 - [mpv-android](https://github.com/mpv-android) for the base mpv library to use for this project.
+
+## License
+
+This project is licensed under the [Mozilla Public License 2.0](LICENSE).
+It is a fork of [mpvKt](https://github.com/abdallahmehiz/mpvKt), whose
+original code is licensed under the Apache License 2.0.
