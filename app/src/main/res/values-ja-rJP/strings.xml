@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name" translatable="false">mpvKt</string>
 
     <string name="generic_reset">リセット</string>
     <string name="generic_share">共有</string>
@@ -236,7 +235,6 @@
     <string name="player_sheets_custom_buttons_title">カスタムボタン</string>
     <string name="player_seek_n_seconds">%d 秒</string>
     <string name="player_speed" translatable="false">%.2fx</string>
-    <string name="player_gesture_seek_indicator" translatable="false">%c%s\n[%s]</string>
 
     <string name="player_aspect_fit">フィット</string>
     <string name="player_aspect_crop">クロップ</string>
@@ -265,7 +263,6 @@
     <string name="value_percentage_int" translatable="false">%d%%</string>
     <string name="value_percentage_float" translatable="false">%.2f\%%</string>
 
-    <string name="github_repo_url" translatable="false">https://github.com/100pangci/mpvKt</string>
     <string name="privacy_policy_url" translatable="false">https://100pangci.github.io/mpvKt/privacy_policy.html</string>
     <string name="swap_the_volume_and_brightness_slider">音量と明るさのスライダーを入れ替える</string>
     <string name="pref_player_display_reduce_player_animation">プレーヤーのアニメーションを短縮する</string>
@@ -294,4 +291,23 @@
         <item quantity="one">%1$d 秒</item>
         <item quantity="other">%1$d 秒</item>
     </plurals>
+    <!-- missing keys -->
+    <string name="screenshot_subtitles">字幕付きスクリーンショット</string>
+    <string name="screenshot_raw">字幕なしスクリーンショット</string>
+    <string name="screenshot_saved">スクリーンショットを保存しました: %1$s</string>
+    <string name="screenshot_failed">スクリーンショットに失敗しました</string>
+    <string name="screenshot_cancel_hint">指を離すとキャンセルされます</string>
+    <string name="error_unsupported_file">このファイル形式は再生できません</string>
+    <string name="screenshot_dir_missing">ディレクトリが存在しません</string>
+    <string name="screenshot_dir_unwritable">ディレクトリに書き込めません</string>
+    <string name="screenshot_error_unknown">不明なエラー</string>
+    <string name="pref_player_screenshots_title">スクリーンショット</string>
+    <string name="pref_player_screenshot_directory">スクリーンショットの保存先</string>
+    <string name="pref_player_screenshot_directory_default">デフォルト (Pictures/mpvKt)</string>
+    <string name="pref_player_screenshot_directory_unsupported">サポートされていないディレクトリです。端末内の実際のパスを指定してください</string>
+    <string name="pref_player_screenshot_directory_reset">保存先をリセット</string>
+    <string name="pref_player_screenshot_resume_playback">コマ送りスクリーンショット後に再生を再開</string>
+    <string name="pref_player_screenshot_all_files_title">すべてのファイルへのアクセスが必要です</string>
+    <string name="pref_player_screenshot_all_files_message">選択したディレクトリにスクリーンショットを保存するため、次の画面で mpvKt に「すべてのファイルへのアクセス」権限を付与してください。</string>
+
 </resources>

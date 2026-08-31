@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name" translatable="false">mpvKt</string>
 
     <string name="generic_reset">Reset</string>
     <string name="generic_share">Bagikan</string>
@@ -236,7 +235,6 @@
     <string name="player_sheets_custom_buttons_title">Tombol kustom</string>
     <string name="player_seek_n_seconds">%d detik</string>
     <string name="player_speed" translatable="false">%.2fx</string>
-    <string name="player_gesture_seek_indicator" translatable="false">%c%s\n[%s]</string>
 
     <string name="player_aspect_fit">Pas di Layar</string>
     <string name="player_aspect_crop">Potong</string>
@@ -265,7 +263,6 @@
     <string name="value_percentage_int" translatable="false">%d%%</string>
     <string name="value_percentage_float" translatable="false">%.2f\%%</string>
 
-    <string name="github_repo_url" translatable="false">https://github.com/100pangci/mpvKt</string>
     <string name="privacy_policy_url" translatable="false">https://100pangci.github.io/mpvKt/privacy_policy.html</string>
     <string name="swap_the_volume_and_brightness_slider">Tukar posisi slider volume &amp; kecerahan</string>
     <string name="pref_player_display_reduce_player_animation">Kurangi animasi player</string>
@@ -294,4 +291,23 @@
         <item quantity="one">%1$d detik</item>
         <item quantity="other">%1$d detik</item>
     </plurals>
+    <!-- missing keys -->
+    <string name="screenshot_subtitles">Tangkapan layar dengan subtitle</string>
+    <string name="screenshot_raw">Tangkapan layar tanpa subtitle</string>
+    <string name="screenshot_saved">Tangkapan layar disimpan: %1$s</string>
+    <string name="screenshot_failed">Tangkapan layar gagal</string>
+    <string name="screenshot_cancel_hint">Lepaskan untuk membatalkan</string>
+    <string name="error_unsupported_file">Tipe file ini tidak dapat diputar</string>
+    <string name="screenshot_dir_missing">direktori tidak ada</string>
+    <string name="screenshot_dir_unwritable">direktori tidak dapat ditulis</string>
+    <string name="screenshot_error_unknown">kesalahan tidak diketahui</string>
+    <string name="pref_player_screenshots_title">Tangkapan layar</string>
+    <string name="pref_player_screenshot_directory">Direktori tangkapan layar</string>
+    <string name="pref_player_screenshot_directory_default">Bawaan (Pictures/mpvKt)</string>
+    <string name="pref_player_screenshot_directory_unsupported">Direktori tidak didukung: dibutuhkan jalur nyata di penyimpanan perangkat</string>
+    <string name="pref_player_screenshot_directory_reset">Atur ulang direktori</string>
+    <string name="pref_player_screenshot_resume_playback">Lanjutkan pemutaran setelah tangkapan layar per-frame</string>
+    <string name="pref_player_screenshot_all_files_title">Perlu akses ke semua berkas</string>
+    <string name="pref_player_screenshot_all_files_message">Untuk menyimpan tangkapan layar di direktori pilihan, berikan izin \"Akses ke semua berkas\" kepada mpvKt di layar berikutnya.</string>
+
 </resources>
