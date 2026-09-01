@@ -242,12 +242,6 @@ object PlayerPreferencesScreen : Screen {
           PreferenceCategory(
             title = { Text(stringResource(R.string.pref_player_screenshots_title)) },
           )
-          val screenshotResumePlayback by preferences.screenshotResumePlayback.collectAsState()
-          SwitchPreference(
-            value = screenshotResumePlayback,
-            onValueChange = preferences.screenshotResumePlayback::set,
-            title = { Text(stringResource(R.string.pref_player_screenshot_resume_playback)) },
-          )
           val screenshotSoftwareRendering by preferences.screenshotSoftwareRendering.collectAsState()
           SwitchPreference(
             value = screenshotSoftwareRendering,

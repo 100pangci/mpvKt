@@ -8,6 +8,7 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -15,6 +16,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AspectRatio
 import androidx.compose.material.icons.filled.PictureInPictureAlt
 import androidx.compose.material.icons.filled.Screenshot
+import androidx.compose.material.icons.filled.SkipNext
+import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material.icons.filled.Subtitles
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -25,12 +28,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import live.mehiz.mpvkt.R
+import androidx.compose.ui.zIndex
 import live.mehiz.mpvkt.database.entities.CustomButtonEntity
 import live.mehiz.mpvkt.ui.player.controls.components.ControlsButton
-import live.mehiz.mpvkt.ui.player.controls.components.FrameStepButton
 import live.mehiz.mpvkt.ui.player.execute
 import live.mehiz.mpvkt.ui.player.executeLongClick
 import live.mehiz.mpvkt.ui.theme.spacing
@@ -45,8 +46,6 @@ fun BottomRightPlayerControls(
   onScreenshotSubsTap: () -> Unit,
   onScreenshotRawTap: () -> Unit,
   onFrameStep: (forward: Boolean) -> Unit,
-  onFrameStepEnd: (withSubtitles: Boolean) -> Unit,
-  onScreenshotCancelChange: (Boolean) -> Unit,
   onAspectClick: () -> Unit,
   onPipClick: () -> Unit,
   modifier: Modifier = Modifier,
@@ -77,22 +76,30 @@ fun BottomRightPlayerControls(
       )
     }
 
-    FrameStepButton(
-      icon = Icons.Default.Screenshot,
-      contentDescription = stringResource(R.string.screenshot_subtitles),
-      onTap = onScreenshotSubsTap,
-      onFrameStep = onFrameStep,
-      onFrameStepEnd = { onFrameStepEnd(true) },
-      onCancelChange = onScreenshotCancelChange,
-      overlay = { SubtitlesBadge() },
+    Box(modifier = Modifier.padding(end = MaterialTheme.spacing.smaller)) {
+      ControlsButton(
+        Icons.Default.Screenshot,
+        onClick = onScreenshotSubsTap,
+      )
+      SubtitlesBadge(
+        modifier = Modifier
+          .align(Alignment.BottomEnd)
+          .offset(x = 3.dp, y = 3.dp)
+          .zIndex(1f),
+      )
+    }
+    ControlsButton(
+      Icons.Default.Screenshot,
+      onClick = onScreenshotRawTap,
     )
-    FrameStepButton(
-      icon = Icons.Default.Screenshot,
-      contentDescription = stringResource(R.string.screenshot_raw),
-      onTap = onScreenshotRawTap,
-      onFrameStep = onFrameStep,
-      onFrameStepEnd = { onFrameStepEnd(false) },
-      onCancelChange = onScreenshotCancelChange,
+
+    ControlsButton(
+      Icons.Default.SkipPrevious,
+      onClick = { onFrameStep(false) },
+    )
+    ControlsButton(
+      Icons.Default.SkipNext,
+      onClick = { onFrameStep(true) },
     )
 
     ControlsButton(
@@ -103,9 +110,9 @@ fun BottomRightPlayerControls(
 }
 
 @Composable
-private fun SubtitlesBadge() {
+private fun SubtitlesBadge(modifier: Modifier = Modifier) {
   Box(
-    modifier = Modifier
+    modifier = modifier
       .size(12.dp)
       .background(Color.Black, CircleShape)
       .border(0.5.dp, Color.White, CircleShape),

@@ -3,6 +3,7 @@ package live.mehiz.mpvkt.ui.player
 import android.content.Context
 import android.content.pm.ActivityInfo
 import android.media.AudioManager
+import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -118,7 +119,6 @@ class PlayerViewModel(
   val areControlsLocked = _areControlsLocked.asStateFlow()
 
   val playerUpdate = MutableStateFlow<PlayerUpdates>(PlayerUpdates.None)
-  val screenshotCancelActive = MutableStateFlow(false)
   val missingFonts = MutableStateFlow<Set<String>>(emptySet())
   val missingFontsDialogDismissed = MutableStateFlow(false)
 
@@ -391,6 +391,10 @@ class PlayerViewModel(
     }
     val appCanWrite = if (!saved) isDirectoryWritable(dir) else true
     Log.d(TAG, screenshotDiagnostic(saved, dir, file, appCanWrite))
+    if (saved) {
+      // direct file writes are not indexed by MediaProvider on its own
+      MediaScannerConnection.scanFile(activity, arrayOf(file.absolutePath), arrayOf("image/png"), null)
+    }
     val reason = when {
       saved -> null
       !dir.exists() -> activity.getString(R.string.screenshot_dir_missing)
@@ -434,27 +438,9 @@ class PlayerViewModel(
     return String.format(Locale.US, "%02d-%02d-%02d.%03d", hours, minutes, seconds, millis)
   }
 
-  private var wasPlayingBeforeFrameStep = false
-
   fun frameStep(forward: Boolean) {
-    if (!wasPlayingBeforeFrameStep) {
-      wasPlayingBeforeFrameStep = MPVLib.getPropertyBoolean("pause") == false
-    }
     MPVLib.command(if (forward) "frame-step" else "frame-back-step")
     showFramePosition()
-  }
-
-  fun frameStepScreenshot(withSubtitles: Boolean) {
-    screenshot(withSubtitles)
-    if (wasPlayingBeforeFrameStep && playerPreferences.screenshotResumePlayback.get()) {
-      MPVLib.setPropertyBoolean("pause", false)
-    }
-    wasPlayingBeforeFrameStep = false
-  }
-
-  fun setScreenshotCancel(active: Boolean) {
-    if (active) wasPlayingBeforeFrameStep = false
-    screenshotCancelActive.update { active }
   }
 
   private fun showFramePosition() {
