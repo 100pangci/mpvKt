@@ -21,8 +21,8 @@ android {
     applicationId = "live.ywpc05.mpvkt"
     minSdk = 23
     targetSdk = 36
-    versionCode = 12
-    versionName = "0.1.6"
+    versionCode = 13
+    versionName = "0.2.0"
 
     vectorDrawables {
       useSupportLibrary = true
