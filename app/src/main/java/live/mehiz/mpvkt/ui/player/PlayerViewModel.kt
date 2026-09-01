@@ -38,7 +38,6 @@ import live.mehiz.mpvkt.player.MPVLib
 import live.mehiz.mpvkt.preferences.AudioPreferences
 import live.mehiz.mpvkt.preferences.GesturePreferences
 import live.mehiz.mpvkt.preferences.PlayerPreferences
-import live.mehiz.mpvkt.preferences.SubtitlesPreferences
 import live.mehiz.mpvkt.ui.custombuttons.CustomButtonsUiState
 import live.mehiz.mpvkt.ui.custombuttons.getButtons
 import org.koin.java.KoinJavaComponent.inject
@@ -63,7 +62,6 @@ class PlayerViewModel(
   private val playerPreferences: PlayerPreferences by inject(PlayerPreferences::class.java)
   private val gesturePreferences: GesturePreferences by inject(GesturePreferences::class.java)
   private val audioPreferences: AudioPreferences by inject(AudioPreferences::class.java)
-  private val subtitlesPreferences: SubtitlesPreferences by inject(SubtitlesPreferences::class.java)
   private val mpvKtDatabase: MpvKtDatabase by inject(MpvKtDatabase::class.java)
   private val json: Json by inject(Json::class.java)
 
@@ -197,17 +195,13 @@ class PlayerViewModel(
   }
 
   fun selectSub(id: Int) {
-    // Native ASS rendering keeps a single styled track: never promote a
-    // secondary subtitle in that mode.
-    val nativeMode = !subtitlesPreferences.overrideAssSubs.get()
     val selectedSubs = Pair(MPVLib.getPropertyInt("sid"), MPVLib.getPropertyInt("secondary-sid"))
     when (id) {
       selectedSubs.first -> Pair(selectedSubs.second, null)
       selectedSubs.second -> Pair(selectedSubs.first, null)
       else -> if (selectedSubs.first != null) Pair(selectedSubs.first, id) else Pair(id, null)
     }.let {
-      val secondary = if (nativeMode) null else it.second
-      secondary?.let { MPVLib.setPropertyInt("secondary-sid", it) } ?: MPVLib.setPropertyBoolean("secondary-sid", false)
+      it.second?.let { MPVLib.setPropertyInt("secondary-sid", it) } ?: MPVLib.setPropertyBoolean("secondary-sid", false)
       it.first?.let { MPVLib.setPropertyInt("sid", it) } ?: MPVLib.setPropertyBoolean("sid", false)
     }
   }

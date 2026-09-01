@@ -149,7 +149,6 @@
     <string name="player_sheets_chapter_title_substitute_audio">صوت #%d</string>
     <string name="player_sheets_chapter_title_substitute_subtitle">ترجمة #%d</string>
     <string name="player_sheets_subtitles_footer_secondary_sid_no_styles">الترجمة الثانوية لن تتمتع بتنسيق ASS/SSA.</string>
-    <string name="player_sheets_subtitles_footer_secondary_native">الترجمة الثانوية غير متاحة في الوضع الأصلي</string>
     <string name="player_sheets_subtitles_settings_title">إعدادات الترجمات</string>
     <string name="player_sheets_subtitles_color_text">النص</string>
     <string name="player_sheets_subtitles_color_border">الحدود</string>

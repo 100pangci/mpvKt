@@ -21,13 +21,10 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import kotlinx.collections.immutable.ImmutableList
 import live.mehiz.mpvkt.R
-import live.mehiz.mpvkt.preferences.SubtitlesPreferences
-import live.mehiz.mpvkt.preferences.preference.collectAsState
 import live.mehiz.mpvkt.ui.player.TrackNode
 import live.mehiz.mpvkt.ui.theme.spacing
 import me.zhanghai.compose.preference.FooterPreference
 import me.zhanghai.compose.preference.ProvidePreferenceLocals
-import org.koin.compose.koinInject
 
 @Composable
 fun SubtitlesSheet(
@@ -67,16 +64,7 @@ fun SubtitlesSheet(
       ProvidePreferenceLocals {
         FooterPreference(
           summary = {
-            val nativeMode = !koinInject<SubtitlesPreferences>().overrideAssSubs.collectAsState().value
-            Text(
-              stringResource(
-                if (nativeMode) {
-                  R.string.player_sheets_subtitles_footer_secondary_native
-                } else {
-                  R.string.player_sheets_subtitles_footer_secondary_sid_no_styles
-                },
-              ),
-            )
+            Text(stringResource(R.string.player_sheets_subtitles_footer_secondary_sid_no_styles))
           },
         )
       }

@@ -149,7 +149,6 @@
     <string name="player_sheets_chapter_title_substitute_audio">เสียง #%d</string>
     <string name="player_sheets_chapter_title_substitute_subtitle">คำบรรยาย #%d</string>
     <string name="player_sheets_subtitles_footer_secondary_sid_no_styles">คำบรรยายรองจะไม่มีสไตล์ ASS/SSA</string>
-    <string name="player_sheets_subtitles_footer_secondary_native">คำบรรยายรองไม่พร้อมใช้งานในโหมดเนทีฟ</string>
     <string name="player_sheets_subtitles_settings_title">ตั้งค่าคำบรรยาย</string>
     <string name="player_sheets_subtitles_color_text">ตัวอักษร</string>
     <string name="player_sheets_subtitles_color_border">ขอบ</string>

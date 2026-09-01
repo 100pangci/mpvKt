@@ -149,7 +149,6 @@
     <string name="player_sheets_chapter_title_substitute_audio">Аудіо #%d</string>
     <string name="player_sheets_chapter_title_substitute_subtitle">Субтитри #%d</string>
     <string name="player_sheets_subtitles_footer_secondary_sid_no_styles">Другорядні субтитри не матимуть стилів ASS/SSA.</string>
-    <string name="player_sheets_subtitles_footer_secondary_native">Додаткові субтитри недоступні в нативному режимі</string>
     <string name="player_sheets_subtitles_settings_title">Налаштування субтитрів</string>
     <string name="player_sheets_subtitles_color_text">Текст</string>
     <string name="player_sheets_subtitles_color_border">Обведення</string>

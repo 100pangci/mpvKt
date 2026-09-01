@@ -116,7 +116,6 @@
     <string name="player_sheets_add_ext_audio">Añadir pistas de audio externas</string>
     <string name="player_sheets_tracks_off">Desactivado</string>
     <string name="player_sheets_subtitles_footer_secondary_sid_no_styles">Los subtítulos secundarios no tendrán estilo ASS/SSA.</string>
-    <string name="player_sheets_subtitles_footer_secondary_native">Los subtítulos secundarios no están disponibles en modo nativo</string>
     <string name="player_sheets_subtitles_settings_title">Ajustes de subtítulos</string>
     <string name="player_sheets_subtitles_color_text">Texto</string>
     <string name="player_sheets_subtitles_color_border">Borde</string>

@@ -149,7 +149,6 @@
     <string name="player_sheets_chapter_title_substitute_audio">ऑडियो #%d</string>
     <string name="player_sheets_chapter_title_substitute_subtitle">सबटाइटल #%d</string>
     <string name="player_sheets_subtitles_footer_secondary_sid_no_styles">सेकंडरी सबटाइटल पर ASS/SSA स्टाइल लागू नहीं होगा।</string>
-    <string name="player_sheets_subtitles_footer_secondary_native">नेटिव मोड में द्वितीय उपशीर्षक अनुपलब्ध हैं</string>
     <string name="player_sheets_subtitles_settings_title">सबटाइटल सेटिंग</string>
     <string name="player_sheets_subtitles_color_text">टेक्स्ट</string>
     <string name="player_sheets_subtitles_color_border">किनारा</string>

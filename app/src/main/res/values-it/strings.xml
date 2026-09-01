@@ -149,7 +149,6 @@
     <string name="player_sheets_chapter_title_substitute_audio">Audio #%d</string>
     <string name="player_sheets_chapter_title_substitute_subtitle">Sottotitolo #%d</string>
     <string name="player_sheets_subtitles_footer_secondary_sid_no_styles">I sottotitoli secondari non avranno stili ASS/SSA.</string>
-    <string name="player_sheets_subtitles_footer_secondary_native">I sottotitoli secondari non sono disponibili in modalità nativa</string>
     <string name="player_sheets_subtitles_settings_title">Impostazioni sottotitoli</string>
     <string name="player_sheets_subtitles_color_text">Testo</string>
     <string name="player_sheets_subtitles_color_border">Bordo</string>

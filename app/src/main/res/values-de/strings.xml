@@ -149,7 +149,6 @@
     <string name="player_sheets_chapter_title_substitute_audio">Audio #%d</string>
     <string name="player_sheets_chapter_title_substitute_subtitle">Untertitel #%d</string>
     <string name="player_sheets_subtitles_footer_secondary_sid_no_styles">Sekundäre Untertitel haben kein ASS/SSA-Styling.</string>
-    <string name="player_sheets_subtitles_footer_secondary_native">Sekundäre Untertitel sind im nativen Modus nicht verfügbar</string>
     <string name="player_sheets_subtitles_settings_title">Untertiteleinstellungen</string>
     <string name="player_sheets_subtitles_color_text">Text</string>
     <string name="player_sheets_subtitles_color_border">Umrandung</string>

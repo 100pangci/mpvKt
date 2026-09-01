@@ -168,7 +168,6 @@
     <string name="player_sheets_chapter_title_substitute_audio">オーディオ #%d</string>
     <string name="player_sheets_chapter_title_substitute_subtitle">字幕 #%d</string>
     <string name="player_sheets_subtitles_footer_secondary_sid_no_styles">サブ字幕には ASS/SSA スタイルは適用されません。</string>
-    <string name="player_sheets_subtitles_footer_secondary_native">ネイティブモードではセカンダリ字幕は利用できません</string>
     <string name="player_sheets_subtitles_settings_title">字幕設定</string>
     <string name="player_sheets_subtitles_color_text">テキスト</string>
     <string name="player_sheets_subtitles_color_border">枠</string>
