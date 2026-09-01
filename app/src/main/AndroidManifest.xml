@@ -30,6 +30,7 @@
             android:value="true" />
         <activity
             android:name=".MainActivity"
+            android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
             android:exported="true"
             android:theme="@style/Theme.MpvKt">
             <intent-filter>
