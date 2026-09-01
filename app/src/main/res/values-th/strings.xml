@@ -163,6 +163,7 @@
     <string name="player_sheets_sub_color_blue">น้ำเงิน</string>
     <string name="player_sheets_sub_color_alpha">อัลฟา</string>
     <string name="player_sheets_sub_override_ass">เขียนทับคำบรรยาย ASS/SSA</string>
+    <string name="player_sheets_sub_match_fonts">จับคู่ฟอนต์ตามคำบรรยาย</string>
     <string name="player_sheets_sub_scale">สเกล</string>
     <string name="player_sheets_sub_position">ตำแหน่ง</string>
     <string name="player_sheets_sub_typography_card_title">ตัวอักษร</string>

@@ -163,6 +163,7 @@
     <string name="player_sheets_sub_color_blue">Bleu</string>
     <string name="player_sheets_sub_color_alpha">Alpha</string>
     <string name="player_sheets_sub_override_ass">Remplacer les sous-titres ASS/SSA</string>
+    <string name="player_sheets_sub_match_fonts">Associer les polices par sous-titre</string>
     <string name="player_sheets_sub_scale">Échelle</string>
     <string name="player_sheets_sub_position">Position</string>
     <string name="player_sheets_sub_typography_card_title">Typographie</string>

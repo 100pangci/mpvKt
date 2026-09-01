@@ -130,6 +130,7 @@
     <string name="player_sheets_sub_color_blue">Azul</string>
     <string name="player_sheets_sub_color_alpha">Alfa</string>
     <string name="player_sheets_sub_override_ass">Anular subtítulos ASS/SSA</string>
+    <string name="player_sheets_sub_match_fonts">Coincidir fuentes por subtítulo</string>
     <string name="player_sheets_sub_scale">Escala</string>
     <string name="player_sheets_sub_position">Posición</string>
     <string name="player_sheets_sub_typography_card_title">Tipografía</string>

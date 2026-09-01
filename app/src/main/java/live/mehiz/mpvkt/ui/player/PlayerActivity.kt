@@ -174,14 +174,13 @@ class PlayerActivity : AppCompatActivity() {
     if (playable == null) return
     var videoPath = playable.takeUnless { it.startsWith("fd://") }
     if (videoPath == null) {
-      // fd:// has no directory context: reconstruct the real video location
-      // from the content URI so sibling fonts and subtitles still resolve.
-      val dir = realDirFromContentUri(intent.data)
-      val displayName = getFileName(intent)
-      if (dir != null && displayName.isNotBlank()) {
-        val guessed = File(dir, displayName)
-        if (guessed.isFile) videoPath = guessed.absolutePath
-      }
+      // fd:// has no directory context: resolve the real video location from
+      // the content URI so sibling fonts and subtitles still resolve.
+      videoPath = realVideoFileFromContentUri(intent.data)?.absolutePath
+        ?: realDirFromContentUri(intent.data)?.let { dir ->
+          getFileName(intent).takeIf { it.isNotBlank() }
+            ?.let { name -> File(dir, name).takeIf { f -> f.isFile } }?.absolutePath
+        }
     }
     val siblingSubPath = videoPath?.let(::File)?.takeIf { it.isFile }
       ?.let { guessSiblingSubtitle(it) }?.absolutePath
@@ -189,9 +188,11 @@ class PlayerActivity : AppCompatActivity() {
     launch {
       runCatching {
         withTimeoutOrNull(FONT_SETUP_TIMEOUT_MS) {
-          siblingSubPath?.let { preloadSubtitleFonts(it) }
-          stageVideoFonts(videoPath)
-          MPVLib.command("sub-reload")
+          val stagedSub = siblingSubPath?.let { preloadSubtitleFonts(it) } ?: false
+          val stagedVideo = stageVideoFonts(videoPath)
+          // Only reload the renderer when fonts actually landed; a reload
+          // against an idle player would just log "not initialized".
+          if (stagedSub || stagedVideo) MPVLib.command("sub-reload")
         }
       }
       Log.i(TAG, "playback flow: font setup finished")
@@ -477,7 +478,9 @@ class PlayerActivity : AppCompatActivity() {
     lifecycleScope.launch(Dispatchers.IO) {
       val destDir = fontsCacheDir()
       ensureBundledFont(destDir)
-      refreshFontIndex(force = true)
+      // The family comes straight from the index list: an incremental
+      // refresh (throttled) is enough, no forced full scan per pick.
+      refreshFontIndex()
       stageIndexedFont(family, destDir)
       MPVLib.setPropertyString("sub-font", family)
     }
@@ -522,6 +525,25 @@ class PlayerActivity : AppCompatActivity() {
       }
     }
     return firstSub to defaultSub
+  }
+
+  /**
+   * Resolves a content URI to the real video file on disk: direct document
+   * paths first, then the provider's DATA column (MediaStore uris from file
+   * managers and gallery apps have no document path at all).
+   */
+  private fun realVideoFileFromContentUri(uri: Uri?): File? {
+    val documentFile = uri?.path
+      ?.takeIf { it.startsWith("/document/primary:") }
+      ?.removePrefix("/document/primary:")
+      ?.let { File("/storage/emulated/0", it).takeIf { f -> f.isFile } }
+    val dataFile = uri?.let { u ->
+      runCatching {
+        contentResolver.query(u, arrayOf(MediaStore.MediaColumns.DATA), null, null)
+          ?.use { cursor -> cursor.takeIf { it.moveToFirst() }?.getString(0) }
+      }.getOrNull()
+    }?.takeIf { it.isNotBlank() }?.let { File(it).takeIf { f -> f.isFile } }
+    return documentFile ?: dataFile
   }
 
   private fun realDirFromContentUri(uri: Uri?): File? {
@@ -574,7 +596,8 @@ class PlayerActivity : AppCompatActivity() {
    * them. Unresolved families are reported exactly once, after a single
    * incremental index refresh gets a chance to fill the gaps.
    */
-  private suspend fun preloadSubtitleFonts(subtitlePath: String) {
+  /** @return whether any referenced family is now available in the cache. */
+  private suspend fun preloadSubtitleFonts(subtitlePath: String): Boolean {
     // With ASS styles forced off there is nothing to resolve: every subtitle
     // renders in the default font, so the video font pipeline stays out of
     // the way entirely.
@@ -583,35 +606,49 @@ class PlayerActivity : AppCompatActivity() {
     } else {
       runCatching { parseAssFontNames(File(subtitlePath)) }.getOrDefault(emptyList())
     }
-    if (requested.isEmpty()) return
-    val destDir = fontsCacheDir()
-    val missing = mutableListOf<String>()
-    requested.forEach { family ->
-      if (attemptedFontFamilies.add(family) && !stageIndexedFont(family, destDir)) {
-        missing.add(family)
-      }
-    }
-    if (missing.isEmpty() || fontIndexer.indexIsEmpty()) return
-    // Retry once against a refreshed index before blaming the library.
-    refreshFontIndex()
-    missing.filterNot { stageIndexedFont(it, destDir) }.forEach { viewModel.reportMissingFont(it) }
+    return if (requested.isEmpty()) false else stageAndReportFamilies(requested)
   }
 
-  private suspend fun stageVideoFonts(videoPath: String?) {
+  /**
+   * Stages every family through the index; families the index cannot supply
+   * get one incremental refresh + retry before being reported as missing.
+   */
+  private suspend fun stageAndReportFamilies(families: List<String>): Boolean {
     val destDir = fontsCacheDir()
-    ensureBundledFont(destDir)
+    var stagedAny = false
+    val missing = mutableListOf<String>()
+    families.forEach { family ->
+      if (attemptedFontFamilies.add(family)) {
+        if (stageIndexedFont(family, destDir)) stagedAny = true else missing.add(family)
+      }
+    }
+    if (missing.isNotEmpty() && !fontIndexer.indexIsEmpty()) {
+      // Retry once against a refreshed index before blaming the library.
+      refreshFontIndex()
+      missing.forEach { family ->
+        if (stageIndexedFont(family, destDir)) stagedAny = true else viewModel.reportMissingFont(family)
+      }
+    }
+    return stagedAny
+  }
+
+  private suspend fun stageVideoFonts(videoPath: String?): Boolean {
+    val destDir = fontsCacheDir()
+    var stagedAny = ensureBundledFont(destDir)
     // The default font belongs to the typography feature, not to any video:
     // stage it silently so libass can resolve it (fallback font, or the only
     // font when ASS overriding is forced). It never reports missing.
-    runCatching { stageIndexedFont(subtitlesPreferences.font.get(), destDir) }
+    stagedAny = runCatching { stageIndexedFont(subtitlesPreferences.font.get(), destDir) }
+      .getOrDefault(false) || stagedAny
     // No inline refreshFontIndex here: a full re-index takes minutes via SAF
     // and would stall this coroutine. The index is kept fresh by the
     // self-heal path in handleMissingFont and by the manual rebuild button.
     // Sibling fonts matter only for native ASS rendering: forced default-font
     // mode discards the script's styles and can never reference them.
     if (!subtitlesPreferences.overrideAssSubs.get()) {
-      stageSiblingFonts(videoPath, destDir)
+      stagedAny = stageSiblingFonts(videoPath, destDir) || stagedAny
     }
+    return stagedAny
   }
 
   /**
@@ -660,22 +697,30 @@ class PlayerActivity : AppCompatActivity() {
     }
   }
 
-  private suspend fun stageSiblingFonts(videoPath: String?, destDir: File) {
-    val videoFile = videoPath
+  private suspend fun stageSiblingFonts(videoPath: String?, destDir: File): Boolean {
+    val parent = videoPath
       ?.takeUnless { it.startsWith("fd://") }
       ?.let { runCatching { File(it) }.getOrNull() }
-      ?.takeIf { it.isFile } ?: return
-    val parent = videoFile.parentFile ?: return
-    val fontDirs = sequenceOf(parent, File(parent, "fonts")).filter { it.isDirectory }
-    fontDirs.forEach { dir ->
-      dir.listFiles { file -> file.isFile && FontIndexer.FONT_EXTENSIONS.matches(file.name) }
-        ?.forEach { font ->
-          val target = File(destDir, font.name)
-          if (!target.exists() || target.length() != font.length()) {
-            runCatching { font.copyTo(target, overwrite = true) }
-          }
+      ?.takeIf { it.isFile }
+      ?.parentFile
+    val copiedAny = parent?.let { dir ->
+      val fontDirs = sequenceOf(dir, File(dir, "fonts")).filter { it.isDirectory }
+      fontDirs.fold(false) { any, folder -> copyFolderFonts(folder, destDir) || any }
+    } ?: false
+    return copiedAny
+  }
+
+  private fun copyFolderFonts(folder: File, destDir: File): Boolean {
+    var any = false
+    folder.listFiles { file -> file.isFile && FontIndexer.FONT_EXTENSIONS.matches(file.name) }
+      ?.forEach { font ->
+        val target = File(destDir, font.name)
+        if (!target.exists() || target.length() != font.length()) {
+          val copied = runCatching { font.copyTo(target, overwrite = true) }.isSuccess
+          any = copied || any
         }
-    }
+      }
+    return any
   }
 
   private suspend fun stageIndexedFont(family: String, destDir: File): Boolean {
@@ -714,12 +759,13 @@ class PlayerActivity : AppCompatActivity() {
     return copied && target.length() > 0
   }
 
-  private fun ensureBundledFont(destDir: File) {
+  private fun ensureBundledFont(destDir: File): Boolean {
     val subfont = File(destDir, "subfont.ttf")
-    if (subfont.exists()) return
+    if (subfont.exists()) return false
     runCatching {
       resources.assets.open("subfont.ttf").copyTo(subfont.outputStream())
     }
+    return subfont.exists()
   }
 
   private val audioFocusChangeListener = AudioManager.OnAudioFocusChangeListener {

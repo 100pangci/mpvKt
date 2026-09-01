@@ -163,6 +163,7 @@
     <string name="player_sheets_sub_color_blue">Mavi</string>
     <string name="player_sheets_sub_color_alpha">Alfa</string>
     <string name="player_sheets_sub_override_ass">ASS/SSA altyazılarını geçersiz kıl</string>
+    <string name="player_sheets_sub_match_fonts">Altyazıya göre yazı tipi eşleştir</string>
     <string name="player_sheets_sub_scale">Ölçek</string>
     <string name="player_sheets_sub_position">Konum</string>
     <string name="player_sheets_sub_typography_card_title">Tipografi</string>

@@ -163,6 +163,7 @@
     <string name="player_sheets_sub_color_blue">नीला</string>
     <string name="player_sheets_sub_color_alpha">अल्फा</string>
     <string name="player_sheets_sub_override_ass">ASS/SSA सबटाइटल ओवरराइड करें</string>
+    <string name="player_sheets_sub_match_fonts">प्रति उपशीर्षक फ़ॉन्ट मिलाएँ</string>
     <string name="player_sheets_sub_scale">स्केल</string>
     <string name="player_sheets_sub_position">पोज़िशन</string>
     <string name="player_sheets_sub_typography_card_title">टाइपोग्राफ़ी</string>

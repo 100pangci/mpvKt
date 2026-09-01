@@ -163,6 +163,7 @@
     <string name="player_sheets_sub_color_blue">Xanh dương</string>
     <string name="player_sheets_sub_color_alpha">Alpha</string>
     <string name="player_sheets_sub_override_ass">Ghi đè phụ đề ASS/SSA</string>
+    <string name="player_sheets_sub_match_fonts">Khớp phông chữ theo phụ đề</string>
     <string name="player_sheets_sub_scale">Tỉ lệ</string>
     <string name="player_sheets_sub_position">Vị trí</string>
     <string name="player_sheets_sub_typography_card_title">Kiểu chữ</string>

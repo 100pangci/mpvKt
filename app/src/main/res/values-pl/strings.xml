@@ -163,6 +163,7 @@
     <string name="player_sheets_sub_color_blue">Niebieski</string>
     <string name="player_sheets_sub_color_alpha">Alfa</string>
     <string name="player_sheets_sub_override_ass">Nadpisuj napisy ASS/SSA</string>
+    <string name="player_sheets_sub_match_fonts">Dopasuj czcionki do napisów</string>
     <string name="player_sheets_sub_scale">Skala</string>
     <string name="player_sheets_sub_position">Pozycja</string>
     <string name="player_sheets_sub_typography_card_title">Typografia</string>

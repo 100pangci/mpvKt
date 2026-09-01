@@ -182,6 +182,7 @@
     <string name="player_sheets_sub_color_blue">Biru</string>
     <string name="player_sheets_sub_color_alpha">Transparansi</string>
     <string name="player_sheets_sub_override_ass">Timpa Gaya Subtitle ASS/SSA</string>
+    <string name="player_sheets_sub_match_fonts">Cocokkan fonta per subtitle</string>
     <string name="player_sheets_sub_scale">Skala</string>
     <string name="player_sheets_sub_position">Posisi</string>
     <string name="player_sheets_sub_typography_card_title">Teks</string>

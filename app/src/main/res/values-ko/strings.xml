@@ -163,6 +163,7 @@
     <string name="player_sheets_sub_color_blue">파랑</string>
     <string name="player_sheets_sub_color_alpha">알파</string>
     <string name="player_sheets_sub_override_ass">ASS/SSA 자막 덮어쓰기</string>
+    <string name="player_sheets_sub_match_fonts">자막별 글꼴 일치</string>
     <string name="player_sheets_sub_scale">크기</string>
     <string name="player_sheets_sub_position">위치</string>
     <string name="player_sheets_sub_typography_card_title">서체</string>

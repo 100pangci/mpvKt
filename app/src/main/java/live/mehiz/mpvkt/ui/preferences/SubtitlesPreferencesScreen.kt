@@ -91,9 +91,11 @@ object SubtitlesPreferencesScreen : Screen {
           val flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
           context.contentResolver.takePersistableUriPermission(uri, flags)
           preferences.fontsFolder.set(uri.toString())
-          preferences.fontIndexScanAt.set(0L)
           scope.launch(Dispatchers.IO) {
-            runCatching { fontIndexer.reindexUserFolder(uri.toString()) }
+            runCatching {
+              fontIndexer.reindexUserFolder(uri.toString())
+              preferences.fontIndexScanAt.set(System.currentTimeMillis())
+            }
           }
         }
         val fontsFolder by preferences.fontsFolder.collectAsState()
@@ -145,11 +147,13 @@ object SubtitlesPreferencesScreen : Screen {
             },
             enabled = !isScanning,
             onClick = {
-              preferences.fontIndexScanAt.set(0L)
               scope.launch(Dispatchers.IO) {
                 runCatching {
                   fontsFolder.takeIf { it.isNotBlank() }?.let { fontIndexer.reindexUserFolder(it) }
                   if (preferences.useSystemFonts.get()) fontIndexer.reindexSystemFonts()
+                  // Write the timestamp back, or the next playback's
+                  // preflight refresh would rescan all over again.
+                  preferences.fontIndexScanAt.set(System.currentTimeMillis())
                 }
               }
             },

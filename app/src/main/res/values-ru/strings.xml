@@ -177,6 +177,7 @@
     <string name="player_sheets_sub_color_blue">Синий</string>
     <string name="player_sheets_sub_color_alpha">Альфа</string>
     <string name="player_sheets_sub_override_ass">Переопределить ASS/SSA субтитров</string>
+    <string name="player_sheets_sub_match_fonts">Подбор шрифтов по субтитрам</string>
     <string name="player_sheets_sub_scale">Масштаб</string>
     <string name="player_sheets_sub_position">Позиция</string>
     <string name="player_sheets_sub_typography_card_title">Типография</string>
