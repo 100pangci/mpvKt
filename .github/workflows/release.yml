@@ -35,6 +35,18 @@ jobs:
           set -x
           echo "VERSION_TAG=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
 
+      - name: Extract changelog
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          set -e
+          # the CHANGELOG.md heading must contain the tag name, e.g. "## v0.2.0 - ..."
+          awk -v tag="${VERSION_TAG}" '
+            $0 ~ ("^## .*" tag) {found=1; next}
+            found && /^## / {exit}
+            found {print}
+          ' CHANGELOG.md > release_body.md
+          test -s release_body.md || { echo "No changelog section for ${VERSION_TAG} found" >&2; exit 1; }
+
       - name: Sign apk
         uses: r0adkll/sign-android-release@v1
         with:
@@ -52,28 +64,26 @@ jobs:
 
           declare -a apks=("universal" "arm64-v8a" "armeabi-v7a" "x86" "x86_64")
 
+          {
+            echo ""
+            echo "### Checksums"
+            echo ""
+            echo "| Variant | SHA-256 |"
+            echo "| ------- | ------- |"
+          } >> release_body.md
+
           printf "%s\n" "${apks[@]}" | xargs -n 1 -I {} sh -c '
           cp app/build/outputs/apk/release/app-{}-release-unsigned-signed.apk mpvKt-{}-${{ env.VERSION_TAG }}.apk
           sha=$(sha256sum mpvKt-{}-${{ env.VERSION_TAG }}.apk | awk '\''{ print $1 }'\'')
-          echo "apk-{}-sha256=$sha" >> $GITHUB_ENV'
+          echo "apk-{}-sha256=$sha" >> $GITHUB_ENV
+          echo "| {} | $sha |" >> release_body.md'
 
       - name: Create release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ env.VERSION_TAG }}
           name: mpvKt ${{ env.VERSION_TAG }}
-          body: |
-            ---
-
-            ### Checksums
-
-            | Variant | SHA-256 |
-            | ------- | ------- |
-            | arm64-v8a | ${{ env.apk-arm64-v8a-sha256 }}
-            | armeabi-v7a | ${{ env.apk-armeabi-v7a-sha256 }}
-            | Universal | ${{ env.apk-universal-sha256 }}
-            | x86 | ${{ env.apk-x86-sha256 }}
-            | x86_64 | ${{ env.apk-x86_64-sha256 }} |
+          body_path: release_body.md
           files: |
             mpvKt-universal-${{ env.VERSION_TAG }}.apk
             mpvKt-arm64-v8a-${{ env.VERSION_TAG }}.apk
