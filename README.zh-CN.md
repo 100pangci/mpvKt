@@ -5,7 +5,7 @@
 [English](README.md) | 简体中文
 
 ![许可证](https://img.shields.io/badge/license-MPL--2.0-blue)
-![平台](https://img.shields.io/badge/platform-Android%205.0%2B-green)
+![平台](https://img.shields.io/badge/platform-Android%206.0%2B-green)
 ![语言](https://img.shields.io/badge/localization-18%20%E7%A7%8D%E8%AF%AD%E8%A8%80-orange)
 ![欢迎 PR](https://img.shields.io/badge/PRs-welcome-brightgreen)
 

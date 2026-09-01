@@ -5,7 +5,7 @@ A media player for Android based on [mpv](https://mpv.io) / [mpv-android](https:
 English | [简体中文](README.zh-CN.md)
 
 ![License](https://img.shields.io/badge/license-MPL--2.0-blue)
-![Platform](https://img.shields.io/badge/platform-Android%205.0%2B-green)
+![Platform](https://img.shields.io/badge/platform-Android%206.0%2B-green)
 ![Languages](https://img.shields.io/badge/localization-18%20languages-orange)
 ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)
 
