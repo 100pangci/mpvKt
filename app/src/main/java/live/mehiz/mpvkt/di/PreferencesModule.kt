@@ -1,6 +1,7 @@
 package live.mehiz.mpvkt.di
 
 import live.mehiz.mpvkt.preferences.AdvancedPreferences
+import live.mehiz.mpvkt.preferences.AppPreferences
 import live.mehiz.mpvkt.preferences.AppearancePreferences
 import live.mehiz.mpvkt.preferences.AudioPreferences
 import live.mehiz.mpvkt.preferences.DecoderPreferences
@@ -18,6 +19,7 @@ val PreferencesModule = module {
   single { AndroidPreferenceStore(androidContext()) }.bind(PreferenceStore::class)
 
   singleOf(::AppearancePreferences)
+  singleOf(::AppPreferences)
   singleOf(::PlayerPreferences)
   singleOf(::GesturePreferences)
   singleOf(::DecoderPreferences)

@@ -2,6 +2,9 @@ package live.mehiz.mpvkt.ui.home
 
 import android.content.Context
 import android.content.Intent
+import android.os.Build
+import android.os.Environment
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -19,6 +22,7 @@ import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -29,6 +33,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -50,6 +55,7 @@ import `is`.xyz.mpv.Utils.PROTOCOLS
 import kotlinx.serialization.Serializable
 import live.mehiz.mpvkt.R
 import live.mehiz.mpvkt.player.FontIndexer
+import live.mehiz.mpvkt.preferences.AppPreferences
 import live.mehiz.mpvkt.presentation.Screen
 import live.mehiz.mpvkt.ui.player.PlayerActivity
 import live.mehiz.mpvkt.ui.preferences.PreferencesScreen
@@ -178,7 +184,55 @@ object HomeScreen : Screen {
         }
       }
     }
+    StorageAccessOnboarding()
   }
+
+  @Composable
+  private fun StorageAccessOnboarding() {
+    val context = LocalContext.current
+    val appPreferences = koinInject<AppPreferences>()
+    var storageGranted by remember { mutableStateOf(hasAllFilesAccess()) }
+    var showPrompt by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+      if (!hasAllFilesAccess() && !appPreferences.storageAccessPrompted.get()) {
+        appPreferences.storageAccessPrompted.set(true)
+        showPrompt = true
+      }
+    }
+    val settingsLauncher = rememberLauncherForActivityResult(
+      ActivityResultContracts.StartActivityForResult(),
+    ) {
+      storageGranted = hasAllFilesAccess()
+      if (storageGranted) showPrompt = false
+    }
+    if (showPrompt && !storageGranted) {
+      AlertDialog(
+        onDismissRequest = { showPrompt = false },
+        title = { Text(stringResource(R.string.storage_all_files_title)) },
+        text = { Text(stringResource(R.string.storage_all_files_message)) },
+        confirmButton = {
+          TextButton(
+            onClick = {
+              val intent = Intent(
+                Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION,
+                "package:${context.packageName}".toUri(),
+              )
+              runCatching { settingsLauncher.launch(intent) }
+                .onFailure {
+                  settingsLauncher.launch(Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION))
+                }
+            },
+          ) { Text(stringResource(R.string.storage_all_files_grant)) }
+        },
+        dismissButton = {
+          TextButton(onClick = { showPrompt = false }) { Text(stringResource(R.string.generic_cancel)) }
+        },
+      )
+    }
+  }
+
+  private fun hasAllFilesAccess(): Boolean =
+    Build.VERSION.SDK_INT < Build.VERSION_CODES.R || Environment.isExternalStorageManager()
 
   // Basically a copy of:
   // https://github.com/mpv-android/mpv-android/blob/32cbff3cedea73b4616b34542cb95bf1d00504cc/app/src/main/java/is/xyz/mpv/Utils.kt#L406
