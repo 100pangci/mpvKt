@@ -108,6 +108,19 @@ PR。请以 `dev` 分支为目标，提交前先跑一遍
   与 [zhanghai/MaterialPreference](https://github.com/zhanghai/MaterialPreference)
 - 所有上游贡献者与翻译者
 
+### 关于 `mpv-android-lib`
+
+本项目使用的 mpv 绑定库是
+[`io.github.abdallahmehiz:mpv-android-lib`](https://github.com/abdallahmehiz/mpv-android)
+——[mpv-android](https://github.com/mpv-android/mpv-android) 的库化分支，提供
+实例化 `MPV` API、`mpv_node` 绑定、多实例与 DASH 支持，由 mpvKt 原作者发布到
+Maven Central。本分支的播放器层（`MPVLib` 兼容单例与 `MPVView`）即基于该
+fork 的 API 构建。
+
+该库的上游仓库已归档，但 Maven Central 构件是不可变的，依赖解析不受影响。
+若日后需要修改该库（例如升级 libmpv），计划将其 fork 到本组织下，通过其
+`buildscripts` 重新构建 AAR 并以新的 group id 发布——其 MIT 许可允许这样做。
+
 ## 许可证
 
 本项目基于 [Mozilla Public License 2.0](LICENSE) 开源。
