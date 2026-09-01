@@ -149,7 +149,7 @@ class PlayerActivity : AppCompatActivity() {
     lifecycleScope.launch {
       MPVLib.eventFlow("track-list").collect {
         delay(400)
-        autoSelectSubTrackIfNeeded()
+        autoSelectTracksIfNeeded()
       }
     }
     setOrientation()
@@ -458,39 +458,61 @@ class PlayerActivity : AppCompatActivity() {
   }
 
   /**
-   * Newer mpv no longer auto-selects subtitle tracks that carry neither a
-   * default flag nor a matching language. For sessions without a restoreable
-   * track state, pick the first (default-flagged if any) subtitle track so
-   * embedded subtitles show up like on desktop.
+   * Deterministic track selection for freshly opened files (skipped when a
+   * per-video track state was restored from the database):
+   * - audio: the first audio track
+   * - subtitle: a track matching the user's preferred languages, then
+   *   embedded tracks, then external ones
    */
-  private fun autoSelectSubTrackIfNeeded() {
+  private fun autoSelectTracksIfNeeded() {
     if (restoredTrackState || autoSubSelectedForThisVideo) return
     autoSubSelectedForThisVideo = true
+    val (audioIds, subTracks) = collectTracks()
+
+    if (audioIds.isNotEmpty()) {
+      MPVLib.setPropertyInt("aid", audioIds.first())
+      Log.d(TAG, "auto-selected first audio track ${audioIds.first()}")
+    }
+
     if ((MPVLib.getPropertyInt("sid") ?: 0) > 0) return
-    val count = MPVLib.getPropertyInt("track-list/count") ?: 0
-    val (firstSub, defaultSub) = scanSubTracks(count)
-    val target = if (defaultSub != 0) defaultSub else firstSub
-    if (target != 0) {
-      MPVLib.setPropertyInt("sid", target)
-      Log.d(TAG, "auto-selected subtitle track $target")
+    val preferred = subtitlesPreferences.preferredLanguages.get().split(',').filter { it.isNotBlank() }
+    val target = subTracks.firstOrNull { matchesPreferredLanguages(it.lang, preferred) }
+      ?: subTracks.firstOrNull { !it.external }
+      ?: subTracks.firstOrNull { it.external }
+    if (target != null) {
+      MPVLib.setPropertyInt("sid", target.id)
+      Log.d(TAG, "auto-selected subtitle track ${target.id} (external=${target.external})")
     }
   }
 
-  private fun scanSubTracks(count: Int): Pair<Int, Int> {
-    var firstSub = 0
-    var defaultSub = 0
+  private fun collectTracks(): Pair<List<Int>, List<SubTrack>> {
+    val count = MPVLib.getPropertyInt("track-list/count") ?: 0
+    val audioIds = mutableListOf<Int>()
+    val subTracks = mutableListOf<SubTrack>()
     for (i in 0 until count) {
-      val isSub = MPVLib.getPropertyString("track-list/$i/type") == "sub"
-      val id = if (isSub) MPVLib.getPropertyInt("track-list/$i/id") else null
-      if (id != null && id > 0) {
-        if (firstSub == 0) firstSub = id
-        if (defaultSub == 0 && MPVLib.getPropertyString("track-list/$i/default") == "true") {
-          defaultSub = id
-        }
+      val id = MPVLib.getPropertyInt("track-list/$i/id") ?: continue
+      when (MPVLib.getPropertyString("track-list/$i/type")) {
+        "audio" -> audioIds += id
+        "sub" -> subTracks += SubTrack(
+          id,
+          MPVLib.getPropertyString("track-list/$i/lang"),
+          MPVLib.getPropertyString("track-list/$i/external") == "true",
+        )
       }
     }
-    return firstSub to defaultSub
+    return audioIds to subTracks
   }
+
+  private fun matchesPreferredLanguages(lang: String?, preferred: List<String>): Boolean {
+    if (lang.isNullOrBlank()) return false
+    val normalized = lang.trim().lowercase()
+    return preferred.any { token ->
+      val t = token.trim().lowercase()
+      t.isNotEmpty() && (normalized == t || normalized.startsWith(t) || t.startsWith(normalized))
+    }
+  }
+
+  private data class SubTrack(val id: Int, val lang: String?, val external: Boolean)
 
   private val audioFocusChangeListener = AudioManager.OnAudioFocusChangeListener {
     when (it) {
