@@ -59,6 +59,7 @@ inline fun <reified T> MPVNode.toObject(json: Json): T = json.decodeFromString<T
 
 internal const val FONT_INDEX_SCAN_INTERVAL = 6 * 60 * 60 * 1000L
 
-internal const val FONT_SETUP_TIMEOUT_MS = 15000L
+/** How long playback start waits for font staging before issuing loadfile. */
+internal const val FONT_SETUP_BUDGET_MS = 500L
 
 internal val SUBTITLE_EXTENSIONS = Regex(".*\\.(ass|ssa|srt)\\z", RegexOption.IGNORE_CASE)

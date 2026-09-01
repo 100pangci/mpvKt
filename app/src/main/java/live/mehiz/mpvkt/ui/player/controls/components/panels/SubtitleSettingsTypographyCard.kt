@@ -73,6 +73,7 @@ fun SubtitleSettingsTypographyCard(
   val fontDao = koinInject<FontDao>()
   var isExpanded by remember { mutableStateOf(true) }
   val fonts by remember { mutableStateOf(mutableListOf(preferences.font.defaultValue())) }
+  var indexEmpty by remember { mutableStateOf(false) }
   var fontsLoadingIndicator: (@Composable () -> Unit)? by remember {
     val indicator: (@Composable () -> Unit) = {
       CircularProgressIndicator(Modifier.size(32.dp))
@@ -83,9 +84,10 @@ fun SubtitleSettingsTypographyCard(
   // file in the fonts folder on each card open would be far too slow.
   LaunchedEffect(Unit) {
     withContext(Dispatchers.IO) {
-      fonts.addAll(
-        runCatching { fontDao.primaryFamilies().sortedBy { it.lowercase() } }.getOrDefault(emptyList()),
-      )
+      val families = runCatching { fontDao.primaryFamilies().sortedBy { it.lowercase() } }
+        .getOrDefault(emptyList())
+      indexEmpty = families.isEmpty()
+      fonts.addAll(families)
       fontsLoadingIndicator = null
     }
   }
@@ -201,6 +203,13 @@ fun SubtitleSettingsTypographyCard(
             (context as? PlayerActivity)?.stageSubFont(it)
           },
           leadingIcon = fontsLoadingIndicator,
+        )
+      }
+      if (indexEmpty) {
+        Text(
+          text = stringResource(R.string.typography_fonts_empty_hint),
+          style = MaterialTheme.typography.bodySmall,
+          modifier = Modifier.padding(horizontal = MaterialTheme.spacing.medium),
         )
       }
       SliderItem(

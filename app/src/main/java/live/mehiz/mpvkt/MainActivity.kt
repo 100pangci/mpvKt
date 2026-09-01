@@ -17,6 +17,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
@@ -35,12 +36,17 @@ import live.mehiz.mpvkt.preferences.preference.collectAsState
 import live.mehiz.mpvkt.presentation.Screen
 import live.mehiz.mpvkt.ui.home.HomeScreen
 import live.mehiz.mpvkt.ui.player.FONT_INDEX_SCAN_INTERVAL
+import live.mehiz.mpvkt.ui.preferences.SubtitlesPreferencesScreen
 import live.mehiz.mpvkt.ui.theme.DarkMode
 import live.mehiz.mpvkt.ui.theme.MpvKtTheme
 import live.mehiz.mpvkt.ui.utils.LocalBackStack
 import org.koin.android.ext.android.inject
 
 class MainActivity : AppCompatActivity() {
+
+  companion object {
+    const val EXTRA_OPEN_SUBTITLE_SETTINGS = "live.mehiz.mpvkt.extra.OPEN_SUBTITLE_SETTINGS"
+  }
   private val appearancePreferences by inject<AppearancePreferences>()
   private val fontIndexer by inject<FontIndexer>()
   private val subtitlesPreferences by inject<SubtitlesPreferences>()
@@ -58,6 +64,7 @@ class MainActivity : AppCompatActivity() {
         subtitlesPreferences.fontIndexScanAt.set(now)
       }
     }
+    val openSubtitleSettings = intent?.getBooleanExtra(EXTRA_OPEN_SUBTITLE_SETTINGS, false) == true
     setContent {
       val dark by appearancePreferences.darkMode.collectAsState()
       val isSystemInDarkTheme = isSystemInDarkTheme()
@@ -67,13 +74,16 @@ class MainActivity : AppCompatActivity() {
           darkScrim = Color.White.toArgb(),
         ) { dark == DarkMode.Dark || (dark == DarkMode.System && isSystemInDarkTheme) },
       )
-      MpvKtTheme { Surface { Navigator() } }
+      MpvKtTheme { Surface { Navigator(openSubtitleSettings) } }
     }
   }
 
   @Composable
-  fun Navigator() {
+  fun Navigator(openSubtitleSettings: Boolean) {
     val backstack = rememberNavBackStack<Screen>(HomeScreen)
+    LaunchedEffect(openSubtitleSettings) {
+      if (openSubtitleSettings) backstack.add(SubtitlesPreferencesScreen)
+    }
     CompositionLocalProvider(LocalBackStack provides backstack) {
       NavDisplay(
         backStack = backstack,

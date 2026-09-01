@@ -47,10 +47,12 @@ internal fun guessSiblingSubtitle(video: File): File? {
 }
 
 /**
- * Owns everything font-related during playback: preflight staging of the
- * subtitle's families, silent default-font staging, sibling folder copies
- * and the missing-font self-heal. The only state shared with the player is
- * the missing-font report callback.
+ * Owns everything font-related during playback. The primary path is mpv's
+ * fontconfig provider ([FontConfigManager] indexes font directories in
+ * place); this pipeline layers the index-based copy fallback on top for
+ * sources fontconfig cannot see (SAF-only folders), preloads the sibling
+ * subtitle's families and runs the missing-font self-heal. The only state
+ * shared with the player is the missing-font report callback.
  */
 @Suppress("TooManyFunctions")
 internal class SubtitleFontPipeline(
@@ -61,8 +63,14 @@ internal class SubtitleFontPipeline(
   private val reportMissingFont: (String) -> Unit,
 ) {
 
+  /**
+   * Families fully handled this session (staged successfully, or attempted
+   * and reported by the self-heal). Guarding [handleMissingFont] with it
+   * prevents re-triggering on every log line libass emits for the same
+   * family; preloading deliberately does NOT write into it, so the self-heal
+   * always gets its one retry with a refreshed index.
+   */
   private val attemptedFontFamilies = mutableSetOf<String>()
-  private var fontRefreshOnMissDone = false
 
   val fontsCacheDir: File get() = File(context.cacheDir, "fonts").apply { mkdirs() }
 
@@ -80,13 +88,12 @@ internal class SubtitleFontPipeline(
     scope.launch(Dispatchers.IO) {
       runCatching {
         var staged = stageIndexedFont(trimmed, fontsCacheDir)
-        if (!staged && !fontRefreshOnMissDone) {
-          fontRefreshOnMissDone = true
+        if (!staged) {
           refreshFontIndex(force = true)
           staged = stageIndexedFont(trimmed, fontsCacheDir)
         }
         if (staged) {
-          MPVLib.command("sub-reload")
+          reloadSubtitleRenderer()
         } else {
           reportMissingFont(trimmed)
         }
@@ -95,17 +102,21 @@ internal class SubtitleFontPipeline(
   }
 
   /**
-   * Stages the font family picked in the typography card (used as the default
-   * subtitle font) through the index — no full-folder copies anywhere.
+   * Stages the family picked in the typography card (used as the default
+   * subtitle font) and applies it immediately. fontconfig usually resolves
+   * the family in place; the staged copy is a fallback for SAF-only folders.
    */
   fun stageSubFont(family: String) {
     scope.launch(Dispatchers.IO) {
-      ensureBundledFont(fontsCacheDir)
-      // The family comes straight from the index list: an incremental
-      // refresh (throttled) is enough, no forced full scan per pick.
-      refreshFontIndex()
-      stageIndexedFont(family, fontsCacheDir)
-      MPVLib.setPropertyString("sub-font", family)
+      runCatching {
+        ensureBundledFont(fontsCacheDir)
+        // The family comes straight from the index list: an incremental
+        // refresh (throttled) is enough, no forced full scan per pick.
+        refreshFontIndex()
+        stageIndexedFont(family, fontsCacheDir)
+        MPVLib.setPropertyString("sub-font", family)
+        reloadSubtitleRenderer()
+      }
     }
   }
 
@@ -144,21 +155,32 @@ internal class SubtitleFontPipeline(
   /**
    * Stages every family through the index; families the index cannot supply
    * get one incremental refresh + retry before being reported as missing.
+   * Unresolved families stay unmarked so the log-driven self-heal can still
+   * pick them up once the index actually contains them.
    */
   private suspend fun stageAndReportFamilies(families: List<String>): Boolean {
     val destDir = fontsCacheDir
     var stagedAny = false
     val missing = mutableListOf<String>()
     families.forEach { family ->
-      if (attemptedFontFamilies.add(family)) {
-        if (stageIndexedFont(family, destDir)) stagedAny = true else missing.add(family)
+      if (family in attemptedFontFamilies) return@forEach
+      if (stageIndexedFont(family, destDir)) {
+        attemptedFontFamilies.add(family)
+        stagedAny = true
+      } else {
+        missing.add(family)
       }
     }
-    if (missing.isNotEmpty() && !fontIndexer.indexIsEmpty()) {
+    if (missing.isNotEmpty()) {
       // Retry once against a refreshed index before blaming the library.
       refreshFontIndex()
       missing.forEach { family ->
-        if (stageIndexedFont(family, destDir)) stagedAny = true else reportMissingFont(family)
+        if (stageIndexedFont(family, destDir)) {
+          attemptedFontFamilies.add(family)
+          stagedAny = true
+        } else {
+          reportMissingFont(family)
+        }
       }
     }
     return stagedAny
@@ -168,8 +190,9 @@ internal class SubtitleFontPipeline(
     val now = System.currentTimeMillis()
     runCatching {
       val folder = subtitlesPreferences.fontsFolder.get().takeIf { it.isNotBlank() }
-      // an empty index (fresh install or post-wipe) must always rebuild
-      val mustScan = folder != null && fontIndexer.indexIsEmpty()
+      // An empty index (fresh install or post-wipe) must always rebuild,
+      // regardless of where the fonts are expected to come from.
+      val mustScan = fontIndexer.indexIsEmpty()
       if (!mustScan && !force && now - subtitlesPreferences.fontIndexScanAt.get() < FONT_INDEX_SCAN_INTERVAL) {
         return
       }
@@ -206,23 +229,23 @@ internal class SubtitleFontPipeline(
   }
 
   private suspend fun stageIndexedFont(family: String, destDir: File): Boolean {
-    val paths = fontIndexer.findFontPaths(family)
-    if (paths.isEmpty()) return false
+    val entries = fontIndexer.findFontEntries(family)
+    if (entries.isEmpty()) return false
     var copied = false
-    paths.forEach { path ->
-      val targetName = path.substringAfterLast('/')
+    entries.distinctBy { it.path }.forEach { entry ->
+      val targetName = entry.path.substringAfterLast('/')
       val target = File(destDir, targetName)
-      if (target.length() > 0) {
+      if (target.length() > 0 && target.length() == entry.size) {
         // staged by an earlier session: the family is available
         copied = true
         return@forEach
       }
-      copied = copied or copyIndexedFile(path, target)
+      copied = copied or copyIndexedFile(entry.path, entry.size, target)
     }
     return copied
   }
 
-  private suspend fun copyIndexedFile(virtualPath: String, target: File): Boolean {
+  private suspend fun copyIndexedFile(virtualPath: String, expectedSize: Long, target: File): Boolean {
     val source = when {
       virtualPath.startsWith("/") -> {
         val file = File(virtualPath)
@@ -239,7 +262,9 @@ internal class SubtitleFontPipeline(
         target.outputStream().use { output -> input.copyTo(output) }
       } != null
     }.getOrDefault(false)
-    return copied && target.length() > 0
+    // A truncated or interrupted copy must never count as staged, or a
+    // corrupt font file poisons the cache directory forever.
+    return copied && target.length() > 0 && (expectedSize <= 0L || target.length() == expectedSize)
   }
 
   private fun ensureBundledFont(destDir: File): Boolean {
@@ -249,5 +274,26 @@ internal class SubtitleFontPipeline(
       context.resources.assets.open("subfont.ttf").copyTo(subfont.outputStream())
     }
     return subfont.exists()
+  }
+
+  /**
+   * Forces mpv to recreate the subtitle decoders so the ASS renderer (and
+   * with it the fontconfig provider and the fonts directory scan) is rebuilt.
+   * `sub-reload` only works on external tracks; re-selecting the track
+   * uniformly covers embedded ones as well.
+   */
+  fun reloadSubtitleRenderer() {
+    runCatching {
+      val sid = MPVLib.getPropertyInt("sid")
+      if (sid != null && sid > 0) {
+        MPVLib.setPropertyString("sid", "no")
+        MPVLib.setPropertyInt("sid", sid)
+      }
+      val secondarySid = MPVLib.getPropertyInt("secondary-sid")
+      if (secondarySid != null && secondarySid > 0) {
+        MPVLib.setPropertyString("secondary-sid", "no")
+        MPVLib.setPropertyInt("secondary-sid", secondarySid)
+      }
+    }
   }
 }

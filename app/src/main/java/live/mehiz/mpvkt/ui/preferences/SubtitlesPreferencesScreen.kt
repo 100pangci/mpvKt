@@ -35,6 +35,7 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import live.mehiz.mpvkt.R
 import live.mehiz.mpvkt.database.dao.FontDao
+import live.mehiz.mpvkt.player.FontConfigManager
 import live.mehiz.mpvkt.player.FontIndexer
 import live.mehiz.mpvkt.preferences.SubtitlesPreferences
 import live.mehiz.mpvkt.preferences.preference.collectAsState
@@ -54,6 +55,7 @@ object SubtitlesPreferencesScreen : Screen {
   override fun Content() {
     val context = LocalContext.current
     val fontIndexer = koinInject<FontIndexer>()
+    val fontConfigManager = koinInject<FontConfigManager>()
     val backstack = LocalBackStack.current
     val preferences = koinInject<SubtitlesPreferences>()
 
@@ -94,6 +96,7 @@ object SubtitlesPreferencesScreen : Screen {
           scope.launch(Dispatchers.IO) {
             runCatching {
               fontIndexer.reindexUserFolder(uri.toString())
+              fontConfigManager.regenerate()
               preferences.fontIndexScanAt.set(System.currentTimeMillis())
             }
           }
@@ -131,17 +134,30 @@ object SubtitlesPreferencesScreen : Screen {
               Text(getSimplifiedPathFromUri(fontsFolder))
             },
             iconButtonIcon = { Icon(Icons.Default.Clear, null) },
-            onIconButtonClick = { preferences.fontsFolder.delete() },
+            onIconButtonClick = {
+              preferences.fontsFolder.delete()
+              // Dropping the folder must also drop what it contributed, or
+              // the picker and the index keep listing fonts that can no
+              // longer be resolved.
+              scope.launch(Dispatchers.IO) {
+                runCatching {
+                  fontIndexer.clearSource(FontIndexer.SOURCE_USER)
+                  fontConfigManager.regenerate()
+                }
+              }
+            },
             iconButtonEnabled = fontsFolder.isNotBlank()
           )
+          val useSystemFonts by preferences.useSystemFonts.collectAsState()
           Preference(
             title = { Text(stringResource(R.string.font_index_rebuild)) },
             summary = {
+              val noSource = fontsFolder.isBlank() && !useSystemFonts
               Text(
-                if (isScanning) {
-                  stringResource(R.string.font_index_scanning) + " ($scanDone/$scanTotal)"
-                } else {
-                  stringResource(R.string.font_index_count, indexedCount)
+                when {
+                  isScanning -> stringResource(R.string.font_index_scanning) + " ($scanDone/$scanTotal)"
+                  noSource -> stringResource(R.string.font_index_no_source)
+                  else -> stringResource(R.string.font_index_count, indexedCount)
                 },
               )
             },
@@ -151,6 +167,7 @@ object SubtitlesPreferencesScreen : Screen {
                 runCatching {
                   fontsFolder.takeIf { it.isNotBlank() }?.let { fontIndexer.reindexUserFolder(it) }
                   if (preferences.useSystemFonts.get()) fontIndexer.reindexSystemFonts()
+                  fontConfigManager.regenerate()
                   // Write the timestamp back, or the next playback's
                   // preflight refresh would rescan all over again.
                   preferences.fontIndexScanAt.set(System.currentTimeMillis())
@@ -158,13 +175,22 @@ object SubtitlesPreferencesScreen : Screen {
               }
             },
           )
-          val useSystemFonts by preferences.useSystemFonts.collectAsState()
           SwitchPreference(
             value = useSystemFonts,
             onValueChange = { enabled ->
               preferences.useSystemFonts.set(enabled)
-              if (enabled) {
-                scope.launch(Dispatchers.IO) { fontIndexer.reindexSystemFonts() }
+              scope.launch(Dispatchers.IO) {
+                runCatching {
+                  if (enabled) {
+                    fontIndexer.reindexSystemFonts()
+                  } else {
+                    // Turning the switch off must take system fonts out of
+                    // the picker and the index, mirroring what the switch
+                    // claims to do.
+                    fontIndexer.clearSource(FontIndexer.SOURCE_SYSTEM)
+                  }
+                  fontConfigManager.regenerate()
+                }
               }
             },
             title = { Text(stringResource(R.string.pref_subtitles_use_system_fonts_title)) },

@@ -65,8 +65,9 @@ class FontIndexer(
   suspend fun indexIsEmpty(): Boolean =
     fontDao.countForSource(SOURCE_USER) == 0 && fontDao.countForSource(SOURCE_SYSTEM) == 0
 
-  suspend fun findFontPaths(family: String): List<String> =
-    fontDao.findByName(family).map { it.path }.distinct()
+  suspend fun clearSource(source: String) = fontDao.clearSource(source)
+
+  suspend fun findFontEntries(family: String): List<FontEntity> = fontDao.findByName(family)
 
   /**
    * Opens an indexed font file by its stored relative path. Real filesystem
@@ -168,7 +169,7 @@ class FontIndexer(
   }
 }
 
-private fun fileDirFromTreeUri(folderUri: android.net.Uri): File? {
+internal fun fileDirFromTreeUri(folderUri: android.net.Uri): File? {
   val segment = folderUri.lastPathSegment?.takeIf { it.contains(':') } ?: return null
   val volume = segment.substringBefore(':')
   val rest = segment.substringAfter(':', "")

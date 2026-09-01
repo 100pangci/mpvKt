@@ -24,6 +24,8 @@ import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -97,6 +99,7 @@ object HomeScreen : Screen {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
       ) {
+        StorageAccessOnboarding()
         val uri = rememberTextFieldState()
         var isUrlValid by remember { mutableStateOf(true) }
         LaunchedEffect(uri.text) {
@@ -184,20 +187,25 @@ object HomeScreen : Screen {
         }
       }
     }
-    StorageAccessOnboarding()
   }
 
+  /**
+   * Single owner of the all-files-access onboarding: a persistent banner
+   * plus a per-launch dialog until the permission is granted or the user
+   * opts out. The previous one-shot flag burned itself the instant the
+   * dialog appeared, so a single dismissal or a later revocation silenced
+   * the request forever.
+   */
   @Composable
   private fun StorageAccessOnboarding() {
     val context = LocalContext.current
     val appPreferences = koinInject<AppPreferences>()
     var storageGranted by remember { mutableStateOf(hasAllFilesAccess()) }
+    var dontAsk by remember { mutableStateOf(appPreferences.storageAccessDontAsk.get()) }
     var showPrompt by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
-      if (!hasAllFilesAccess() && !appPreferences.storageAccessPrompted.get()) {
-        appPreferences.storageAccessPrompted.set(true)
-        showPrompt = true
-      }
+      storageGranted = hasAllFilesAccess()
+      showPrompt = !storageGranted && !dontAsk
     }
     val settingsLauncher = rememberLauncherForActivityResult(
       ActivityResultContracts.StartActivityForResult(),
@@ -205,27 +213,66 @@ object HomeScreen : Screen {
       storageGranted = hasAllFilesAccess()
       if (storageGranted) showPrompt = false
     }
-    if (showPrompt && !storageGranted) {
+    fun launchAllFilesSettings() {
+      val intent = Intent(
+        Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION,
+        "package:${context.packageName}".toUri(),
+      )
+      runCatching { settingsLauncher.launch(intent) }
+        .onFailure {
+          settingsLauncher.launch(Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION))
+        }
+    }
+    if (storageGranted || dontAsk) return
+    // The banner lives in the home column; the dialog overlays on top.
+    Card(
+      modifier = Modifier
+        .fillMaxWidth()
+        .padding(horizontal = MaterialTheme.spacing.large),
+      colors = CardDefaults.cardColors(
+        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+      ),
+    ) {
+      Row(
+        modifier = Modifier.padding(MaterialTheme.spacing.medium),
+        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
+        verticalAlignment = Alignment.CenterVertically,
+      ) {
+        Text(
+          text = stringResource(R.string.storage_all_files_banner),
+          style = MaterialTheme.typography.bodySmall,
+          modifier = Modifier.weight(1f),
+        )
+        TextButton(onClick = ::launchAllFilesSettings) {
+          Text(stringResource(R.string.storage_all_files_grant))
+        }
+      }
+    }
+    if (showPrompt) {
       AlertDialog(
         onDismissRequest = { showPrompt = false },
         title = { Text(stringResource(R.string.storage_all_files_title)) },
         text = { Text(stringResource(R.string.storage_all_files_message)) },
         confirmButton = {
-          TextButton(
-            onClick = {
-              val intent = Intent(
-                Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION,
-                "package:${context.packageName}".toUri(),
-              )
-              runCatching { settingsLauncher.launch(intent) }
-                .onFailure {
-                  settingsLauncher.launch(Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION))
-                }
-            },
-          ) { Text(stringResource(R.string.storage_all_files_grant)) }
+          TextButton(onClick = ::launchAllFilesSettings) {
+            Text(stringResource(R.string.storage_all_files_grant))
+          }
         },
         dismissButton = {
-          TextButton(onClick = { showPrompt = false }) { Text(stringResource(R.string.generic_cancel)) }
+          Row(horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)) {
+            TextButton(
+              onClick = {
+                dontAsk = true
+                appPreferences.storageAccessDontAsk.set(true)
+                showPrompt = false
+              },
+            ) {
+              Text(stringResource(R.string.storage_all_files_dont_ask))
+            }
+            TextButton(onClick = { showPrompt = false }) {
+              Text(stringResource(R.string.generic_cancel))
+            }
+          }
         },
       )
     }

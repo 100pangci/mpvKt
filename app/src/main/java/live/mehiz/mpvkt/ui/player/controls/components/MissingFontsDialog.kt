@@ -1,8 +1,10 @@
 package live.mehiz.mpvkt.ui.player.controls.components
 
 import android.content.ClipData
+import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -16,9 +18,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import live.mehiz.mpvkt.MainActivity
 import live.mehiz.mpvkt.R
 import live.mehiz.mpvkt.ui.theme.spacing
 
@@ -29,6 +33,7 @@ fun MissingFontsDialog(
   onDismiss: () -> Unit,
 ) {
   val clipboard = LocalClipboard.current
+  val context = LocalContext.current
   val scope = rememberCoroutineScope()
   AlertDialog(
     onDismissRequest = onDismiss,
@@ -55,15 +60,31 @@ fun MissingFontsDialog(
       }
     },
     confirmButton = {
-      TextButton(
-        onClick = {
-          scope.launch {
-            clipboard.setClipEntry(ClipEntry(ClipData.newPlainText(null, fonts.sorted().joinToString(", "))))
-          }
-          onCopy()
-        },
-      ) {
-        Text(text = stringResource(R.string.missing_fonts_copy))
+      Row(horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)) {
+        TextButton(
+          onClick = {
+            // Jump straight to the screen where a fonts folder can be
+            // configured instead of leaving the user to find it.
+            context.startActivity(
+              Intent(context, MainActivity::class.java).apply {
+                putExtra(MainActivity.EXTRA_OPEN_SUBTITLE_SETTINGS, true)
+              },
+            )
+            onDismiss()
+          },
+        ) {
+          Text(text = stringResource(R.string.missing_fonts_open_settings))
+        }
+        TextButton(
+          onClick = {
+            scope.launch {
+              clipboard.setClipEntry(ClipEntry(ClipData.newPlainText(null, fonts.sorted().joinToString(", "))))
+            }
+            onCopy()
+          },
+        ) {
+          Text(text = stringResource(R.string.missing_fonts_copy))
+        }
       }
     },
     dismissButton = {

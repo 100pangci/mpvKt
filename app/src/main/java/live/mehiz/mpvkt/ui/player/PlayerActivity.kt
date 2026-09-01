@@ -47,6 +47,7 @@ import androidx.media.AudioManagerCompat
 import com.github.k1rakishou.fsaf.FileManager
 import `is`.xyz.mpv.MPVNode
 import `is`.xyz.mpv.Utils
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -59,6 +60,7 @@ import live.mehiz.mpvkt.database.entities.CustomButtonEntity
 import live.mehiz.mpvkt.database.entities.PlaybackStateEntity
 import live.mehiz.mpvkt.databinding.PlayerLayoutBinding
 import live.mehiz.mpvkt.domain.playbackstate.repository.PlaybackStateRepository
+import live.mehiz.mpvkt.player.FontConfigManager
 import live.mehiz.mpvkt.player.FontIndexer
 import live.mehiz.mpvkt.player.MPVLib
 import live.mehiz.mpvkt.player.SubtitleFontPipeline
@@ -92,6 +94,7 @@ class PlayerActivity : AppCompatActivity() {
   private val gesturePreferences: GesturePreferences by inject()
   private val fileManager: FileManager by inject()
   private val fontIndexer: FontIndexer by inject()
+  private val fontConfigManager: FontConfigManager by inject()
   private val intentResolver by lazy { IntentResolver(this) }
   private val fontPipeline by lazy {
     SubtitleFontPipeline(this, fontIndexer, subtitlesPreferences, lifecycleScope) {
@@ -176,9 +179,13 @@ class PlayerActivity : AppCompatActivity() {
 
   /**
    * Resolves the video, finds its sibling subtitle and starts playback.
-   * playFile is issued unconditionally and first: font setup runs in a
-   * fully detached job that reloads the subtitle renderer once it is done,
-   * so no font work can ever delay the first frame.
+   *
+   * Font setup runs concurrently with the loadfile: playback start waits a
+   * short budget for it, so warm setups (fontconfig cache hit, fonts already
+   * staged) finish before the subtitle renderer initializes and are picked
+   * up with no reload at all. When the budget expires — a cold SAF index
+   * rebuild can take minutes — the job keeps running and applies the late
+   * fix (decoder recreation) once fonts have landed.
    */
   private suspend fun CoroutineScope.startPlaybackFlow(intent: Intent) {
     val playable = intentResolver.getPlayableUri(intent)
@@ -197,18 +204,26 @@ class PlayerActivity : AppCompatActivity() {
     val siblingSubPath = videoPath?.let(::File)?.takeIf { it.isFile }
       ?.let { guessSiblingSubtitle(it) }?.absolutePath
     Log.i(TAG, "playback flow: sibling=$siblingSubPath")
+    val fontSetupDone = CompletableDeferred<Boolean>()
     launch {
       runCatching {
-        withTimeoutOrNull(FONT_SETUP_TIMEOUT_MS) {
-          val stagedSub = siblingSubPath?.let { fontPipeline.preloadSubtitleFonts(it) } ?: false
-          val stagedVideo = fontPipeline.stageVideoFonts(videoPath)
-          // Only reload the renderer when fonts actually landed; a reload
-          // against an idle player would just log "not initialized".
-          if (stagedSub || stagedVideo) MPVLib.command("sub-reload")
+        // mpv/libass re-read fonts.conf on every renderer initialization;
+        // refresh it so the video's own directory is indexed in place.
+        fontConfigManager.regenerate(videoPath)
+        val stagedSub = siblingSubPath?.let { fontPipeline.preloadSubtitleFonts(it) } ?: false
+        val stagedVideo = fontPipeline.stageVideoFonts(videoPath)
+        val staged = stagedSub || stagedVideo
+        fontSetupDone.complete(staged)
+        if (staged) {
+          // Late fix for fonts that landed after the subtitle renderer
+          // initialized: recreating the decoders rebuilds the renderer and
+          // rescans every font source. A no-op while no track is selected.
+          fontPipeline.reloadSubtitleRenderer()
         }
       }
       Log.i(TAG, "playback flow: font setup finished")
     }
+    withTimeoutOrNull(FONT_SETUP_BUDGET_MS) { fontSetupDone.await() }
     withContext(Dispatchers.Main) {
       // NOT player.playFile(): that only stores the path for the surface
       // callback to consume ONCE — if the surface already exists the file
@@ -816,8 +831,12 @@ class PlayerActivity : AppCompatActivity() {
       return
     }
 
-    intentResolver.getPlayableUri(intent)?.let { MPVLib.command("loadfile", it) }
     setIntent(intent)
+    // Route through the same flow as onCreate: font setup and sibling
+    // subtitle handling must also run for consecutive files.
+    lifecycleScope.launch(Dispatchers.IO) {
+      startPlaybackFlow(intent)
+    }
   }
 
   @RequiresApi(Build.VERSION_CODES.O)

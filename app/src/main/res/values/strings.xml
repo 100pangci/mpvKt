@@ -18,6 +18,8 @@
     <string name="storage_all_files_title">All files access</string>
     <string name="storage_all_files_message">mpvKt needs the \"All files access\" permission to play local videos, automatically load external subtitles and save screenshots. Grant it on the next screen.</string>
     <string name="storage_all_files_grant">Grant access</string>
+    <string name="storage_all_files_dont_ask">Don\'t ask again</string>
+    <string name="storage_all_files_banner">Grant \"All files access\" so local videos, external subtitles and subtitle fonts are found automatically.</string>
 
     <string name="pref_preferences">Preferences</string>
 
@@ -112,6 +114,7 @@
     <string name="font_index_rebuild">Rebuild font index</string>
     <string name="font_index_count">%1$d fonts indexed</string>
     <string name="font_index_scanning">Building font index</string>
+    <string name="font_index_no_source">No font source configured — pick a folder or enable system fonts</string>
     <string name="pref_subtitles_fonts_dir">Fonts directory</string>
     <string name="pref_subtitles_preferred_language">Subtitle language(s) to be selected by default on a video with multiple subtitles, Two- or three-letter languages codes work. Multiple values can be delimited by comma.</string>
     <string name="pref_subtitles_autoload_title">Automatically load subtitles</string>
@@ -310,6 +313,8 @@
     <string name="missing_fonts_title">Missing subtitle fonts</string>
     <string name="missing_fonts_body">The following fonts were not found, so affected subtitle styles may not match desktop rendering. Copy the font names to download them, then place the files in your subtitles font folder (or next to the video).</string>
     <string name="missing_fonts_copy">Copy font names</string>
+    <string name="missing_fonts_open_settings">Font settings</string>
+    <string name="typography_fonts_empty_hint">No fonts indexed yet. Configure a fonts folder or enable system fonts in Settings → Subtitles.</string>
     <string name="error_unsupported_file">Cannot play this file type</string>
     <string name="screenshot_dir_missing">directory does not exist</string>
     <string name="screenshot_dir_unwritable">directory not writable</string>
