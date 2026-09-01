@@ -1,5 +1,6 @@
 package live.mehiz.mpvkt.ui.preferences
 
+import android.content.ClipData
 import android.content.Intent
 import android.net.Uri
 import android.os.Environment
@@ -31,10 +32,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.util.fastJoinToString
 import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
@@ -214,7 +215,7 @@ object AdvancedPreferencesScreen : Screen {
             summary = { if (inputConf.isNotBlank()) Text(inputConf.lines()[0]) },
           )
           val activity = LocalActivity.current!!
-          val clipboard = LocalClipboardManager.current
+          val clipboard = LocalClipboard.current
           Preference(
             title = { Text(stringResource(R.string.pref_advanced_dump_logs_title)) },
             summary = { Text(stringResource(R.string.pref_advanced_dump_logs_summary)) },
@@ -223,7 +224,9 @@ object AdvancedPreferencesScreen : Screen {
                 val deviceInfo = CrashActivity.collectDeviceInfo()
                 val logcat = CrashActivity.collectLogcat()
 
-                clipboard.setText(AnnotatedString(CrashActivity.concatLogs(deviceInfo, null, logcat)))
+                clipboard.setClipEntry(
+                  ClipEntry(ClipData.newPlainText(null, CrashActivity.concatLogs(deviceInfo, null, logcat))),
+                )
                 CrashActivity.shareLogs(deviceInfo, null, logcat, activity)
               }
             },

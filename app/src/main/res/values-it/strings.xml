@@ -203,7 +203,7 @@
     <string name="player_sheets_filters_warning">Alcuni filtri potrebbero non funzionare con l\'attuale driver video</string>
     <string name="player_sheets_speed_slider_label">Velocità</string>
     <string name="player_sheets_speed_make_default">Imposta velocità predefinita</string>
-    <string name="player_sheets_decoder_formatted">%s (%s)</string>
+    <string name="player_sheets_decoder_formatted">%1$s (%2$s)</string>
     <string name="numeric_chooser_value_too_big">Valore troppo grande</string>
     <string name="numeric_chooser_value_too_small">Valore troppo piccolo</string>
     <string name="player_sheets_more_title">Altro</string>

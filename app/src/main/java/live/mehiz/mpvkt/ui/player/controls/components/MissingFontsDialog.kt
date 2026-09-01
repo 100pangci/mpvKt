@@ -1,5 +1,6 @@
 package live.mehiz.mpvkt.ui.player.controls.components
 
+import android.content.ClipData
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.heightIn
@@ -11,11 +12,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import live.mehiz.mpvkt.R
 import live.mehiz.mpvkt.ui.theme.spacing
 
@@ -25,7 +28,8 @@ fun MissingFontsDialog(
   onCopy: () -> Unit,
   onDismiss: () -> Unit,
 ) {
-  val clipboard = LocalClipboardManager.current
+  val clipboard = LocalClipboard.current
+  val scope = rememberCoroutineScope()
   AlertDialog(
     onDismissRequest = onDismiss,
     title = { Text(text = stringResource(R.string.missing_fonts_title)) },
@@ -53,7 +57,9 @@ fun MissingFontsDialog(
     confirmButton = {
       TextButton(
         onClick = {
-          clipboard.setText(AnnotatedString(fonts.sorted().joinToString(", ")))
+          scope.launch {
+            clipboard.setClipEntry(ClipEntry(ClipData.newPlainText(null, fonts.sorted().joinToString(", "))))
+          }
           onCopy()
         },
       ) {

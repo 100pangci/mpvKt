@@ -203,7 +203,7 @@
     <string name="player_sheets_filters_warning">قد لا تعمل بعض المرشحات مع مشغّل الفيديو الحالي</string>
     <string name="player_sheets_speed_slider_label">السرعة</string>
     <string name="player_sheets_speed_make_default">تعيين كسرعة افتراضية</string>
-    <string name="player_sheets_decoder_formatted">%s (%s)</string>
+    <string name="player_sheets_decoder_formatted">%1$s (%2$s)</string>
     <string name="numeric_chooser_value_too_big">القيمة كبيرة جدًا</string>
     <string name="numeric_chooser_value_too_small">القيمة صغيرة جدًا</string>
     <string name="player_sheets_more_title">المزيد</string>

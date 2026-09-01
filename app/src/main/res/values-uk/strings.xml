@@ -203,7 +203,7 @@
     <string name="player_sheets_filters_warning">Деякі фільтри можуть не працювати з поточним відеодрайвером</string>
     <string name="player_sheets_speed_slider_label">Швидкість</string>
     <string name="player_sheets_speed_make_default">Зробити типовою швидкістю</string>
-    <string name="player_sheets_decoder_formatted">%s (%s)</string>
+    <string name="player_sheets_decoder_formatted">%1$s (%2$s)</string>
     <string name="numeric_chooser_value_too_big">Значення завелике</string>
     <string name="numeric_chooser_value_too_small">Значення замале</string>
     <string name="player_sheets_more_title">Більше</string>

@@ -1,6 +1,5 @@
 package live.mehiz.mpvkt.ui.player.controls
 
-import android.os.Build
 import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -530,13 +529,7 @@ fun PlayerControls(
             onScreenshotSubsTap = { viewModel.screenshot(withSubtitles = true) },
             onScreenshotRawTap = { viewModel.screenshot(withSubtitles = false) },
             onFrameStep = viewModel::frameStep,
-            onPipClick = {
-              if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                activity.enterPictureInPictureMode(activity.createPipParams())
-              } else {
-                activity.enterPictureInPictureMode()
-              }
-            },
+            onPipClick = activity::enterPipMode,
             onAspectClick = {
               viewModel.changeVideoAspect(
                 when (aspectRatio) {

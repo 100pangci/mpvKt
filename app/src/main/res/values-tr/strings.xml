@@ -203,7 +203,7 @@
     <string name="player_sheets_filters_warning">Bazı filtreler mevcut video sürücünüzde çalışmayabilir</string>
     <string name="player_sheets_speed_slider_label">Hız</string>
     <string name="player_sheets_speed_make_default">Varsayılan hız olarak ayarla</string>
-    <string name="player_sheets_decoder_formatted">%s (%s)</string>
+    <string name="player_sheets_decoder_formatted">%1$s (%2$s)</string>
     <string name="numeric_chooser_value_too_big">Değer çok büyük</string>
     <string name="numeric_chooser_value_too_small">Değer çok küçük</string>
     <string name="player_sheets_more_title">Daha fazla</string>

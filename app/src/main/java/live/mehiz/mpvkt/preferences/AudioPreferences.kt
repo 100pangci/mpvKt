@@ -13,7 +13,7 @@ class AudioPreferences(preferenceStore: PreferenceStore) {
   val volumeBoostCap = preferenceStore.getInt("audio_volume_boost_cap", 30)
 }
 
-enum class AudioChannels(@StringRes val title: Int, val property: String, val value: String) {
+enum class AudioChannels(@param:StringRes val title: Int, val property: String, val value: String) {
   Auto(R.string.pref_audio_channels_auto, "audio-channels", "auto-safe"),
   AutoSafe(R.string.pref_audio_channels_auto_safe, "audio-channels", "auto"),
   Mono(R.string.pref_audio_channels_mono, "audio-channels", "mono"),

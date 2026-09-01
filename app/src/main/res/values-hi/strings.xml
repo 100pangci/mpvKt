@@ -203,7 +203,7 @@
     <string name="player_sheets_filters_warning">कुछ फ़िल्टर आपके मौजूदा वीडियो ड्राइवर पर न चलें</string>
     <string name="player_sheets_speed_slider_label">गति</string>
     <string name="player_sheets_speed_make_default">डिफ़ॉल्ट गति बनाएँ</string>
-    <string name="player_sheets_decoder_formatted">%s (%s)</string>
+    <string name="player_sheets_decoder_formatted">%1$s (%2$s)</string>
     <string name="numeric_chooser_value_too_big">मान बहुत बड़ा है</string>
     <string name="numeric_chooser_value_too_small">मान बहुत छोटा है</string>
     <string name="player_sheets_more_title">और</string>

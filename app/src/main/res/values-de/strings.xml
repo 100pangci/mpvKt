@@ -203,7 +203,7 @@
     <string name="player_sheets_filters_warning">Manche Filter funktionieren mit dem aktuellen Videotreiber evtl. nicht</string>
     <string name="player_sheets_speed_slider_label">Geschwindigkeit</string>
     <string name="player_sheets_speed_make_default">Als Standardgeschwindigkeit festlegen</string>
-    <string name="player_sheets_decoder_formatted">%s (%s)</string>
+    <string name="player_sheets_decoder_formatted">%1$s (%2$s)</string>
     <string name="numeric_chooser_value_too_big">Wert zu groß</string>
     <string name="numeric_chooser_value_too_small">Wert zu klein</string>
     <string name="player_sheets_more_title">Mehr</string>

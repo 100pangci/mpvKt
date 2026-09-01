@@ -4,9 +4,9 @@ import android.content.res.Configuration.ORIENTATION_LANDSCAPE
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.rememberSplineBasedDecay
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.AnchoredDraggableDefaults
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
@@ -46,7 +46,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
@@ -80,16 +79,12 @@ fun PlayerSheet(
     label = "alpha"
   )
 
-  val decayAnimationSpec = rememberSplineBasedDecay<Float>()
-  val anchoredDraggableState = remember {
-    AnchoredDraggableState(
-      initialValue = 1,
-      snapAnimationSpec = sheetAnimationSpec,
-      decayAnimationSpec = decayAnimationSpec,
-      positionalThreshold = { with(density) { 56.dp.toPx() } },
-      velocityThreshold = { with(density) { 125.dp.toPx() } },
-    )
-  }
+  val anchoredDraggableState = remember { AnchoredDraggableState(initialValue = 1) }
+  val flingBehavior = AnchoredDraggableDefaults.flingBehavior(
+    state = anchoredDraggableState,
+    positionalThreshold = { with(density) { 56.dp.toPx() } },
+    animationSpec = sheetAnimationSpec,
+  )
   val internalOnDismissRequest = {
     if (anchoredDraggableState.currentValue == 0) {
       scope.launch {
@@ -142,6 +137,7 @@ fun PlayerSheet(
         .anchoredDraggable(
           state = anchoredDraggableState,
           orientation = Orientation.Vertical,
+          flingBehavior = flingBehavior,
         )
         .windowInsetsPadding(
           WindowInsets.systemBars
@@ -194,30 +190,7 @@ private fun <T> AnchoredDraggableState<T>.preUpPostDownNestedScrollConnection() 
     }
   }
 
-  override suspend fun onPreFling(available: Velocity): Velocity {
-    val toFling = available.toFloat()
-    return if (toFling < 0 && offset > anchors.minPosition()) {
-      settle(toFling)
-      available
-    } else {
-      Velocity.Zero
-    }
-  }
-
-  override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
-    val toFling = available.toFloat()
-    return if (toFling > 0) {
-      settle(toFling)
-      available
-    } else {
-      Velocity.Zero
-    }
-  }
-
   private fun Float.toOffset(): Offset = Offset(0f, this)
-
-  @JvmName("velocityToFloat")
-  private fun Velocity.toFloat() = y
 
   private fun Offset.toFloat(): Float = y
 }

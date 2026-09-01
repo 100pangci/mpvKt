@@ -8,8 +8,6 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Color
-import android.media.AudioAttributes
-import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.os.Binder
 import android.os.Build
@@ -20,6 +18,10 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.core.app.ServiceCompat
+import androidx.media.AudioAttributesCompat
+import androidx.media.AudioFocusRequestCompat
+import androidx.media.AudioManagerCompat
 import androidx.media.MediaBrowserServiceCompat
 import androidx.media.session.MediaButtonReceiver
 import `is`.xyz.mpv.MPVNode
@@ -62,8 +64,7 @@ class MediaPlaybackService : MediaBrowserServiceCompat(), MPVLib.EventObserver {
   private lateinit var mediaSession: MediaSessionCompat
 
   private lateinit var audioManager: AudioManager
-  private var audioFocusRequest: AudioFocusRequest? = null
-  private var audioFocusCallback: AudioManager.OnAudioFocusChangeListener? = null
+  private var audioFocusRequest: AudioFocusRequestCompat? = null
 
   init {
     MPVLib.addObserver(this)
@@ -211,7 +212,6 @@ class MediaPlaybackService : MediaBrowserServiceCompat(), MPVLib.EventObserver {
         },
       )
 
-      setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS or MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS)
       setSessionToken(sessionToken)
       setPlaybackState(
         PlaybackStateCompat.Builder()
@@ -233,50 +233,33 @@ class MediaPlaybackService : MediaBrowserServiceCompat(), MPVLib.EventObserver {
   }
 
   private fun setupAudioFocus() {
-    audioFocusCallback = AudioManager.OnAudioFocusChangeListener { focusChange ->
-      when (focusChange) {
-        AudioManager.AUDIOFOCUS_LOSS -> pauseMedia()
-        AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> pauseMedia()
-        AudioManager.AUDIOFOCUS_GAIN -> if (paused == false) playMedia()
-      }
-    }
+    val audioAttributes = AudioAttributesCompat.Builder()
+      .setUsage(AudioAttributesCompat.USAGE_MEDIA)
+      .setContentType(AudioAttributesCompat.CONTENT_TYPE_MOVIE)
+      .build()
 
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-      val audioAttributes = AudioAttributes.Builder()
-        .setUsage(AudioAttributes.USAGE_MEDIA)
-        .setContentType(AudioAttributes.CONTENT_TYPE_MOVIE)
-        .build()
-
-      audioFocusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
-        .setAudioAttributes(audioAttributes)
-        .setAcceptsDelayedFocusGain(true)
-        .setOnAudioFocusChangeListener(audioFocusCallback!!)
-        .build()
-    }
+    audioFocusRequest = AudioFocusRequestCompat.Builder(AudioManagerCompat.AUDIOFOCUS_GAIN)
+      .setAudioAttributes(audioAttributes)
+      .setOnAudioFocusChangeListener(
+        AudioManager.OnAudioFocusChangeListener { focusChange ->
+          when (focusChange) {
+            AudioManager.AUDIOFOCUS_LOSS -> pauseMedia()
+            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> pauseMedia()
+            AudioManager.AUDIOFOCUS_GAIN -> if (paused == false) playMedia()
+          }
+        },
+      )
+      .build()
   }
 
   private fun requestAudioFocus(): Boolean {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-      audioFocusRequest?.let {
-        val result = audioManager.requestAudioFocus(it)
-        result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
-      } ?: false
-    } else {
-      val result = audioManager.requestAudioFocus(
-        audioFocusCallback,
-        AudioManager.STREAM_MUSIC,
-        AudioManager.AUDIOFOCUS_GAIN,
-      )
-      result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
-    }
+    val request = audioFocusRequest ?: return false
+    return AudioManagerCompat.requestAudioFocus(audioManager, request) ==
+      AudioManager.AUDIOFOCUS_REQUEST_GRANTED
   }
 
   private fun abandonAudioFocus() {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-      audioFocusRequest?.let { audioManager.abandonAudioFocusRequest(it) }
-    } else {
-      audioManager.abandonAudioFocus(audioFocusCallback)
-    }
+    audioFocusRequest?.let { AudioManagerCompat.abandonAudioFocusRequest(audioManager, it) }
   }
 
   fun playMedia() {
@@ -296,11 +279,7 @@ class MediaPlaybackService : MediaBrowserServiceCompat(), MPVLib.EventObserver {
       pauseMedia()
       abandonAudioFocus()
       mediaSession.isActive = false
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-        stopForeground(STOP_FOREGROUND_REMOVE)
-      } else {
-        stopForeground(true)
-      }
+      ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
       stopSelf()
     } catch (e: Exception) {
       Log.e(TAG, "Error stopping media", e)

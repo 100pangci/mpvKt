@@ -155,7 +155,7 @@ fun SubtitleDelayCard(
 }
 
 enum class SubtitleDelayType(
-  @StringRes val title: Int,
+  @param:StringRes val title: Int,
 ) {
   Primary(R.string.player_sheets_sub_delay_subtitle_type_primary),
   Secondary(R.string.player_sheets_sub_delay_subtitle_type_secondary),

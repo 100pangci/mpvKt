@@ -10,6 +10,7 @@ import android.os.Environment
 import android.provider.Settings
 import android.util.DisplayMetrics
 import android.util.Log
+import android.view.WindowInsets
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.core.net.toUri
@@ -48,6 +49,7 @@ import kotlin.math.roundToInt
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
+@Suppress("UNCHECKED_CAST")
 class PlayerViewModelProviderFactory(
   private val activity: PlayerActivity,
 ) : ViewModelProvider.Factory {
@@ -316,9 +318,14 @@ class PlayerViewModel(
       }
 
       VideoAspect.Stretch -> {
-        val dm = DisplayMetrics()
-        activity.windowManager.defaultDisplay.getRealMetrics(dm)
-        ratio = dm.widthPixels / dm.heightPixels.toDouble()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+          val bounds = activity.windowManager.maximumWindowMetrics.bounds
+          ratio = bounds.width().toDouble() / bounds.height()
+        } else {
+          @Suppress("DEPRECATION")
+          val dm = DisplayMetrics().also { activity.windowManager.defaultDisplay.getRealMetrics(it) }
+          ratio = dm.widthPixels / dm.heightPixels.toDouble()
+        }
         pan = 0.0
       }
     }
@@ -541,11 +548,21 @@ class PlayerViewModel(
 
   private val inputMethodManager = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
   private fun forceShowSoftwareKeyboard() {
-    inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0)
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+      activity.window.insetsController?.show(WindowInsets.Type.ime())
+    } else {
+      @Suppress("DEPRECATION")
+      inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0)
+    }
   }
 
   private fun forceHideSoftwareKeyboard() {
-    inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, 0)
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+      activity.window.insetsController?.hide(WindowInsets.Type.ime())
+    } else {
+      @Suppress("DEPRECATION")
+      inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, 0)
+    }
   }
 
   private fun seekToWithText(seekValue: Int, text: String?) {

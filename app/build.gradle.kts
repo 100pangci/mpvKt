@@ -1,6 +1,6 @@
 import com.android.build.api.variant.FilterConfiguration
 import io.gitlab.arturbosch.detekt.Detekt
-import org.apache.commons.io.output.ByteArrayOutputStream
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
   alias(libs.plugins.ksp)
@@ -65,9 +65,6 @@ android {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
   }
-  kotlinOptions {
-    jvmTarget = "17"
-  }
   buildFeatures {
     compose = true
     viewBinding = true
@@ -102,6 +99,7 @@ android {
 
 kotlin {
   compilerOptions {
+    jvmTarget = JvmTarget.JVM_17
     freeCompilerArgs.addAll("-Xwhen-guards", "-Xcontext-parameters")
   }
 }
@@ -172,15 +170,12 @@ tasks.withType<Detekt>().configureEach {
 
 fun getCommitCount(): String = runCommand("git rev-list --count HEAD")
 fun getCommitSha(): String = runCommand("git rev-parse --short HEAD")
-fun runCommand(command: String): String {
-  val stdOut = ByteArrayOutputStream()
-  exec {
-    commandLine = command.split(' ')
-    standardOutput = stdOut
-  }
-  return String(stdOut.toByteArray()).trim()
-}
+fun runCommand(command: String): String = providers.exec {
+  commandLine = command.split(' ')
+}.standardOutput.asText.get().trim()
 
 aboutLibraries {
-  excludeFields = arrayOf("generated")
+  export {
+    excludeFields.set(listOf("generated"))
+  }
 }

@@ -203,7 +203,7 @@
     <string name="player_sheets_filters_warning">บางตัวกรองอาจใช้ไม่ได้กับไดรเวอร์วิดีโอปัจจุบัน</string>
     <string name="player_sheets_speed_slider_label">ความเร็ว</string>
     <string name="player_sheets_speed_make_default">ตั้งเป็นความเร็วเริ่มต้น</string>
-    <string name="player_sheets_decoder_formatted">%s (%s)</string>
+    <string name="player_sheets_decoder_formatted">%1$s (%2$s)</string>
     <string name="numeric_chooser_value_too_big">ค่าใหญ่เกินไป</string>
     <string name="numeric_chooser_value_too_small">ค่าน้อยเกินไป</string>
     <string name="player_sheets_more_title">เพิ่มเติม</string>

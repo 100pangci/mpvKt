@@ -128,7 +128,7 @@ fun MpvKtTheme(content: @Composable () -> Unit) {
   }
 }
 
-enum class DarkMode(@StringRes val titleRes: Int) {
+enum class DarkMode(@param:StringRes val titleRes: Int) {
   Dark(R.string.pref_appearance_darkmode_dark),
   Light(R.string.pref_appearance_darkmode_light),
   System(R.string.pref_appearance_darkmode_system),

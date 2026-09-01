@@ -138,7 +138,7 @@ fun Int.copyAsArgb(
 fun Int.toColorHexString() = "#" + this.toHexString().uppercase()
 
 enum class SubColorType(
-  @StringRes val titleRes: Int,
+  @param:StringRes val titleRes: Int,
   val property: String,
   val preference: (SubtitlesPreferences) -> Preference<Int>,
 ) {

@@ -203,7 +203,7 @@
     <string name="player_sheets_filters_warning">Một số bộ lọc có thể không hoạt động với trình điều khiển video hiện tại</string>
     <string name="player_sheets_speed_slider_label">Tốc độ</string>
     <string name="player_sheets_speed_make_default">Đặt làm tốc độ mặc định</string>
-    <string name="player_sheets_decoder_formatted">%s (%s)</string>
+    <string name="player_sheets_decoder_formatted">%1$s (%2$s)</string>
     <string name="numeric_chooser_value_too_big">Giá trị quá lớn</string>
     <string name="numeric_chooser_value_too_small">Giá trị quá nhỏ</string>
     <string name="player_sheets_more_title">Thêm</string>

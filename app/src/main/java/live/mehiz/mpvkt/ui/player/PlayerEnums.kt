@@ -5,7 +5,7 @@ import live.mehiz.mpvkt.R
 import live.mehiz.mpvkt.preferences.DecoderPreferences
 import live.mehiz.mpvkt.preferences.preference.Preference
 
-enum class PlayerOrientation(@StringRes val titleRes: Int) {
+enum class PlayerOrientation(@param:StringRes val titleRes: Int) {
   Free(R.string.pref_player_orientation_free),
   Video(R.string.pref_player_orientation_video),
   Portrait(R.string.pref_player_orientation_portrait),
@@ -16,13 +16,13 @@ enum class PlayerOrientation(@StringRes val titleRes: Int) {
   SensorLandscape(R.string.pref_player_orientation_sensor_landscape),
 }
 
-enum class VideoAspect(@StringRes val titleRes: Int) {
+enum class VideoAspect(@param:StringRes val titleRes: Int) {
   Crop(R.string.player_aspect_crop),
   Fit(R.string.player_aspect_fit),
   Stretch(R.string.player_aspect_stretch),
 }
 
-enum class SingleActionGesture(@StringRes val titleRes: Int) {
+enum class SingleActionGesture(@param:StringRes val titleRes: Int) {
   None(R.string.pref_gesture_double_tap_none),
   Seek(R.string.pref_gesture_double_tap_seek),
   PlayPause(R.string.pref_gesture_double_tap_play),
@@ -53,7 +53,7 @@ enum class Decoder(val title: String, val value: String) {
   }
 }
 
-enum class Debanding(@StringRes val titleRes: Int) {
+enum class Debanding(@param:StringRes val titleRes: Int) {
   None(R.string.player_sheets_deband_none),
   CPU(R.string.player_sheets_deband_cpu),
   GPU(R.string.player_sheets_deband_gpu),
@@ -85,7 +85,7 @@ sealed class PlayerUpdates {
 }
 
 enum class VideoFilters(
-  @StringRes val titleRes: Int,
+  @param:StringRes val titleRes: Int,
   val preference: (DecoderPreferences) -> Preference<Int>,
   val mpvProperty: String,
 ) {
@@ -117,7 +117,7 @@ enum class VideoFilters(
 }
 
 enum class DebandSettings(
-  @StringRes val titleRes: Int,
+  @param:StringRes val titleRes: Int,
   val preference: (DecoderPreferences) -> Preference<Int>,
   val mpvProperty: String,
   val start: Int,

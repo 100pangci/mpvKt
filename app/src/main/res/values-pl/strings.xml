@@ -203,7 +203,7 @@
     <string name="player_sheets_filters_warning">Niektóre filtry mogą nie działać z bieżącym sterownikiem wideo</string>
     <string name="player_sheets_speed_slider_label">Prędkość</string>
     <string name="player_sheets_speed_make_default">Ustaw jako domyślną prędkość</string>
-    <string name="player_sheets_decoder_formatted">%s (%s)</string>
+    <string name="player_sheets_decoder_formatted">%1$s (%2$s)</string>
     <string name="numeric_chooser_value_too_big">Wartość za duża</string>
     <string name="numeric_chooser_value_too_small">Wartość za mała</string>
     <string name="player_sheets_more_title">Więcej</string>
