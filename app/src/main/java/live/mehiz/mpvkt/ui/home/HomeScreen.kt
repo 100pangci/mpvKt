@@ -1,7 +1,9 @@
 package live.mehiz.mpvkt.ui.home
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Environment
 import android.provider.Settings
@@ -51,6 +53,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import com.github.k1rakishou.fsaf.FileManager
 import `is`.xyz.mpv.Utils.PROTOCOLS
@@ -190,38 +193,52 @@ object HomeScreen : Screen {
   }
 
   /**
-   * Single owner of the all-files-access onboarding: a persistent banner
-   * plus a per-launch dialog until the permission is granted or the user
-   * opts out. The previous one-shot flag burned itself the instant the
-   * dialog appeared, so a single dismissal or a later revocation silenced
-   * the request forever.
+   * Single owner of the storage onboarding: a persistent banner plus a
+   * per-launch dialog until the permission is granted or the user opts out.
+   * The previous one-shot flag burned itself the instant the dialog
+   * appeared, so a single dismissal or a later revocation silenced the
+   * request forever.
+   *
+   * Android 11+ routes to the "All files access" settings page; older
+   * versions use the runtime storage permission dialog, which previously
+   * was only ever requested when playing a file — never on first launch.
    */
   @Composable
   private fun StorageAccessOnboarding() {
     val context = LocalContext.current
     val appPreferences = koinInject<AppPreferences>()
-    var storageGranted by remember { mutableStateOf(hasAllFilesAccess()) }
+    var storageGranted by remember { mutableStateOf(hasAllFilesAccess(context)) }
     var dontAsk by remember { mutableStateOf(appPreferences.storageAccessDontAsk.get()) }
     var showPrompt by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
-      storageGranted = hasAllFilesAccess()
+      storageGranted = hasAllFilesAccess(context)
       showPrompt = !storageGranted && !dontAsk
     }
     val settingsLauncher = rememberLauncherForActivityResult(
       ActivityResultContracts.StartActivityForResult(),
     ) {
-      storageGranted = hasAllFilesAccess()
+      storageGranted = hasAllFilesAccess(context)
       if (storageGranted) showPrompt = false
     }
-    fun launchAllFilesSettings() {
-      val intent = Intent(
-        Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION,
-        "package:${context.packageName}".toUri(),
-      )
-      runCatching { settingsLauncher.launch(intent) }
-        .onFailure {
-          settingsLauncher.launch(Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION))
-        }
+    val permissionLauncher = rememberLauncherForActivityResult(
+      ActivityResultContracts.RequestPermission(),
+    ) { granted ->
+      storageGranted = granted
+      if (granted) showPrompt = false
+    }
+    fun requestAccess() {
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        val intent = Intent(
+          Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION,
+          "package:${context.packageName}".toUri(),
+        )
+        runCatching { settingsLauncher.launch(intent) }
+          .onFailure {
+            settingsLauncher.launch(Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION))
+          }
+      } else {
+        permissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+      }
     }
     if (storageGranted || dontAsk) return
     // The banner lives in the home column; the dialog overlays on top.
@@ -243,7 +260,7 @@ object HomeScreen : Screen {
           style = MaterialTheme.typography.bodySmall,
           modifier = Modifier.weight(1f),
         )
-        TextButton(onClick = ::launchAllFilesSettings) {
+        TextButton(onClick = ::requestAccess) {
           Text(stringResource(R.string.storage_all_files_grant))
         }
       }
@@ -254,7 +271,7 @@ object HomeScreen : Screen {
         title = { Text(stringResource(R.string.storage_all_files_title)) },
         text = { Text(stringResource(R.string.storage_all_files_message)) },
         confirmButton = {
-          TextButton(onClick = ::launchAllFilesSettings) {
+          TextButton(onClick = ::requestAccess) {
             Text(stringResource(R.string.storage_all_files_grant))
           }
         },
@@ -278,8 +295,13 @@ object HomeScreen : Screen {
     }
   }
 
-  private fun hasAllFilesAccess(): Boolean =
-    Build.VERSION.SDK_INT < Build.VERSION_CODES.R || Environment.isExternalStorageManager()
+  private fun hasAllFilesAccess(context: Context): Boolean =
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+      Environment.isExternalStorageManager()
+    } else {
+      ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
+        PackageManager.PERMISSION_GRANTED
+    }
 
   // Basically a copy of:
   // https://github.com/mpv-android/mpv-android/blob/32cbff3cedea73b4616b34542cb95bf1d00504cc/app/src/main/java/is/xyz/mpv/Utils.kt#L406
