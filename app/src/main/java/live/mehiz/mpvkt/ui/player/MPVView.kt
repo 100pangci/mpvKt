@@ -61,12 +61,14 @@ class MPVView(context: Context, attributes: AttributeSet) : BaseMPVView(context,
 
   class TrackDelegate(private val name: String) {
     operator fun getValue(thisRef: Any?, property: KProperty<*>): Int {
-      val v = MPVLib.getPropertyString(name)
-      // we can get null here for "no" or other invalid value
-      return v?.toIntOrNull() ?: -1
+      val v = MPVLib.getPropertyString(name) ?: return -1
+      // 0 encodes an explicit "no" (track deliberately deselected). "auto"
+      // (an option that has not resolved yet, e.g. while idle) or an
+      // unavailable property return -1 = "unknown, don't persist".
+      return v.toIntOrNull() ?: if (v == "no") 0 else -1
     }
     operator fun setValue(thisRef: Any?, property: KProperty<*>, value: Int) {
-      if (value == -1) MPVLib.setPropertyString(name, "no") else MPVLib.setPropertyInt(name, value)
+      if (value > 0) MPVLib.setPropertyInt(name, value) else MPVLib.setPropertyString(name, "no")
     }
   }
 
@@ -144,7 +146,7 @@ class MPVView(context: Context, attributes: AttributeSet) : BaseMPVView(context,
     }
   }
 
-  @Suppress("ReturnCount")
+  @Suppress("ReturnCount", "DEPRECATION")
   fun onKey(event: KeyEvent): Boolean {
     if (event.action == KeyEvent.ACTION_MULTIPLE || KeyEvent.isModifierKey(event.keyCode)) {
       return false

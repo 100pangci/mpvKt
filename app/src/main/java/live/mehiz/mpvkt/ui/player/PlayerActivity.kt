@@ -12,6 +12,7 @@ import android.content.ServiceConnection
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.graphics.Rect
 import android.media.AudioManager
 import android.media.session.MediaSession
 import android.media.session.PlaybackState
@@ -31,7 +32,6 @@ import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.toAndroidRect
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.core.content.ContextCompat
@@ -72,6 +72,7 @@ import live.mehiz.mpvkt.ui.player.controls.PlayerControls
 import live.mehiz.mpvkt.ui.theme.MpvKtTheme
 import org.koin.android.ext.android.inject
 import java.io.File
+import kotlin.math.roundToInt
 
 @Suppress("TooManyFunctions", "LargeClass")
 class PlayerActivity : AppCompatActivity() {
@@ -160,7 +161,13 @@ class PlayerActivity : AppCompatActivity() {
           viewModel = viewModel,
           onBackPress = ::finish,
           modifier = Modifier.onGloballyPositioned {
-            pipRect = it.boundsInWindow().toAndroidRect()
+            val bounds = it.boundsInWindow()
+            pipRect = Rect(
+              bounds.left.roundToInt(),
+              bounds.top.roundToInt(),
+              bounds.right.roundToInt(),
+              bounds.bottom.roundToInt(),
+            )
           },
         )
       }
@@ -273,19 +280,30 @@ class PlayerActivity : AppCompatActivity() {
   @SuppressLint("NewApi")
   override fun onUserLeaveHint() {
     if (isPipSupported && viewModel.paused == false && playerPreferences.automaticallyEnterPip.get()) {
-      enterPictureInPictureMode()
+      enterPipMode()
     }
     super.onUserLeaveHint()
   }
 
+  @Deprecated("Deprecated in Java")
+  @Suppress("DEPRECATION")
   @SuppressLint("NewApi")
   override fun onBackPressed() {
     if (isPipSupported && viewModel.paused == false && playerPreferences.automaticallyEnterPip.get()) {
       if (viewModel.sheetShown.value == Sheets.None && viewModel.panelShown.value == Panels.None) {
-        enterPictureInPictureMode()
+        enterPipMode()
       }
     } else {
       super.onBackPressed()
+    }
+  }
+
+  internal fun enterPipMode() {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+      enterPictureInPictureMode(createPipParams())
+    } else {
+      @Suppress("DEPRECATION")
+      enterPictureInPictureMode()
     }
   }
 
@@ -297,11 +315,7 @@ class PlayerActivity : AppCompatActivity() {
     WindowCompat.setDecorFitsSystemWindows(window, false)
     window.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
     window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-    binding.root.systemUiVisibility =
-      View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
-      View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
-      View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
-      View.SYSTEM_UI_FLAG_LOW_PROFILE
+    applyLegacyImmersiveFlags()
     windowInsetsController.hide(WindowInsetsCompat.Type.systemBars())
     windowInsetsController.hide(WindowInsetsCompat.Type.navigationBars())
     windowInsetsController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
@@ -329,6 +343,15 @@ class PlayerActivity : AppCompatActivity() {
     Utils.copyAssets(this@PlayerActivity)
     copyMPVScripts()
     copyMPVConfigFiles()
+  }
+
+  @Suppress("DEPRECATION")
+  private fun applyLegacyImmersiveFlags() {
+    binding.root.systemUiVisibility =
+      View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
+      View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
+      View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+      View.SYSTEM_UI_FLAG_LOW_PROFILE
   }
 
   private fun setupMPV() {
@@ -465,9 +488,13 @@ class PlayerActivity : AppCompatActivity() {
    *   embedded tracks, then external ones
    */
   private fun autoSelectTracksIfNeeded() {
-    if (restoredTrackState || autoSubSelectedForThisVideo) return
-    autoSubSelectedForThisVideo = true
     val (audioIds, subTracks) = collectTracks()
+    // Observing the property emits an initial event with an empty track list
+    // while idle; don't consume the one-shot attempt on it — wait for the
+    // file's real track list.
+    val tracksNotLoadedYet = audioIds.isEmpty() && subTracks.isEmpty()
+    if (restoredTrackState || autoSubSelectedForThisVideo || tracksNotLoadedYet) return
+    autoSubSelectedForThisVideo = true
 
     if (audioIds.isNotEmpty()) {
       MPVLib.setPropertyInt("aid", audioIds.first())
@@ -676,6 +703,10 @@ class PlayerActivity : AppCompatActivity() {
       MPVLib.mpvEventId.MPV_EVENT_FILE_LOADED -> {
         fileName = intentResolver.getFileName(intent)
         setIntentExtras(intent.extras)
+        // Track choices are per video: a previous file's restore must not
+        // block the current file's deterministic selection.
+        restoredTrackState = false
+        autoSubSelectedForThisVideo = false
         val mediaTitle = MPVLib.getPropertyString("media-title")
         if (mediaTitle.isNullOrBlank() || mediaTitle.isDigitsOnly()) {
           MPVLib.setPropertyString("media-title", fileName)
@@ -694,6 +725,15 @@ class PlayerActivity : AppCompatActivity() {
   private fun delayMillis(current: Double?, fallbackMillis: Int?): Int =
     ((current ?: fallbackMillis?.toDouble() ?: 0.0) * 1000).toInt()
 
+  /**
+   * Persists a track id only when it is actually known: mpv reports "auto"
+   * (unreadable as a number) for tracks it has not resolved yet, e.g. while
+   * idle. Falls back to the previously saved id, then the deterministic
+   * default (first audio track, no subtitles).
+   */
+  private fun resolveTrackId(current: Int, saved: Int?, default: Int): Int =
+    current.takeIf { it >= 0 } ?: saved?.takeIf { it >= 0 } ?: default
+
   private fun saveVideoPlaybackState(mediaTitle: String) {
     if (mediaTitle.isBlank()) return
     lifecycleScope.launch(Dispatchers.IO) {
@@ -711,17 +751,18 @@ class PlayerActivity : AppCompatActivity() {
           },
           // mpv reports properties as unavailable while idle (e.g. saving the
           // old file's state right before loadfile); fall back to the stored
-          // values instead of crashing on null.
+          // values instead of crashing on null. Track ids of -1 ("unknown")
+          // must not persist either: restoring them would deselect the track.
           playbackSpeed = MPVLib.getPropertyDouble("speed") ?: oldState?.playbackSpeed ?: 1.0,
-          sid = player.sid,
+          sid = resolveTrackId(player.sid, oldState?.sid, default = 0),
           subDelay = delayMillis(MPVLib.getPropertyDouble("sub-delay"), oldState?.subDelay),
           subSpeed = MPVLib.getPropertyDouble("sub-speed") ?: oldState?.subSpeed ?: 1.0,
-          secondarySid = player.secondarySid,
+          secondarySid = resolveTrackId(player.secondarySid, oldState?.secondarySid, default = 0),
           secondarySubDelay = delayMillis(
             MPVLib.getPropertyDouble("secondary-sub-delay"),
             oldState?.secondarySubDelay,
           ),
-          aid = player.aid,
+          aid = resolveTrackId(player.aid, oldState?.aid, default = 1),
           audioDelay = delayMillis(MPVLib.getPropertyDouble("audio-delay"), oldState?.audioDelay),
         ),
       )
@@ -739,12 +780,13 @@ class PlayerActivity : AppCompatActivity() {
     val audioDelay = getDelay(audioPreferences.defaultAudioDelay.get(), state?.audioDelay)
     // Never-played files have no meaningful track/delay choices; restoring
     // their zero state would force mpv's auto-selected subtitle/audio tracks
-    // off, so only restore once the video was actually watched.
+    // off, so only restore once the video was actually watched. Legacy rows
+    // may hold -1 ("unknown") track ids: skip those instead of writing "no".
     state?.takeIf { it.lastPosition > 0 }?.let {
       restoredTrackState = true
-      player.sid = it.sid
-      player.secondarySid = it.secondarySid
-      player.aid = it.aid
+      if (it.sid >= 0) player.sid = it.sid
+      if (it.secondarySid >= 0) player.secondarySid = it.secondarySid
+      if (it.aid >= 0) player.aid = it.aid
       MPVLib.setPropertyDouble("sub-delay", subDelay)
       MPVLib.setPropertyDouble("secondary-sub-delay", secondarySubDelay)
       MPVLib.setPropertyDouble("speed", it.playbackSpeed)
