@@ -9,6 +9,7 @@ import android.view.KeyCharacterMap
 import android.view.KeyEvent
 import `is`.xyz.mpv.BaseMPVView
 import `is`.xyz.mpv.KeyMapping
+import `is`.xyz.mpv.MPV
 import live.mehiz.mpvkt.player.MPVLib
 import live.mehiz.mpvkt.preferences.AdvancedPreferences
 import live.mehiz.mpvkt.preferences.AudioPreferences
@@ -30,6 +31,23 @@ class MPVView(context: Context, attributes: AttributeSet) : BaseMPVView(context,
   private val subtitlesPreferences: SubtitlesPreferences by inject()
 
   var isExiting = false
+
+  /**
+   * Creates the mpv instance and applies mpvKt's options.
+   *
+   * The instance-based mpv-android-lib (>= 0.1.13) initializes libmpv in the
+   * MPV constructor, so all option setup happens after construction.
+   */
+  fun initialize(configDir: String, cacheDir: String) {
+    val mpv = MPV(context, configDir, cacheDir)
+    this.mpv = mpv
+    MPVLib.attach(mpv)
+    initOptions()
+    postInitOptions()
+    observeProperties()
+    // could mess up VO init before surfaceCreated() is called
+    mpv.setOptionString("force-window", "no")
+  }
 
   /**
    * Returns the video aspect ratio. Rotation is taken into account.
@@ -56,7 +74,7 @@ class MPVView(context: Context, attributes: AttributeSet) : BaseMPVView(context,
   var secondarySid: Int by TrackDelegate("secondary-sid")
   var aid: Int by TrackDelegate("aid")
 
-  override fun initOptions() {
+  private fun initOptions() {
     setVo(if (decoderPreferences.gpuNext.get()) "gpu-next" else "gpu")
     MPVLib.setOptionString("profile", "fast")
     MPVLib.setOptionString("hwdec", if (decoderPreferences.tryHWDecoding.get()) "auto" else "no")
@@ -107,11 +125,11 @@ class MPVView(context: Context, attributes: AttributeSet) : BaseMPVView(context,
     setupAudioOptions()
   }
 
-  override fun observeProperties() {
+  private fun observeProperties() {
     for ((name, format) in observedProps) MPVLib.observeProperty(name, format)
   }
 
-  override fun postInitOptions() {
+  private fun postInitOptions() {
     when (decoderPreferences.debanding.get()) {
       Debanding.None -> {}
       Debanding.CPU -> MPVLib.command("vf", "add", "@deband:gradfun=radius=12")

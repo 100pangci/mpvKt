@@ -1,6 +1,5 @@
 package live.mehiz.mpvkt.player
 
-import android.content.Context
 import android.graphics.Bitmap
 import android.view.Surface
 import `is`.xyz.mpv.MPV
@@ -81,13 +80,11 @@ object MPVLib {
     propNode.reobserveAll()
   }
 
-  fun create(appctx: Context?) = synchronized(mpvLock) { mpv?.create(appctx!!) }
-  fun init() = synchronized(mpvLock) { mpv?.init() }
   fun destroy() = synchronized(mpvLock) {
     mpv?.let {
       it.removeObserver(adapter)
       it.removeLogObserver(logAdapter)
-      it.destroy()
+      it.close()
     }
     mpv = null
   }

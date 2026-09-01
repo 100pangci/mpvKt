@@ -335,7 +335,6 @@ class PlayerActivity : AppCompatActivity() {
     copyMPVAssets()
     requestStoragePermission()
     player.initialize(filesDir.path, cacheDir.path)
-    MPVLib.attach(player.mpv)
     MPVLib.addObserver(playerObserver)
     MPVLib.addLogObserver(object : MPVLib.LogObserver {
       private val fontRequestRegex = Regex("""\(([^,()]+),\s*\d+,\s*\d+\)""")
