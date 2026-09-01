@@ -8,13 +8,13 @@ import `is`.xyz.mpv.MPVNode
 import `is`.xyz.mpv.Utils
 import kotlinx.serialization.json.Json
 
-internal fun Uri.openContentFd(context: Context): String? {
-  return context.contentResolver.openFileDescriptor(this, "r")?.detachFd()?.let {
+internal fun Uri.openContentFd(context: Context): String? = runCatching {
+  context.contentResolver.openFileDescriptor(this, "r")?.detachFd()?.let {
     Utils.findRealPath(it)?.also { _ ->
       ParcelFileDescriptor.adoptFd(it).close()
     } ?: "fd://$it"
   }
-}
+}.getOrNull()
 
 internal fun Uri.resolveUri(context: Context): String? {
   val filepath = when (scheme) {
@@ -58,3 +58,7 @@ internal val imageExtensions = listOf(
 inline fun <reified T> MPVNode.toObject(json: Json): T = json.decodeFromString<T>(toJson())
 
 internal const val FONT_INDEX_SCAN_INTERVAL = 6 * 60 * 60 * 1000L
+
+internal const val FONT_SETUP_TIMEOUT_MS = 15000L
+
+internal val SUBTITLE_EXTENSIONS = Regex(".*\\.(ass|ssa|srt)\\z", RegexOption.IGNORE_CASE)

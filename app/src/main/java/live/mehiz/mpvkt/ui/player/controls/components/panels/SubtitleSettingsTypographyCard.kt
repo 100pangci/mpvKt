@@ -41,13 +41,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
-import com.github.k1rakishou.fsaf.FileManager
-import com.yubyf.truetypeparser.TTFFile
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import live.mehiz.mpvkt.R
+import live.mehiz.mpvkt.database.dao.FontDao
 import live.mehiz.mpvkt.player.MPVLib
 import live.mehiz.mpvkt.preferences.SubtitleJustification
 import live.mehiz.mpvkt.preferences.SubtitlesPreferences
@@ -72,7 +70,7 @@ fun SubtitleSettingsTypographyCard(
 ) {
   val context = LocalContext.current
   val preferences = koinInject<SubtitlesPreferences>()
-  val fileManager = koinInject<FileManager>()
+  val fontDao = koinInject<FontDao>()
   var isExpanded by remember { mutableStateOf(true) }
   val fonts by remember { mutableStateOf(mutableListOf(preferences.font.defaultValue())) }
   var fontsLoadingIndicator: (@Composable () -> Unit)? by remember {
@@ -81,20 +79,12 @@ fun SubtitleSettingsTypographyCard(
     }
     mutableStateOf(indicator)
   }
+  // The font list comes straight from the index: walking and parsing every
+  // file in the fonts folder on each card open would be far too slow.
   LaunchedEffect(Unit) {
-    if (!preferences.fontsFolder.isSet()) {
-      fontsLoadingIndicator = null
-      return@LaunchedEffect
-    }
     withContext(Dispatchers.IO) {
       fonts.addAll(
-        fileManager.listFiles(
-          fileManager.fromUri(preferences.fontsFolder.get().toUri()) ?: return@withContext,
-        ).filter {
-          fileManager.isFile(it) && fileManager.getName(it).lowercase().matches(".*\\.[ot]tf$".toRegex())
-        }.mapNotNull {
-          runCatching { TTFFile.open(fileManager.getInputStream(it)!!).families.values.first() }.getOrNull()
-        }.distinct().sortedBy { it.lowercase() },
+        runCatching { fontDao.primaryFamilies().sortedBy { it.lowercase() } }.getOrDefault(emptyList()),
       )
       fontsLoadingIndicator = null
     }

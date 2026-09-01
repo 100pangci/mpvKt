@@ -48,11 +48,13 @@ import androidx.media.AudioManagerCompat
 import com.github.k1rakishou.fsaf.FileManager
 import `is`.xyz.mpv.MPVNode
 import `is`.xyz.mpv.Utils
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import live.mehiz.mpvkt.R
 import live.mehiz.mpvkt.database.entities.CustomButtonEntity
 import live.mehiz.mpvkt.database.entities.PlaybackStateEntity
@@ -92,6 +94,7 @@ class PlayerActivity : AppCompatActivity() {
   private val attemptedFontFamilies = mutableSetOf<String>()
   private var restoredTrackState = false
   private var autoSubSelectedForThisVideo = false
+  private var fontRefreshOnMissDone = false
 
   private var fileName = ""
   private var mediaPlaybackService: MediaPlaybackService? = null
@@ -136,11 +139,7 @@ class PlayerActivity : AppCompatActivity() {
     setupAudio()
     setupMediaSession()
     lifecycleScope.launch(Dispatchers.IO) {
-      val playable = getPlayableUri(intent)
-      stageVideoFonts(playable)
-      withContext(Dispatchers.Main) {
-        playable?.let(player::playFile)
-      }
+      startPlaybackFlow(intent)
     }
     lifecycleScope.launch {
       MPVLib.eventFlow("track-list").collect {
@@ -163,9 +162,70 @@ class PlayerActivity : AppCompatActivity() {
     }
   }
 
+  /**
+   * Resolves the video, finds its sibling subtitle and starts playback.
+   * playFile is issued unconditionally and first: font setup runs in a
+   * fully detached job that reloads the subtitle renderer once it is done,
+   * so no font work can ever delay the first frame.
+   */
+  private suspend fun CoroutineScope.startPlaybackFlow(intent: Intent) {
+    val playable = getPlayableUri(intent)
+    Log.i(TAG, "playback flow: playable=$playable")
+    if (playable == null) return
+    var videoPath = playable.takeUnless { it.startsWith("fd://") }
+    if (videoPath == null) {
+      // fd:// has no directory context: reconstruct the real video location
+      // from the content URI so sibling fonts and subtitles still resolve.
+      val dir = realDirFromContentUri(intent.data)
+      val displayName = getFileName(intent)
+      if (dir != null && displayName.isNotBlank()) {
+        val guessed = File(dir, displayName)
+        if (guessed.isFile) videoPath = guessed.absolutePath
+      }
+    }
+    val siblingSubPath = videoPath?.let(::File)?.takeIf { it.isFile }
+      ?.let { guessSiblingSubtitle(it) }?.absolutePath
+    Log.i(TAG, "playback flow: sibling=$siblingSubPath")
+    launch {
+      runCatching {
+        withTimeoutOrNull(FONT_SETUP_TIMEOUT_MS) {
+          siblingSubPath?.let { preloadSubtitleFonts(it) }
+          stageVideoFonts(videoPath)
+          MPVLib.command("sub-reload")
+        }
+      }
+      Log.i(TAG, "playback flow: font setup finished")
+    }
+    withContext(Dispatchers.Main) {
+      // NOT player.playFile(): that only stores the path for the surface
+      // callback to consume ONCE — if the surface already exists the file
+      // would never load (black screen). Issue the command directly, exactly
+      // like onNewIntent does; it is valid in any mpv state.
+      MPVLib.command("loadfile", playable)
+      siblingSubPath?.let { MPVLib.command("sub-add", it, "auto") }
+    }
+    Log.i(TAG, "playback flow: playFile issued")
+  }
+
   private fun getPlayableUri(intent: Intent): String? {
-    val uri = parsePathFromIntent(intent)
-    return if (uri?.startsWith("content://") == true) uri.toUri().openContentFd(this) else uri
+    val data = intent.data
+    val fromFd = data?.takeIf { it.scheme == "content" }?.let { uri ->
+      runCatching { uri.openContentFd(this) }.getOrNull()
+        // The provider denied access (no grant, revoked permission, offline
+        // cloud): with All-Files-Access the file is still reachable directly.
+        ?: contentUriToRealFile(uri)?.absolutePath
+    }
+    return fromFd ?: parsePathFromIntent(intent)?.let { uri ->
+      if (uri.startsWith("content://")) uri.toUri().openContentFd(this) else uri
+    }
+  }
+
+  private fun contentUriToRealFile(uri: Uri): File? {
+    val relative = uri.path
+      ?.takeIf { it.startsWith("/document/primary:") }
+      ?.removePrefix("/document/primary:")
+      ?: return null
+    return File("/storage/emulated/0", relative).takeIf { it.isFile }
   }
 
   override fun onDestroy() {
@@ -464,11 +524,94 @@ class PlayerActivity : AppCompatActivity() {
     return firstSub to defaultSub
   }
 
+  private fun realDirFromContentUri(uri: Uri?): File? {
+    val relative = uri?.path
+      ?.takeIf { it.startsWith("/document/primary:") }
+      ?.removePrefix("/document/primary:")
+      ?.substringBeforeLast('/', "")
+      ?.takeIf { it.isNotBlank() }
+      ?: return null
+    val dirFile = File("/storage/emulated/0", relative)
+    return dirFile.takeIf { it.isDirectory }
+  }
+
+  private fun guessSiblingSubtitle(video: File): File? {
+    val base = video.nameWithoutExtension
+    val exact = listOf("ass", "ssa", "srt").firstNotNullOfOrNull { extension ->
+      File(video.parentFile, "$base.$extension").takeIf { it.isFile }
+    }
+    if (exact != null) return exact
+    return video.parentFile
+      ?.listFiles { file -> file.isFile && SUBTITLE_EXTENSIONS.matches(file.name) && file.name.startsWith(base) }
+      ?.minByOrNull { it.name.length }
+  }
+
+  private fun parseAssFontNames(file: File): List<String> {
+    val names = mutableSetOf<String>()
+    var fontnameIndex = 1
+    var inStylesSection = false
+    file.useLines { lines ->
+      for (raw in lines) {
+        val line = raw.trim()
+        if (line.startsWith("[")) {
+          inStylesSection = line.equals("[V4+ Styles]", true) || line.equals("[V4 Styles]", true)
+        } else if (inStylesSection && line.startsWith("Format:", true)) {
+          fontnameIndex = line.substringAfter(':').split(',')
+            .indexOfFirst { it.trim().equals("Fontname", true) }
+            .coerceAtLeast(1)
+        } else if (inStylesSection && line.startsWith("Style:", true)) {
+          val fields = line.substringAfter(':').split(',')
+          if (fields.size > fontnameIndex) names.add(fields[fontnameIndex].trim())
+        }
+      }
+    }
+    return names.toList()
+  }
+
+  /**
+   * Runs before playback starts: parse the subtitle's style table and preload
+   * every referenced family from the index, so the first render already has
+   * them. Unresolved families are reported exactly once, after a single
+   * incremental index refresh gets a chance to fill the gaps.
+   */
+  private suspend fun preloadSubtitleFonts(subtitlePath: String) {
+    // With ASS styles forced off there is nothing to resolve: every subtitle
+    // renders in the default font, so the video font pipeline stays out of
+    // the way entirely.
+    val requested = if (subtitlesPreferences.overrideAssSubs.get()) {
+      emptyList()
+    } else {
+      runCatching { parseAssFontNames(File(subtitlePath)) }.getOrDefault(emptyList())
+    }
+    if (requested.isEmpty()) return
+    val destDir = fontsCacheDir()
+    val missing = mutableListOf<String>()
+    requested.forEach { family ->
+      if (attemptedFontFamilies.add(family) && !stageIndexedFont(family, destDir)) {
+        missing.add(family)
+      }
+    }
+    if (missing.isEmpty() || fontIndexer.indexIsEmpty()) return
+    // Retry once against a refreshed index before blaming the library.
+    refreshFontIndex()
+    missing.filterNot { stageIndexedFont(it, destDir) }.forEach { viewModel.reportMissingFont(it) }
+  }
+
   private suspend fun stageVideoFonts(videoPath: String?) {
     val destDir = fontsCacheDir()
     ensureBundledFont(destDir)
-    refreshFontIndex()
-    stageSiblingFonts(videoPath, destDir)
+    // The default font belongs to the typography feature, not to any video:
+    // stage it silently so libass can resolve it (fallback font, or the only
+    // font when ASS overriding is forced). It never reports missing.
+    runCatching { stageIndexedFont(subtitlesPreferences.font.get(), destDir) }
+    // No inline refreshFontIndex here: a full re-index takes minutes via SAF
+    // and would stall this coroutine. The index is kept fresh by the
+    // self-heal path in handleMissingFont and by the manual rebuild button.
+    // Sibling fonts matter only for native ASS rendering: forced default-font
+    // mode discards the script's styles and can never reference them.
+    if (!subtitlesPreferences.overrideAssSubs.get()) {
+      stageSiblingFonts(videoPath, destDir)
+    }
   }
 
   /**
@@ -478,11 +621,19 @@ class PlayerActivity : AppCompatActivity() {
    * gets the name.
    */
   fun handleMissingFont(family: String) {
+    // Forced default-font rendering makes per-style fonts irrelevant; keep
+    // the typography feature and the video font pipeline isolated.
+    if (subtitlesPreferences.overrideAssSubs.get()) return
     val trimmed = family.trim()
     if (trimmed.isEmpty() || !attemptedFontFamilies.add(trimmed)) return
     lifecycleScope.launch(Dispatchers.IO) {
       runCatching {
-        val staged = stageIndexedFont(trimmed, fontsCacheDir())
+        var staged = stageIndexedFont(trimmed, fontsCacheDir())
+        if (!staged && !fontRefreshOnMissDone) {
+          fontRefreshOnMissDone = true
+          refreshFontIndex(force = true)
+          staged = stageIndexedFont(trimmed, fontsCacheDir())
+        }
         if (staged) {
           MPVLib.command("sub-reload")
         } else {
@@ -496,11 +647,14 @@ class PlayerActivity : AppCompatActivity() {
 
   private suspend fun refreshFontIndex(force: Boolean = false) {
     val now = System.currentTimeMillis()
-    if (!force && now - subtitlesPreferences.fontIndexScanAt.get() < FONT_INDEX_SCAN_INTERVAL) return
     runCatching {
-      subtitlesPreferences.fontsFolder.get().takeIf { it.isNotBlank() }?.let {
-        fontIndexer.reindexUserFolder(it)
+      val folder = subtitlesPreferences.fontsFolder.get().takeIf { it.isNotBlank() }
+      // an empty index (fresh install or post-wipe) must always rebuild
+      val mustScan = folder != null && fontIndexer.indexIsEmpty()
+      if (!mustScan && !force && now - subtitlesPreferences.fontIndexScanAt.get() < FONT_INDEX_SCAN_INTERVAL) {
+        return
       }
+      folder?.let { fontIndexer.reindexUserFolder(it) }
       if (subtitlesPreferences.useSystemFonts.get()) fontIndexer.reindexSystemFonts()
       subtitlesPreferences.fontIndexScanAt.set(now)
     }
@@ -531,7 +685,11 @@ class PlayerActivity : AppCompatActivity() {
     paths.forEach { path ->
       val targetName = path.substringAfterLast('/')
       val target = File(destDir, targetName)
-      if (target.length() > 0) return@forEach
+      if (target.length() > 0) {
+        // staged by an earlier session: the family is available
+        copied = true
+        return@forEach
+      }
       copied = copied or copyIndexedFile(path, target)
     }
     return copied
@@ -545,8 +703,7 @@ class PlayerActivity : AppCompatActivity() {
       }
       else -> {
         val folderUri = subtitlesPreferences.fontsFolder.get().takeIf { it.isNotBlank() }
-        val root = folderUri?.let { fileManager.fromUri(it.toUri()) }
-        root?.let { fontIndexer.collectFontFiles(it).firstOrNull { f -> f.path == virtualPath } }?.openStream
+        folderUri?.let { fontIndexer.openIndexedFile(it, virtualPath) }
       }
     } ?: return false
     val copied = runCatching {
@@ -684,16 +841,34 @@ class PlayerActivity : AppCompatActivity() {
     }
   }
 
+  private val mediaMimeTypes = setOf(
+    "application/octet-stream",
+    "application/x-matroska",
+    "application/mp4",
+    "application/ogg",
+  )
+
   private fun isSupportedPlayable(intent: Intent): Boolean {
-    val uri = parsePathFromIntent(intent) ?: return true
-    val extension = uri.toUri().lastPathSegment?.substringBefore('?')?.substringAfterLast('.')?.lowercase()
+    val dataUri = intent.data ?: intent.getParcelableExtra(Intent.EXTRA_STREAM)
     val mime = intent.type
-    val mimeOk = mime == null || mime.startsWith("video/") ||
-      mime.startsWith("audio/") || mime.startsWith("image/") ||
-      mime == "application/octet-stream" || mime.startsWith("text/")
-    val extensionOk = extension == null || extension in videoExtensions ||
-      extension in audioExtensions || extension in imageExtensions
-    return mimeOk && extensionOk
+      ?: dataUri?.let { uri -> runCatching { contentResolver.getType(uri) }.getOrNull() }
+    val name = runCatching { getFileName(intent) }.getOrNull()
+      ?: dataUri?.lastPathSegment
+      ?: intent.getStringExtra("uri")?.substringBefore('?')?.substringAfterLast('/')
+    val extension = name?.substringBefore('?')?.substringAfterLast('.')?.lowercase()
+    if (!extension.isNullOrEmpty() && extension != name) {
+      return extension in videoExtensions || extension in audioExtensions ||
+        extension in imageExtensions || mime.isMediaMime()
+    }
+    // No usable extension (opaque content IDs, extensionless links): only reject on a
+    // clearly non-media mime, otherwise let mpv decide.
+    return mime == null || mime.isMediaMime()
+  }
+
+  private fun String?.isMediaMime(): Boolean {
+    if (this == null) return false
+    return startsWith("video/") || startsWith("audio/") || startsWith("image/") || startsWith("text/") ||
+      this in mediaMimeTypes
   }
 
   private fun rejectUnsupportedFile() {
@@ -707,8 +882,12 @@ class PlayerActivity : AppCompatActivity() {
       (intent.data ?: intent.getParcelableExtra(Intent.EXTRA_STREAM))
     }
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && uri != null) {
-      val cursor = contentResolver.query(uri, arrayOf(MediaStore.MediaColumns.DISPLAY_NAME), null, null)
-      if (cursor?.moveToFirst() == true) return cursor.getString(0).also { cursor.close() }
+      val displayName = runCatching {
+        contentResolver.query(uri, arrayOf(MediaStore.MediaColumns.DISPLAY_NAME), null, null)?.use { cursor ->
+          cursor.takeIf { it.moveToFirst() }?.getString(0)
+        }
+      }.getOrNull()
+      if (displayName != null) return displayName
     }
     return uri?.lastPathSegment?.substringAfterLast("/") ?: uri?.path ?: ""
   }
@@ -786,6 +965,9 @@ class PlayerActivity : AppCompatActivity() {
     }
   }
 
+  private fun delayMillis(current: Double?, fallbackMillis: Int?): Int =
+    ((current ?: fallbackMillis?.toDouble() ?: 0.0) * 1000).toInt()
+
   private fun saveVideoPlaybackState(mediaTitle: String) {
     if (mediaTitle.isBlank()) return
     lifecycleScope.launch(Dispatchers.IO) {
@@ -801,14 +983,20 @@ class PlayerActivity : AppCompatActivity() {
           } else {
             oldState?.lastPosition ?: 0
           },
-          playbackSpeed = MPVLib.getPropertyDouble("speed")!!,
+          // mpv reports properties as unavailable while idle (e.g. saving the
+          // old file's state right before loadfile); fall back to the stored
+          // values instead of crashing on null.
+          playbackSpeed = MPVLib.getPropertyDouble("speed") ?: oldState?.playbackSpeed ?: 1.0,
           sid = player.sid,
-          subDelay = (MPVLib.getPropertyDouble("sub-delay")!! * 1000).toInt(),
-          subSpeed = MPVLib.getPropertyDouble("sub-speed")!!,
+          subDelay = delayMillis(MPVLib.getPropertyDouble("sub-delay"), oldState?.subDelay),
+          subSpeed = MPVLib.getPropertyDouble("sub-speed") ?: oldState?.subSpeed ?: 1.0,
           secondarySid = player.secondarySid,
-          secondarySubDelay = (MPVLib.getPropertyDouble("secondary-sub-delay")!! * 1000).toInt(),
+          secondarySubDelay = delayMillis(
+            MPVLib.getPropertyDouble("secondary-sub-delay"),
+            oldState?.secondarySubDelay,
+          ),
           aid = player.aid,
-          audioDelay = (MPVLib.getPropertyDouble("audio-delay")!! * 1000).toInt(),
+          audioDelay = delayMillis(MPVLib.getPropertyDouble("audio-delay"), oldState?.audioDelay),
         ),
       )
     }

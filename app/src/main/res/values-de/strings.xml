@@ -275,4 +275,11 @@
     <string name="missing_fonts_body">Die folgenden Schriftarten wurden nicht gefunden, daher können einige Stile vom Desktop-Rendering abweichen. Kopiere die Namen, lade sie herunter und lege sie in deinem Schriftarten-Ordner (oder neben dem Video) ab.</string>
     <string name="missing_fonts_copy">Schriftartennamen kopieren</string>
 
+    <!-- missing keys -->
+    <string name="font_index_scanning">Schriftarten-Index wird erstellt</string>
+
+    <!-- missing keys -->
+    <string name="font_index_rebuild">Schriftarten-Index neu erstellen</string>
+    <string name="font_index_count">%1$d Schriftarten indexiert</string>
+
 </resources>

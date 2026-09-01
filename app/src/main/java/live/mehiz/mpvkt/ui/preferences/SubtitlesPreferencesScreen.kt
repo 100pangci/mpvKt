@@ -20,8 +20,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -29,11 +34,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import live.mehiz.mpvkt.R
+import live.mehiz.mpvkt.database.dao.FontDao
 import live.mehiz.mpvkt.player.FontIndexer
 import live.mehiz.mpvkt.preferences.SubtitlesPreferences
 import live.mehiz.mpvkt.preferences.preference.collectAsState
 import live.mehiz.mpvkt.presentation.Screen
 import live.mehiz.mpvkt.ui.utils.LocalBackStack
+import me.zhanghai.compose.preference.Preference
 import me.zhanghai.compose.preference.ProvidePreferenceLocals
 import me.zhanghai.compose.preference.SwitchPreference
 import me.zhanghai.compose.preference.TextFieldPreference
@@ -66,6 +73,16 @@ object SubtitlesPreferencesScreen : Screen {
     ) { padding ->
       ProvidePreferenceLocals {
         val scope = rememberCoroutineScope()
+        val fontDao = koinInject<FontDao>()
+        val isScanning by fontIndexer.isScanning.collectAsState()
+        val scanDone by fontIndexer.scanDone.collectAsState()
+        val scanTotal by fontIndexer.scanTotal.collectAsState()
+        var indexedCount by remember { mutableIntStateOf(0) }
+        LaunchedEffect(isScanning) {
+          if (!isScanning) {
+            indexedCount = runCatching { fontDao.countDistinctPaths() }.getOrDefault(0)
+          }
+        }
         val locationPicker = rememberLauncherForActivityResult(
           ActivityResultContracts.OpenDocumentTree(),
         ) { uri ->
@@ -114,6 +131,28 @@ object SubtitlesPreferencesScreen : Screen {
             iconButtonIcon = { Icon(Icons.Default.Clear, null) },
             onIconButtonClick = { preferences.fontsFolder.delete() },
             iconButtonEnabled = fontsFolder.isNotBlank()
+          )
+          Preference(
+            title = { Text(stringResource(R.string.font_index_rebuild)) },
+            summary = {
+              Text(
+                if (isScanning) {
+                  stringResource(R.string.font_index_scanning) + " ($scanDone/$scanTotal)"
+                } else {
+                  stringResource(R.string.font_index_count, indexedCount)
+                },
+              )
+            },
+            enabled = !isScanning,
+            onClick = {
+              preferences.fontIndexScanAt.set(0L)
+              scope.launch(Dispatchers.IO) {
+                runCatching {
+                  fontsFolder.takeIf { it.isNotBlank() }?.let { fontIndexer.reindexUserFolder(it) }
+                  if (preferences.useSystemFonts.get()) fontIndexer.reindexSystemFonts()
+                }
+              }
+            },
           )
           val useSystemFonts by preferences.useSystemFonts.collectAsState()
           SwitchPreference(

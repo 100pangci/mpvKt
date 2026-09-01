@@ -321,4 +321,11 @@
     <string name="missing_fonts_body">以下のフォントが見つからず、一部のスタイルがPC版と異なる表示になる可能性があります。フォント名をコピーしてダウンロードし、字幕フォルダ（または動画と同じ場所）に入れてください。</string>
     <string name="missing_fonts_copy">フォント名をコピー</string>
 
+    <!-- missing keys -->
+    <string name="font_index_scanning">フォントインデックスを作成中</string>
+
+    <!-- missing keys -->
+    <string name="font_index_rebuild">フォントインデックスを再構築</string>
+    <string name="font_index_count">%1$d 個のフォントを索引化済み</string>
+
 </resources>

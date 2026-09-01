@@ -275,4 +275,11 @@
     <string name="missing_fonts_body">Aşağıdaki yazı tipleri bulunamadı, ilgili stiller PC\'deki görünümle eşleşmeyebilir. İndirmek için adları kopyalayın ve altyazı yazı tipi klasörünüze (veya videonun yanına) yerleştirin.</string>
     <string name="missing_fonts_copy">Yazı tipi adlarını kopyala</string>
 
+    <!-- missing keys -->
+    <string name="font_index_scanning">Yazı tipi dizini oluşturuluyor</string>
+
+    <!-- missing keys -->
+    <string name="font_index_rebuild">Yazı tipi dizinini yeniden oluştur</string>
+    <string name="font_index_count">%1$d yazı tipi indekslendi</string>
+
 </resources>

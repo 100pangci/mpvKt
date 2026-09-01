@@ -273,4 +273,11 @@
     <string name="missing_fonts_body">Các font sau không tìm thấy nên một số kiểu có thể khác với hiển thị trên máy tính. Sao chép tên để tải về, rồi đặt vào thư mục font phụ đề (hoặc cạnh video).</string>
     <string name="missing_fonts_copy">Sao chép tên font</string>
 
+    <!-- missing keys -->
+    <string name="font_index_scanning">Đang tạo chỉ mục font</string>
+
+    <!-- missing keys -->
+    <string name="font_index_rebuild">Xây dựng lại chỉ mục font</string>
+    <string name="font_index_count">Đã lập chỉ mục %1$d font</string>
+
 </resources>

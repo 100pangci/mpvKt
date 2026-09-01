@@ -63,44 +63,57 @@ fun SubtitlesMiscellaneousCard(modifier: Modifier = Modifier) {
           onValueChange = {
             overrideAssSubs = it
             preferences.overrideAssSubs.set(it)
-            MPVLib.setPropertyString("sub-ass-override", if (it) "force" else "scale")
+            MPVLib.setPropertyString("sub-ass-override", if (it) "force" else "no")
           },
           { Text(stringResource(R.string.player_sheets_sub_override_ass)) },
         )
-        val subScale by MPVLib.propFloat["sub-scale"].collectAsState()
-        val subPos by MPVLib.propInt["sub-pos"].collectAsState()
-        SliderItem(
-          label = stringResource(R.string.player_sheets_sub_scale),
-          value = subScale!!,
-          valueText = subScale!!.toFixed(2).toString(),
-          onChange = {
-            preferences.subScale.set(it)
-            MPVLib.setPropertyFloat("sub-scale", it)
+        // Inverse of the switch above: per-subtitle font matching and forced
+        // default-font rendering are mutually exclusive.
+        SwitchPreference(
+          !overrideAssSubs,
+          onValueChange = {
+            overrideAssSubs = !it
+            preferences.overrideAssSubs.set(!it)
+            MPVLib.setPropertyString("sub-ass-override", if (!it) "force" else "no")
           },
-          max = 5f,
-          icon = {
-            Icon(
-              Icons.Default.FormatSize,
-              null,
-            )
-          },
+          { Text(stringResource(R.string.player_sheets_sub_match_fonts)) },
         )
-        SliderItem(
-          label = stringResource(R.string.player_sheets_sub_position),
-          value = subPos ?: preferences.subPos.get(),
-          valueText = subPos.toString(),
-          onChange = {
-            preferences.subPos.set(it)
-            MPVLib.setPropertyInt("sub-pos", it)
-          },
-          max = 150,
-          icon = {
-            Icon(
-              Icons.Default.AlignVerticalCenter,
-              null,
-            )
-          },
-        )
+        if (overrideAssSubs) {
+          val subScale by MPVLib.propFloat["sub-scale"].collectAsState()
+          val subPos by MPVLib.propInt["sub-pos"].collectAsState()
+          SliderItem(
+            label = stringResource(R.string.player_sheets_sub_scale),
+            value = subScale!!,
+            valueText = subScale!!.toFixed(2).toString(),
+            onChange = {
+              preferences.subScale.set(it)
+              MPVLib.setPropertyFloat("sub-scale", it)
+            },
+            max = 5f,
+            icon = {
+              Icon(
+                Icons.Default.FormatSize,
+                null,
+              )
+            },
+          )
+          SliderItem(
+            label = stringResource(R.string.player_sheets_sub_position),
+            value = subPos ?: preferences.subPos.get(),
+            valueText = subPos.toString(),
+            onChange = {
+              preferences.subPos.set(it)
+              MPVLib.setPropertyInt("sub-pos", it)
+            },
+            max = 150,
+            icon = {
+              Icon(
+                Icons.Default.AlignVerticalCenter,
+                null,
+              )
+            },
+          )
+        }
         Row(
           modifier = Modifier
             .fillMaxWidth()
@@ -116,7 +129,10 @@ fun SubtitlesMiscellaneousCard(modifier: Modifier = Modifier) {
                 MPVLib.setPropertyFloat("sub-scale", it)
               }
               preferences.overrideAssSubs.deleteAndGet().let { overrideAssSubs = it }
-              MPVLib.setPropertyString("sub-ass-override", "scale") // mpv's default is 'scale'
+              MPVLib.setPropertyString(
+                "sub-ass-override",
+                if (overrideAssSubs) "force" else "no",
+              )
             },
           ) {
             Row {

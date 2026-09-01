@@ -283,4 +283,11 @@
     <string name="missing_fonts_body">لم يتم العثور على الخطوط التالية، لذا قد تختلف بعض الأنماط عن العرض على الحاسوب. انسخ الأسماء لتنزيلها وضعها في مجلد خطوط الترجمات (أو بجوار الفيديو).</string>
     <string name="missing_fonts_copy">نسخ أسماء الخطوط</string>
 
+    <!-- missing keys -->
+    <string name="font_index_scanning">جارٍ إنشاء فهرس الخطوط</string>
+
+    <!-- missing keys -->
+    <string name="font_index_rebuild">إعادة بناء فهرس الخطوط</string>
+    <string name="font_index_count">تمت فهرسة %1$d خطًا</string>
+
 </resources>

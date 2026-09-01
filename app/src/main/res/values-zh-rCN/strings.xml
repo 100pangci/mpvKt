@@ -72,6 +72,9 @@
     <string name="pref_preferred_languages">首选语言</string>
     <string name="pref_subtitles_use_system_fonts_title">使用系统字体</string>
     <string name="pref_subtitles_use_system_fonts_summary">字幕渲染时也可命中设备系统字体，首次开启会扫描建立索引。</string>
+    <string name="font_index_rebuild">重建字体索引</string>
+    <string name="font_index_count">已索引 %1$d 个字体</string>
+    <string name="font_index_scanning">正在建立字体索引</string>
     <string name="pref_subtitles_fonts_dir">字体目录</string>
     <string name="pref_subtitles_preferred_language">在具有多个字幕的视频中，默认选择的字幕语言。支持两位或三位字母的语言代码。多个值可以用逗号分隔。</string>
     <string name="pref_subtitles_autoload_title">自动加载字幕</string>
@@ -123,6 +126,7 @@
     <string name="player_sheets_sub_color_blue">蓝</string>
     <string name="player_sheets_sub_color_alpha">透明度</string>
     <string name="player_sheets_sub_override_ass">覆盖 ASS/SSA 字幕</string>
+    <string name="player_sheets_sub_match_fonts">按字幕匹配字体</string>
     <string name="player_sheets_sub_scale">缩放</string>
     <string name="player_sheets_sub_position">位置</string>
     <string name="player_sheets_sub_typography_card_title">排版</string>

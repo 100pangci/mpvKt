@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
@@ -22,6 +23,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -30,6 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,11 +49,13 @@ import com.github.k1rakishou.fsaf.FileManager
 import `is`.xyz.mpv.Utils.PROTOCOLS
 import kotlinx.serialization.Serializable
 import live.mehiz.mpvkt.R
+import live.mehiz.mpvkt.player.FontIndexer
 import live.mehiz.mpvkt.presentation.Screen
 import live.mehiz.mpvkt.ui.player.PlayerActivity
 import live.mehiz.mpvkt.ui.preferences.PreferencesScreen
 import live.mehiz.mpvkt.ui.theme.spacing
 import live.mehiz.mpvkt.ui.utils.LocalBackStack
+import org.koin.compose.koinInject
 
 @Serializable
 object HomeScreen : Screen {
@@ -119,6 +124,30 @@ object HomeScreen : Screen {
         ) {
           if (it == null) return@rememberLauncherForActivityResult
           playFile(it.toString(), context)
+        }
+        val fontIndexer = koinInject<FontIndexer>()
+        val isScanning by fontIndexer.isScanning.collectAsState()
+        val scanDone by fontIndexer.scanDone.collectAsState()
+        val scanTotal by fontIndexer.scanTotal.collectAsState()
+        if (isScanning && scanTotal > 0) {
+          Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(top = MaterialTheme.spacing.medium),
+          ) {
+            Text(
+              text = stringResource(R.string.font_index_scanning) + " ($scanDone/$scanTotal)",
+              style = MaterialTheme.typography.bodySmall,
+            )
+            LinearProgressIndicator(
+              progress = {
+                if (scanTotal > 0) scanDone.toFloat() / scanTotal else 0f
+              },
+              modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = MaterialTheme.spacing.large)
+                .padding(top = MaterialTheme.spacing.smaller),
+            )
+          }
         }
         OutlinedButton(
           onClick = { documentPicker.launch(arrayOf("*/*")) },

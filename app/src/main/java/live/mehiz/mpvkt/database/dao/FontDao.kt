@@ -16,21 +16,41 @@ interface FontDao {
   )
   suspend fun findByName(name: String): List<FontEntity>
 
-  @Query("SELECT * FROM FontEntity WHERE path = :path")
-  suspend fun findByPath(path: String): List<FontEntity>
+  @Query(
+    """
+    SELECT path, lastModified, size FROM FontEntity
+    WHERE source = :source
+    GROUP BY path
+    """,
+  )
+  suspend fun metasForSource(source: String): List<FontMeta>
 
-  @Query("SELECT DISTINCT path FROM FontEntity WHERE source = :source")
-  suspend fun pathsForSource(source: String): List<String>
+  @Query(
+    """
+    SELECT family FROM FontEntity
+    WHERE rowid IN (SELECT MIN(rowid) FROM FontEntity GROUP BY path)
+    """,
+  )
+  suspend fun primaryFamilies(): List<String>
 
   @Query("SELECT COUNT(DISTINCT path) FROM FontEntity WHERE source = :source")
   suspend fun countForSource(source: String): Int
 
+  @Query("SELECT COUNT(DISTINCT path) FROM FontEntity")
+  suspend fun countDistinctPaths(): Int
+
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   suspend fun insertAll(fonts: List<FontEntity>)
 
-  @Query("DELETE FROM FontEntity WHERE path = :path")
-  suspend fun deleteByPath(path: String)
+  @Query("DELETE FROM FontEntity WHERE path IN (:paths)")
+  suspend fun deleteByPaths(paths: List<String>)
 
   @Query("DELETE FROM FontEntity WHERE source = :source")
   suspend fun clearSource(source: String)
 }
+
+data class FontMeta(
+  val path: String,
+  val lastModified: Long,
+  val size: Long,
+)

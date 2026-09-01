@@ -314,4 +314,11 @@
     <string name="missing_fonts_body">As fontes abaixo não foram encontradas, então alguns estilos podem não corresponder à renderização no PC. Copie os nomes para baixá-las e coloque-as na sua pasta de fontes (ou junto ao vídeo).</string>
     <string name="missing_fonts_copy">Copiar nomes das fontes</string>
 
+    <!-- missing keys -->
+    <string name="font_index_scanning">Criando o índice de fontes</string>
+
+    <!-- missing keys -->
+    <string name="font_index_rebuild">Reconstruir índice de fontes</string>
+    <string name="font_index_count">%1$d fontes indexadas</string>
+
 </resources>

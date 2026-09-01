@@ -304,4 +304,11 @@
     <string name="missing_fonts_body">Следующие шрифты не найдены, поэтому стили могут отличаться от отображения на ПК. Скопируйте названия, скачайте шрифты и положите их в папку шрифтов субтитров (или рядом с видео).</string>
     <string name="missing_fonts_copy">Скопировать названия</string>
 
+    <!-- missing keys -->
+    <string name="font_index_scanning">Создание индекса шрифтов</string>
+
+    <!-- missing keys -->
+    <string name="font_index_rebuild">Перестроить индекс шрифтов</string>
+    <string name="font_index_count">Проиндексировано шрифтов: %1$d</string>
+
 </resources>

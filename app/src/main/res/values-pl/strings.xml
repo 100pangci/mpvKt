@@ -279,4 +279,11 @@
     <string name="missing_fonts_body">Nie znaleziono następujących czcionek, niektóre style mogą różnić się od wersji na PC. Skopiuj nazwy, pobierz czcionki i umieść je w folderze czcionek napisów (lub obok wideo).</string>
     <string name="missing_fonts_copy">Kopiuj nazwy czcionek</string>
 
+    <!-- missing keys -->
+    <string name="font_index_scanning">Tworzenie indeksu czcionek</string>
+
+    <!-- missing keys -->
+    <string name="font_index_rebuild">Odbuduj indeks czcionek</string>
+    <string name="font_index_count">Zaindeksowano czcionki: %1$d</string>
+
 </resources>

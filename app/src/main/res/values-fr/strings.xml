@@ -275,4 +275,11 @@
     <string name="missing_fonts_body">Les polices suivantes sont introuvables : certains styles risquent de différer du rendu sur PC. Copiez les noms pour les télécharger, puis placez-les dans votre dossier de polices (ou à côté de la vidéo).</string>
     <string name="missing_fonts_copy">Copier les noms des polices</string>
 
+    <!-- missing keys -->
+    <string name="font_index_scanning">Création de l\'index des polices</string>
+
+    <!-- missing keys -->
+    <string name="font_index_rebuild">Reconstruire l\'index des polices</string>
+    <string name="font_index_count">%1$d polices indexées</string>
+
 </resources>

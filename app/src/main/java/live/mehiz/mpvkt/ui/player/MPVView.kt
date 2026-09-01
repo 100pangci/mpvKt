@@ -70,6 +70,9 @@ class MPVView(context: Context, attributes: AttributeSet) : BaseMPVView(context,
       append(",ass=info")
     }
     MPVLib.setOptionString("msg-level", msgLevel)
+    if (subtitlesPreferences.autoLoadExternal.get()) {
+      MPVLib.setOptionString("sub-auto", "fuzzy")
+    }
     MPVLib.setPropertyBoolean("keep-open", true)
     MPVLib.setPropertyBoolean("input-default-bindings", true)
 
@@ -204,6 +207,10 @@ class MPVView(context: Context, attributes: AttributeSet) : BaseMPVView(context,
     if (subtitlesPreferences.overrideAssSubs.get()) {
       MPVLib.setOptionString("sub-ass-override", "force")
       MPVLib.setOptionString("sub-ass-justify", "yes")
+    } else {
+      // Native ASS rendering: fonts and styles come from the script itself,
+      // no player-side styling may intrude.
+      MPVLib.setOptionString("sub-ass-override", "no")
     }
     MPVLib.setOptionString("sub-font-size", subtitlesPreferences.fontSize.get().toString())
     MPVLib.setOptionString("sub-bold", if (subtitlesPreferences.bold.get()) "yes" else "no")

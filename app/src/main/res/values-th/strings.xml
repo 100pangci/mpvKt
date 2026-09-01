@@ -273,4 +273,11 @@
     <string name="missing_fonts_body">ไม่พบฟอนต์ต่อไปนี้ รูปแบบบางส่วนอาจแสดงไม่เหมือนบนคอม คัดลอกชื่อฟอนต์ไปดาวน์โหลด แล้ววางไว้ในโฟลเดอร์ฟอนต์คำบรรยาย (หรือข้างวิดีโอ)</string>
     <string name="missing_fonts_copy">คัดลอกชื่อฟอนต์</string>
 
+    <!-- missing keys -->
+    <string name="font_index_scanning">กำลังสร้างดัชนีฟอนต์</string>
+
+    <!-- missing keys -->
+    <string name="font_index_rebuild">สร้างดัชนีฟอนต์ใหม่</string>
+    <string name="font_index_count">จัดทำดัชนีฟอนต์แล้ว %1$d ฟอนต์</string>
+
 </resources>

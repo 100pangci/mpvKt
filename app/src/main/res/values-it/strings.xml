@@ -275,4 +275,11 @@
     <string name="missing_fonts_body">I seguenti font non sono stati trovati, alcuni stili potrebbero differire dal rendering su PC. Copia i nomi per scaricarli e mettili nella cartella dei font dei sottotitoli (o accanto al video).</string>
     <string name="missing_fonts_copy">Copia nomi dei font</string>
 
+    <!-- missing keys -->
+    <string name="font_index_scanning">Creazione dell\'indice dei font</string>
+
+    <!-- missing keys -->
+    <string name="font_index_rebuild">Ricostruisci indice dei font</string>
+    <string name="font_index_count">%1$d font indicizzati</string>
+
 </resources>

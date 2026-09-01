@@ -10,6 +10,7 @@ val Migrations: Array<Migration> = arrayOf(
   MIGRATION4to5,
   MIGRATION5to6,
   MIGRATION6to7,
+  MIGRATION7to8,
 )
 
 private object MIGRATION1to2 : Migration(1, 2) {
@@ -73,6 +74,26 @@ private object MIGRATION5to6 : Migration(5, 6) {
 
 private object MIGRATION6to7 : Migration(6, 7) {
   override fun migrate(db: SupportSQLiteDatabase) {
+    db.execSQL("CREATE INDEX IF NOT EXISTS `index_FontEntity_family` ON `FontEntity` (`family`)")
+  }
+}
+
+// The alias parser gained full names/subfamily combinations; rebuild the index.
+private object MIGRATION7to8 : Migration(7, 8) {
+  override fun migrate(db: SupportSQLiteDatabase) {
+    db.execSQL("DROP TABLE IF EXISTS `FontEntity`")
+    db.execSQL(
+      """
+      CREATE TABLE IF NOT EXISTS `FontEntity` (
+        `path` TEXT NOT NULL,
+        `family` TEXT NOT NULL,
+        `lastModified` INTEGER NOT NULL,
+        `size` INTEGER NOT NULL,
+        `source` TEXT NOT NULL,
+        PRIMARY KEY(`path`, `family`)
+      )
+      """.trimIndent()
+    )
     db.execSQL("CREATE INDEX IF NOT EXISTS `index_FontEntity_family` ON `FontEntity` (`family`)")
   }
 }

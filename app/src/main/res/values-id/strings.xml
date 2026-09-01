@@ -321,4 +321,11 @@
     <string name="missing_fonts_body">Font berikut tidak ditemukan sehingga gaya subtitle bisa berbeda dari tampilan di PC. Salin namanya untuk diunduh, lalu letakkan di folder font subtitle (atau di sebelah video).</string>
     <string name="missing_fonts_copy">Salin nama font</string>
 
+    <!-- missing keys -->
+    <string name="font_index_scanning">Membuat indeks font</string>
+
+    <!-- missing keys -->
+    <string name="font_index_rebuild">Bangun ulang indeks font</string>
+    <string name="font_index_count">%1$d font terindeks</string>
+
 </resources>

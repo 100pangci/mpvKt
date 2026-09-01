@@ -275,4 +275,11 @@
     <string name="missing_fonts_body">निम्न फ़ॉन्ट नहीं मिले, इसलिए कुछ स्टाइल PC जैसे नहीं दिख सकते। नाम कॉपी करके डाउनलोड करें और अपने सबटाइटल फ़ॉन्ट फ़ोल्डर (या वीडियो के पास) में रखें।</string>
     <string name="missing_fonts_copy">फ़ॉन्ट नाम कॉपी करें</string>
 
+    <!-- missing keys -->
+    <string name="font_index_scanning">फ़ॉन्ट इंडेक्स बन रहा है</string>
+
+    <!-- missing keys -->
+    <string name="font_index_rebuild">फ़ॉन्ट इंडेक्स फिर से बनाएँ</string>
+    <string name="font_index_count">%1$d फ़ॉन्ट अनुक्रमित</string>
+
 </resources>

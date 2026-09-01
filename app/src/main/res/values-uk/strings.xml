@@ -279,4 +279,11 @@
     <string name="missing_fonts_body">Наступні шрифти не знайдено, тому деякі стилі можуть відрізнятися від показу на ПК. Скопіюйте назви, завантажте шрифти та покладіть їх у папку шрифтів субтитрів (або поруч із відео).</string>
     <string name="missing_fonts_copy">Копіювати назви шрифтів</string>
 
+    <!-- missing keys -->
+    <string name="font_index_scanning">Створення індексу шрифтів</string>
+
+    <!-- missing keys -->
+    <string name="font_index_rebuild">Перебудувати індекс шрифтів</string>
+    <string name="font_index_count">Проіндексовано шрифтів: %1$d</string>
+
 </resources>
