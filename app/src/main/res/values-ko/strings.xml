@@ -149,6 +149,7 @@
     <string name="player_sheets_chapter_title_substitute_audio">오디오 #%d</string>
     <string name="player_sheets_chapter_title_substitute_subtitle">자막 #%d</string>
     <string name="player_sheets_subtitles_footer_secondary_sid_no_styles">보조 자막에는 ASS/SSA 스타일이 적용되지 않습니다.</string>
+    <string name="player_sheets_subtitles_footer_secondary_native">네이티브 모드에서는 보조 자막을 사용할 수 없습니다</string>
     <string name="player_sheets_subtitles_settings_title">자막 설정</string>
     <string name="player_sheets_subtitles_color_text">텍스트</string>
     <string name="player_sheets_subtitles_color_border">테두리</string>

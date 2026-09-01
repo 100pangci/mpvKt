@@ -149,6 +149,7 @@
     <string name="player_sheets_chapter_title_substitute_audio">Audio #%d</string>
     <string name="player_sheets_chapter_title_substitute_subtitle">Sous-titre #%d</string>
     <string name="player_sheets_subtitles_footer_secondary_sid_no_styles">Les sous-titres secondaires n\'auront aucun style ASS/SSA.</string>
+    <string name="player_sheets_subtitles_footer_secondary_native">Les sous-titres secondaires sont indisponibles en mode natif</string>
     <string name="player_sheets_subtitles_settings_title">Paramètres des sous-titres</string>
     <string name="player_sheets_subtitles_color_text">Texte</string>
     <string name="player_sheets_subtitles_color_border">Bordure</string>

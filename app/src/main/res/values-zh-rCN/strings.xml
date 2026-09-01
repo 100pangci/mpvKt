@@ -116,6 +116,7 @@
     <string name="player_sheets_add_ext_audio">添加外部音轨</string>
     <string name="player_sheets_tracks_off">无</string>
     <string name="player_sheets_subtitles_footer_secondary_sid_no_styles">次要字幕将不使用 ASS/SSA 样式</string>
+    <string name="player_sheets_subtitles_footer_secondary_native">原生字幕模式下不可用次字幕</string>
     <string name="player_sheets_subtitles_settings_title">字幕设置</string>
     <string name="player_sheets_subtitles_color_text">文本</string>
     <string name="player_sheets_subtitles_color_border">边框</string>

@@ -168,6 +168,7 @@
     <string name="player_sheets_chapter_title_substitute_audio">Audio #%d</string>
     <string name="player_sheets_chapter_title_substitute_subtitle">Subtitle #%d</string>
     <string name="player_sheets_subtitles_footer_secondary_sid_no_styles">Subtitle kedua tidak akan menampilkan gaya ASS/SSA.</string>
+    <string name="player_sheets_subtitles_footer_secondary_native">Subtitle sekunder tidak tersedia dalam mode native</string>
     <string name="player_sheets_subtitles_settings_title">Pengaturan Subtitle</string>
     <string name="player_sheets_subtitles_color_text">Teks</string>
     <string name="player_sheets_subtitles_color_border">Garis Tepi</string>

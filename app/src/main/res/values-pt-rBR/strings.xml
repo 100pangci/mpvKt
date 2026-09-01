@@ -122,6 +122,7 @@
     <string name="player_sheets_track_title_wo_lang" translatable="false">#%d: %s</string>
     <string name="player_sheets_track_lang_wo_title" translatable="false">#%d: %s</string>
     <string name="player_sheets_subtitles_footer_secondary_sid_no_styles">Legendas secundárias não terão formatação ASS/SSA.</string>
+    <string name="player_sheets_subtitles_footer_secondary_native">Legendas secundárias indisponíveis no modo nativo</string>
     <string name="player_sheets_subtitles_settings_title">Configurações de legendas</string>
     <string name="player_sheets_subtitles_color_text">Texto</string>
     <string name="player_sheets_subtitles_color_border">Borda</string>

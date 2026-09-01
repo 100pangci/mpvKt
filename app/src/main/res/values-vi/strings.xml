@@ -149,6 +149,7 @@
     <string name="player_sheets_chapter_title_substitute_audio">Âm thanh #%d</string>
     <string name="player_sheets_chapter_title_substitute_subtitle">Phụ đề #%d</string>
     <string name="player_sheets_subtitles_footer_secondary_sid_no_styles">Phụ đề phụ sẽ không có kiểu ASS/SSA.</string>
+    <string name="player_sheets_subtitles_footer_secondary_native">Phụ đề thứ hai không khả dụng ở chế độ gốc</string>
     <string name="player_sheets_subtitles_settings_title">Cài đặt phụ đề</string>
     <string name="player_sheets_subtitles_color_text">Chữ</string>
     <string name="player_sheets_subtitles_color_border">Viền</string>

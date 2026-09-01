@@ -63,6 +63,7 @@ fun SubtitlesMiscellaneousCard(modifier: Modifier = Modifier) {
           onValueChange = {
             overrideAssSubs = it
             preferences.overrideAssSubs.set(it)
+            if (!it) MPVLib.setPropertyBoolean("secondary-sid", false)
             MPVLib.setPropertyString("sub-ass-override", if (it) "force" else "no")
           },
           { Text(stringResource(R.string.player_sheets_sub_override_ass)) },
@@ -74,6 +75,7 @@ fun SubtitlesMiscellaneousCard(modifier: Modifier = Modifier) {
           onValueChange = {
             overrideAssSubs = !it
             preferences.overrideAssSubs.set(!it)
+            if (it) MPVLib.setPropertyBoolean("secondary-sid", false)
             MPVLib.setPropertyString("sub-ass-override", if (!it) "force" else "no")
           },
           { Text(stringResource(R.string.player_sheets_sub_match_fonts)) },

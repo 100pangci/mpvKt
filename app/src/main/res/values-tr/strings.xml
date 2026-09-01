@@ -149,6 +149,7 @@
     <string name="player_sheets_chapter_title_substitute_audio">Ses #%d</string>
     <string name="player_sheets_chapter_title_substitute_subtitle">Altyazı #%d</string>
     <string name="player_sheets_subtitles_footer_secondary_sid_no_styles">İkincil altyazılarda ASS/SSA biçimlendirmesi olmaz.</string>
+    <string name="player_sheets_subtitles_footer_secondary_native">Native modda ikincil altyazılar kullanılamaz</string>
     <string name="player_sheets_subtitles_settings_title">Altyazı ayarları</string>
     <string name="player_sheets_subtitles_color_text">Metin</string>
     <string name="player_sheets_subtitles_color_border">Kenarlık</string>

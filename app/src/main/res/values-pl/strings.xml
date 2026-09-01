@@ -149,6 +149,7 @@
     <string name="player_sheets_chapter_title_substitute_audio">Audio #%d</string>
     <string name="player_sheets_chapter_title_substitute_subtitle">Napis #%d</string>
     <string name="player_sheets_subtitles_footer_secondary_sid_no_styles">Wtórne napisy nie będą miały stylów ASS/SSA.</string>
+    <string name="player_sheets_subtitles_footer_secondary_native">Napisy drugorzędne są niedostępne w trybie natywnym</string>
     <string name="player_sheets_subtitles_settings_title">Ustawienia napisów</string>
     <string name="player_sheets_subtitles_color_text">Tekst</string>
     <string name="player_sheets_subtitles_color_border">Obramowanie</string>

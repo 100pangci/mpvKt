@@ -29,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -59,6 +60,11 @@ fun MultiCardPanel(
     val settingsCards = createRef()
 
     val pagerState = rememberPagerState { cardCount }
+    // Card sets can shrink while the panel is open (mode switches); clamp
+    // the page instead of showing a blank one past the end.
+    LaunchedEffect(cardCount) {
+      if (pagerState.currentPage > cardCount - 1) pagerState.scrollToPage(cardCount - 1)
+    }
     if (orientation == ORIENTATION_PORTRAIT) {
       Column(
         modifier = Modifier.constrainAs(settingsCards) {
