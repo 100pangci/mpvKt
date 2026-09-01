@@ -125,19 +125,16 @@ before submitting.
 ### About `mpv-android-lib`
 
 The mpv binding this project builds on is
-[`io.github.abdallahmehiz:mpv-android-lib`](https://github.com/abdallahmehiz/mpv-android)
-— a library fork of [mpv-android](https://github.com/mpv-android/mpv-android)
-with an instance-based `MPV` API, `mpv_node` bindings, multi-instance and
-DASH support, published to Maven Central by the original mpvKt author. The
-player layer of this fork (the `MPVLib` compatibility singleton and
-`MPVView`) targets that fork's API.
-
-The library's upstream repository has been archived, but Maven Central
-artifacts are immutable and remain resolvable, so the dependency keeps
-working as-is. If the library ever needs patching (e.g. a libmpv bump), the
-plan is to fork it under this organization, rebuild the AAR through its
-`buildscripts` and publish under a new group id — its MIT license allows
-this.
+[`io.github.100pangci:mpv-android-lib`](https://github.com/100pangci/mpv-android)
+— a maintained fork of the library originally extracted from
+[mpv-android](https://github.com/mpv-android/mpv-android) by the first
+mpvKt author, with an instance-based `MPV` API, `mpv_node` bindings,
+multi-instance and DASH support. The fork tracks the upstream
+mpv-android master buildscripts and is rebuilt and republished under our
+own group id whenever it needs patching; since 0.1.13 its native
+libraries target API 23 and subtitles get fontconfig-based system-font
+discovery. The player layer of this fork (the `MPVLib` compatibility
+singleton and `MPVView`) targets that API.
 
 ## License
 
