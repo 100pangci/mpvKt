@@ -1,8 +1,6 @@
 package live.mehiz.mpvkt.ui.player.controls
 
 import android.annotation.SuppressLint
-import android.content.Context
-import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -32,7 +30,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -57,7 +54,6 @@ fun BottomRightPlayerControls(
   onPipClick: () -> Unit,
   modifier: Modifier = Modifier,
 ) {
-  val context = LocalContext.current
   Row(modifier) {
     if (customButton != null) {
       Box(modifier = Modifier.padding(end = MaterialTheme.spacing.smaller)) {
@@ -88,9 +84,6 @@ fun BottomRightPlayerControls(
       ControlsButton(
         Icons.Default.Screenshot,
         onClick = onScreenshotSubsTap,
-        onLongClick = {
-          context.toast(context.getString(R.string.screenshot_with_subtitles))
-        },
         title = stringResource(R.string.screenshot_with_subtitles),
       )
       // Subtitle strip burned into the screenshot frame: unmistakable at a
@@ -105,9 +98,6 @@ fun BottomRightPlayerControls(
     ControlsButton(
       Icons.Default.Screenshot,
       onClick = onScreenshotRawTap,
-      onLongClick = {
-        context.toast(context.getString(R.string.screenshot_without_subtitles))
-      },
       title = stringResource(R.string.screenshot_without_subtitles),
     )
 
@@ -144,8 +134,4 @@ private fun SubtitlesBadge(modifier: Modifier = Modifier) {
       modifier = Modifier.size(8.dp),
     )
   }
-}
-
-private fun Context.toast(message: String) {
-  Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
 }
