@@ -211,7 +211,7 @@ class PlayerActivity : AppCompatActivity() {
         // refresh it so the video's own directory is indexed in place.
         fontConfigManager.regenerate(videoPath)
         val stagedSub = siblingSubPath?.let { fontPipeline.preloadSubtitleFonts(it) } ?: false
-        val stagedVideo = fontPipeline.stageVideoFonts(videoPath)
+        val stagedVideo = fontPipeline.stageVideoFonts()
         val staged = stagedSub || stagedVideo
         fontSetupDone.complete(staged)
         if (staged) {

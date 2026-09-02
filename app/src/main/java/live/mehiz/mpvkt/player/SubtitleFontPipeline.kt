@@ -133,7 +133,14 @@ internal class SubtitleFontPipeline(
     return if (requested.isEmpty()) false else stageAndReportFamilies(requested)
   }
 
-  suspend fun stageVideoFonts(videoPath: String?): Boolean {
+  /**
+   * Stages the fonts the embedded provider must always have: the bundled
+   * subfont and the typography default font. Everything else — system
+   * fonts, the user's fonts folder and the video's own directory — is
+   * indexed in place by fontconfig via [FontConfigManager], so sibling
+   * fonts are never copied.
+   */
+  suspend fun stageVideoFonts(): Boolean {
     val destDir = fontsCacheDir
     var stagedAny = ensureBundledFont(destDir)
     // The default font belongs to the typography feature, not to any video:
@@ -144,11 +151,6 @@ internal class SubtitleFontPipeline(
     // No inline refreshFontIndex here: a full re-index takes minutes via SAF
     // and would stall this coroutine. The index is kept fresh by the
     // self-heal path in handleMissingFont and by the manual rebuild button.
-    // Sibling fonts matter only for native ASS rendering: forced default-font
-    // mode discards the script's styles and can never reference them.
-    if (!subtitlesPreferences.overrideAssSubs.get()) {
-      stagedAny = stageSiblingFonts(videoPath, destDir) || stagedAny
-    }
     return stagedAny
   }
 
@@ -200,32 +202,6 @@ internal class SubtitleFontPipeline(
       if (subtitlesPreferences.useSystemFonts.get()) fontIndexer.reindexSystemFonts()
       subtitlesPreferences.fontIndexScanAt.set(now)
     }
-  }
-
-  private suspend fun stageSiblingFonts(videoPath: String?, destDir: File): Boolean {
-    val parent = videoPath
-      ?.takeUnless { it.startsWith("fd://") }
-      ?.let { runCatching { File(it) }.getOrNull() }
-      ?.takeIf { it.isFile }
-      ?.parentFile
-    val copiedAny = parent?.let { dir ->
-      val fontDirs = sequenceOf(dir, File(dir, "fonts")).filter { it.isDirectory }
-      fontDirs.fold(false) { any, folder -> copyFolderFonts(folder, destDir) || any }
-    } ?: false
-    return copiedAny
-  }
-
-  private fun copyFolderFonts(folder: File, destDir: File): Boolean {
-    var any = false
-    folder.listFiles { file -> file.isFile && FontIndexer.FONT_EXTENSIONS.matches(file.name) }
-      ?.forEach { font ->
-        val target = File(destDir, font.name)
-        if (!target.exists() || target.length() != font.length()) {
-          val copied = runCatching { font.copyTo(target, overwrite = true) }.isSuccess
-          any = copied || any
-        }
-      }
-    return any
   }
 
   private suspend fun stageIndexedFont(family: String, destDir: File): Boolean {
