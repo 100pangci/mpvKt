@@ -244,6 +244,8 @@
     <string name="screenshot_raw">ภาพหน้าจอไม่มีคำบรรยาย</string>
     <string name="screenshot_saved">บันทึกภาพหน้าจอแล้ว: %1$s</string>
     <string name="screenshot_failed">จับภาพหน้าจอไม่สำเร็จ</string>
+    <string name="screenshot_with_subtitles">ภาพหน้าจอพร้อมคำบรรยาย</string>
+    <string name="screenshot_without_subtitles">ภาพหน้าจอไม่มีคำบรรยาย</string>
     <string name="screenshot_cancel_hint">ปล่อยนิ้วเพื่อยกเลิก</string>
     <string name="error_unsupported_file">เล่นไฟล์ประเภทนี้ไม่ได้</string>
     <string name="screenshot_dir_missing">ไดเรกทอรีไม่มีอยู่</string>

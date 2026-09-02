@@ -244,6 +244,8 @@
     <string name="screenshot_raw">자막 없는 스크린샷</string>
     <string name="screenshot_saved">스크린샷 저장됨: %1$s</string>
     <string name="screenshot_failed">스크린샷 실패</string>
+    <string name="screenshot_with_subtitles">자막 포함 스크린샷</string>
+    <string name="screenshot_without_subtitles">자막 없는 스크린샷</string>
     <string name="screenshot_cancel_hint">손을 떼면 취소됩니다</string>
     <string name="error_unsupported_file">이 파일 형식은 재생할 수 없습니다</string>
     <string name="screenshot_dir_missing">디렉터리가 없습니다</string>

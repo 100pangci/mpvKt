@@ -244,6 +244,8 @@
     <string name="screenshot_raw">Screenshot senza sottotitoli</string>
     <string name="screenshot_saved">Screenshot salvato: %1$s</string>
     <string name="screenshot_failed">Screenshot non riuscito</string>
+    <string name="screenshot_with_subtitles">Screenshot con sottotitoli</string>
+    <string name="screenshot_without_subtitles">Screenshot senza sottotitoli</string>
     <string name="screenshot_cancel_hint">Rilascia per annullare lo screenshot</string>
     <string name="error_unsupported_file">Impossibile riprodurre questo tipo di file</string>
     <string name="screenshot_dir_missing">la cartella non esiste</string>

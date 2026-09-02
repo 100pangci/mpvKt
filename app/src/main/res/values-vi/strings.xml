@@ -244,6 +244,8 @@
     <string name="screenshot_raw">Ảnh chụp không phụ đề</string>
     <string name="screenshot_saved">Đã lưu ảnh chụp: %1$s</string>
     <string name="screenshot_failed">Chụp ảnh thất bại</string>
+    <string name="screenshot_with_subtitles">Ảnh chụp có phụ đề</string>
+    <string name="screenshot_without_subtitles">Ảnh chụp không phụ đề</string>
     <string name="screenshot_cancel_hint">Thả tay để hủy chụp</string>
     <string name="error_unsupported_file">Không thể phát loại tệp này</string>
     <string name="screenshot_dir_missing">thư mục không tồn tại</string>

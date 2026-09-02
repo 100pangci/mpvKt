@@ -244,6 +244,8 @@
     <string name="screenshot_raw">لقطة بدون ترجمات</string>
     <string name="screenshot_saved">تم حفظ اللقطة: %1$s</string>
     <string name="screenshot_failed">فشلت اللقطة</string>
+    <string name="screenshot_with_subtitles">لقطة شاشة مع الترجمات</string>
+    <string name="screenshot_without_subtitles">لقطة شاشة بدون الترجمات</string>
     <string name="screenshot_cancel_hint">افتح إصبعك للإلغاء</string>
     <string name="error_unsupported_file">لا يمكن تشغيل هذا النوع من الملفات</string>
     <string name="screenshot_dir_missing">المجلد غير موجود</string>

@@ -309,6 +309,8 @@
     <string name="screenshot_raw">Raw screenshot</string>
     <string name="screenshot_saved">Screenshot saved: %1$s</string>
     <string name="screenshot_failed">Screenshot failed</string>
+    <string name="screenshot_with_subtitles">Screenshot with subtitles</string>
+    <string name="screenshot_without_subtitles">Screenshot without subtitles</string>
     <string name="screenshot_cancel_hint">Release to cancel screenshot</string>
     <string name="missing_fonts_title">Missing subtitle fonts</string>
     <string name="missing_fonts_body">The following fonts were not found, so affected subtitle styles may not match desktop rendering. Copy the font names to download them, then place the files in your subtitles font folder (or next to the video).</string>

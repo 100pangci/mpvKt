@@ -268,6 +268,8 @@
     <string name="screenshot_raw">Captura sin subtítulos</string>
     <string name="screenshot_saved">Captura guardada: %1$s</string>
     <string name="screenshot_failed">Error al tomar la captura</string>
+    <string name="screenshot_with_subtitles">Captura con subtítulos</string>
+    <string name="screenshot_without_subtitles">Captura sin subtítulos</string>
     <string name="screenshot_cancel_hint">Suelta para cancelar la captura</string>
     <string name="error_unsupported_file">No se puede reproducir este tipo de archivo</string>
     <string name="screenshot_dir_missing">el directorio no existe</string>

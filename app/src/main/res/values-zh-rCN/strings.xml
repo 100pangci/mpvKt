@@ -234,6 +234,8 @@
     <string name="screenshot_raw">原画截图</string>
     <string name="screenshot_saved">截图已保存：%1$s</string>
     <string name="screenshot_failed">截图失败</string>
+    <string name="screenshot_with_subtitles">带字幕截图</string>
+    <string name="screenshot_without_subtitles">无字幕截图</string>
     <string name="screenshot_cancel_hint">松手后取消截图</string>
     <string name="missing_fonts_title">缺少字幕字体</string>
     <string name="missing_fonts_body">以下字体未找到，相关字幕样式可能无法与电脑端一致显示。点「复制字体名」去下载字体文件，然后放进你的字幕字体文件夹（或视频同目录）。</string>

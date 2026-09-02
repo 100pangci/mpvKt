@@ -244,6 +244,8 @@
     <string name="screenshot_raw">Знімок без субтитрів</string>
     <string name="screenshot_saved">Знімок збережено: %1$s</string>
     <string name="screenshot_failed">Не вдалося зробити знімок</string>
+    <string name="screenshot_with_subtitles">Знімок із субтитрами</string>
+    <string name="screenshot_without_subtitles">Знімок без субтитрів</string>
     <string name="screenshot_cancel_hint">Відпустіть, щоб скасувати</string>
     <string name="error_unsupported_file">Неможливо відтворити цей тип файлу</string>
     <string name="screenshot_dir_missing">каталогу не існує</string>

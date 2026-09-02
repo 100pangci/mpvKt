@@ -244,6 +244,8 @@
     <string name="screenshot_raw">Screenshot ohne Untertitel</string>
     <string name="screenshot_saved">Screenshot gespeichert: %1$s</string>
     <string name="screenshot_failed">Screenshot fehlgeschlagen</string>
+    <string name="screenshot_with_subtitles">Screenshot mit Untertiteln</string>
+    <string name="screenshot_without_subtitles">Screenshot ohne Untertiteln</string>
     <string name="screenshot_cancel_hint">Loslassen, um den Screenshot abzubrechen</string>
     <string name="error_unsupported_file">Dieser Dateityp kann nicht wiedergegeben werden</string>
     <string name="screenshot_dir_missing">Verzeichnis existiert nicht</string>

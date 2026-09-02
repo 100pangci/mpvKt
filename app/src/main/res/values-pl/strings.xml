@@ -244,6 +244,8 @@
     <string name="screenshot_raw">Zrzut bez napisów</string>
     <string name="screenshot_saved">Zapisano zrzut: %1$s</string>
     <string name="screenshot_failed">Zrzut nie powiódł się</string>
+    <string name="screenshot_with_subtitles">Zrzut z napisami</string>
+    <string name="screenshot_without_subtitles">Zrzut bez napisów</string>
     <string name="screenshot_cancel_hint">Puść, aby anulować zrzut</string>
     <string name="error_unsupported_file">Nie można odtworzyć tego typu pliku</string>
     <string name="screenshot_dir_missing">katalog nie istnieje</string>

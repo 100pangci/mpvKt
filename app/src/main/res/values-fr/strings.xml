@@ -244,6 +244,8 @@
     <string name="screenshot_raw">Capture sans sous-titres</string>
     <string name="screenshot_saved">Capture enregistrée : %1$s</string>
     <string name="screenshot_failed">Échec de la capture</string>
+    <string name="screenshot_with_subtitles">Capture avec sous-titres</string>
+    <string name="screenshot_without_subtitles">Capture sans sous-titres</string>
     <string name="screenshot_cancel_hint">Relâchez pour annuler la capture</string>
     <string name="error_unsupported_file">Impossible de lire ce type de fichier</string>
     <string name="screenshot_dir_missing">le dossier n\'existe pas</string>

@@ -297,6 +297,8 @@
     <string name="screenshot_raw">字幕なしスクリーンショット</string>
     <string name="screenshot_saved">スクリーンショットを保存しました: %1$s</string>
     <string name="screenshot_failed">スクリーンショットに失敗しました</string>
+    <string name="screenshot_with_subtitles">スクリーンショット(字幕あり)</string>
+    <string name="screenshot_without_subtitles">スクリーンショット(字幕なし)</string>
     <string name="screenshot_cancel_hint">指を離すとキャンセルされます</string>
     <string name="error_unsupported_file">このファイル形式は再生できません</string>
     <string name="screenshot_dir_missing">ディレクトリが存在しません</string>

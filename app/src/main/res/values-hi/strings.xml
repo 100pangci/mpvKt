@@ -244,6 +244,8 @@
     <string name="screenshot_raw">सबटाइटल रहित स्क्रीनशॉट</string>
     <string name="screenshot_saved">स्क्रीनशॉट सहेजा गया: %1$s</string>
     <string name="screenshot_failed">स्क्रीनशॉट विफल</string>
+    <string name="screenshot_with_subtitles">सबटाइटल के साथ स्क्रीनशॉट</string>
+    <string name="screenshot_without_subtitles">सबटाइटल के बिना स्क्रीनशॉट</string>
     <string name="screenshot_cancel_hint">रद्द करने के लिए उँगली उठाएँ</string>
     <string name="error_unsupported_file">यह फ़ाइल प्रकार नहीं चल सकता</string>
     <string name="screenshot_dir_missing">डायरेक्टरी मौजूद नहीं</string>

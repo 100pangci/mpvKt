@@ -297,6 +297,8 @@
     <string name="screenshot_raw">Tangkapan layar tanpa subtitle</string>
     <string name="screenshot_saved">Tangkapan layar disimpan: %1$s</string>
     <string name="screenshot_failed">Tangkapan layar gagal</string>
+    <string name="screenshot_with_subtitles">Tangkapan layar dengan subtitle</string>
+    <string name="screenshot_without_subtitles">Tangkapan layar tanpa subtitle</string>
     <string name="screenshot_cancel_hint">Lepaskan untuk membatalkan</string>
     <string name="error_unsupported_file">Tipe file ini tidak dapat diputar</string>
     <string name="screenshot_dir_missing">direktori tidak ada</string>

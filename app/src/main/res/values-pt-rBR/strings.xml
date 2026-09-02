@@ -286,6 +286,8 @@
     <string name="screenshot_raw">Captura sem legendas</string>
     <string name="screenshot_saved">Captura salva: %1$s</string>
     <string name="screenshot_failed">Falha na captura de tela</string>
+    <string name="screenshot_with_subtitles">Captura com legendas</string>
+    <string name="screenshot_without_subtitles">Captura sem legendas</string>
     <string name="screenshot_cancel_hint">Solte para cancelar a captura</string>
     <string name="error_unsupported_file">Não é possível reproduzir este tipo de arquivo</string>
     <string name="screenshot_dir_missing">o diretório não existe</string>

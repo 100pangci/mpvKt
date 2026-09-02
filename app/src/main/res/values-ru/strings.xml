@@ -280,6 +280,8 @@
     <string name="screenshot_raw">Скриншот без субтитров</string>
     <string name="screenshot_saved">Скриншот сохранён: %1$s</string>
     <string name="screenshot_failed">Не удалось сделать скриншот</string>
+    <string name="screenshot_with_subtitles">Скриншот с субтитрами</string>
+    <string name="screenshot_without_subtitles">Скриншот без субтитров</string>
     <string name="screenshot_cancel_hint">Отпустите, чтобы отменить</string>
     <string name="error_unsupported_file">Невозможно воспроизвести этот тип файла</string>
     <string name="screenshot_dir_missing">каталог не существует</string>

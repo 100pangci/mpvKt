@@ -244,6 +244,8 @@
     <string name="screenshot_raw">Altyazısız ekran görüntüsü</string>
     <string name="screenshot_saved">Ekran görüntüsü kaydedildi: %1$s</string>
     <string name="screenshot_failed">Ekran görüntüsü alınamadı</string>
+    <string name="screenshot_with_subtitles">Altyazılı ekran görüntüsü</string>
+    <string name="screenshot_without_subtitles">Altyazısız ekran görüntüsü</string>
     <string name="screenshot_cancel_hint">İptal etmek için parmağını kaldır</string>
     <string name="error_unsupported_file">Bu dosya türü oynatılamaz</string>
     <string name="screenshot_dir_missing">dizin yok</string>
