@@ -21,6 +21,7 @@ import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FileOpen
 import androidx.compose.material.icons.filled.FolderOpen
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.Settings
@@ -62,6 +63,7 @@ import live.mehiz.mpvkt.R
 import live.mehiz.mpvkt.player.FontIndexer
 import live.mehiz.mpvkt.preferences.AppPreferences
 import live.mehiz.mpvkt.presentation.Screen
+import live.mehiz.mpvkt.ui.history.HistoryScreen
 import live.mehiz.mpvkt.ui.player.PlayerActivity
 import live.mehiz.mpvkt.ui.preferences.PreferencesScreen
 import live.mehiz.mpvkt.ui.theme.spacing
@@ -186,6 +188,15 @@ object HomeScreen : Screen {
           ) {
             Icon(Icons.Default.FolderOpen, null)
             Text(text = stringResource(R.string.home_open_file_picker))
+          }
+        }
+        OutlinedButton(onClick = { backstack.add(HistoryScreen) }) {
+          Row(
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.smaller),
+            verticalAlignment = Alignment.CenterVertically,
+          ) {
+            Icon(Icons.Default.History, null)
+            Text(text = stringResource(R.string.history_title))
           }
         }
       }

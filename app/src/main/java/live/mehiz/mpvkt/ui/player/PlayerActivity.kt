@@ -779,9 +779,24 @@ class PlayerActivity : AppCompatActivity() {
           ),
           aid = resolveTrackId(player.aid, oldState?.aid, default = 1),
           audioDelay = delayMillis(MPVLib.getPropertyDouble("audio-delay"), oldState?.audioDelay),
+          duration = viewModel.duration ?: oldState?.duration ?: 0,
+          lastPlayedAt = System.currentTimeMillis(),
+          uri = resolveHistoryUri() ?: oldState?.uri.orEmpty(),
         ),
       )
     }
+  }
+
+  /**
+   * Remembers where the current media came from so the watch history can
+   * resume it later: the raw intent data covers VIEW and SEND (stream)
+   * launches, the text extra covers shared URLs. Ephemeral handles are
+   * never stored; resuming re-runs the full intent resolution instead.
+   */
+  private fun resolveHistoryUri(): String? {
+    @Suppress("DEPRECATION")
+    val uri = intent.data ?: intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)
+    return uri?.toString() ?: intent.getStringExtra(Intent.EXTRA_TEXT)
   }
 
   private suspend fun loadVideoPlaybackState(mediaTitle: String) {

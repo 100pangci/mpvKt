@@ -9,7 +9,7 @@ import live.mehiz.mpvkt.database.entities.CustomButtonEntity
 import live.mehiz.mpvkt.database.entities.FontEntity
 import live.mehiz.mpvkt.database.entities.PlaybackStateEntity
 
-@Database(entities = [PlaybackStateEntity::class, CustomButtonEntity::class, FontEntity::class], version = 8)
+@Database(entities = [PlaybackStateEntity::class, CustomButtonEntity::class, FontEntity::class], version = 9)
 abstract class MpvKtDatabase : RoomDatabase() {
   abstract fun videoDataDao(): PlaybackStateDao
   abstract fun customButtonDao(): CustomButtonDao

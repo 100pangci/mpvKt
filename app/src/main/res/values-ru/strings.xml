@@ -12,6 +12,8 @@
     <string name="home_open_url">Открыть url</string>
     <string name="home_url_input_label">URL</string>
     <string name="home_invalid_protocol">Недопустимый протокол</string>
+    <string name="history_title">История воспроизведения</string>
+    <string name="history_empty">История воспроизведения пуста. Просмотренные видео появятся здесь.</string>
 
     <string name="pref_preferences">Предпочтения</string>
 

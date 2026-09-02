@@ -13,6 +13,8 @@
     <string name="home_open_url">Apri URL</string>
     <string name="home_url_input_label">URL</string>
     <string name="home_invalid_protocol">Protocollo non valido</string>
+    <string name="history_title">Cronologia di riproduzione</string>
+    <string name="history_empty">Nessuna cronologia di riproduzione. I video guardati compariranno qui.</string>
     <string name="pref_preferences">Preferenze</string>
     <string name="pref_appearance_title">Aspetto</string>
     <string name="pref_appearance_summary">Tema scuro, Material You</string>

@@ -13,6 +13,8 @@
     <string name="home_open_url">URL खोलें</string>
     <string name="home_url_input_label">URL</string>
     <string name="home_invalid_protocol">अमान्य प्रोटोकॉल</string>
+    <string name="history_title">प्लेबैक इतिहास</string>
+    <string name="history_empty">अभी कोई प्लेबैक इतिहास नहीं है। आपके देखे गए वीडियो यहाँ दिखाई देंगे।</string>
     <string name="pref_preferences">प्राथमिकताएँ</string>
     <string name="pref_appearance_title">रूप-रंग</string>
     <string name="pref_appearance_summary">डार्क मोड, Material You</string>

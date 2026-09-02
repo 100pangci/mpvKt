@@ -13,6 +13,8 @@
     <string name="home_open_url">URL öffnen</string>
     <string name="home_url_input_label">URL</string>
     <string name="home_invalid_protocol">Ungültiges Protokoll</string>
+    <string name="history_title">Wiedergabeverlauf</string>
+    <string name="history_empty">Noch kein Wiedergabeverlauf. Gesehene Videos erscheinen hier.</string>
     <string name="pref_preferences">Einstellungen</string>
     <string name="pref_appearance_title">Erscheinungsbild</string>
     <string name="pref_appearance_summary">Dunkelmodus, Material You</string>

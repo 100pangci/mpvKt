@@ -15,6 +15,9 @@
     <string name="home_url_input_label">URL</string>
     <string name="home_invalid_protocol">Invalid protocol</string>
 
+    <string name="history_title">Watch history</string>
+    <string name="history_empty">No watch history yet. Videos you watch will appear here.</string>
+
     <string name="storage_all_files_title">All files access</string>
     <string name="storage_all_files_message">mpvKt needs the \"All files access\" permission to play local videos, automatically load external subtitles and save screenshots. Grant it on the next screen.</string>
     <string name="storage_all_files_grant">Grant access</string>

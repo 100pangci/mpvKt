@@ -13,6 +13,8 @@
     <string name="home_open_url">فتح رابط</string>
     <string name="home_url_input_label">الرابط</string>
     <string name="home_invalid_protocol">بروتوكول غير صالح</string>
+    <string name="history_title">سجل المشاهدة</string>
+    <string name="history_empty">لا يوجد سجل مشاهدة بعد. ستظهر مقاطع الفيديو التي تشاهدها هنا.</string>
     <string name="pref_preferences">الإعدادات</string>
     <string name="pref_appearance_title">المظهر</string>
     <string name="pref_appearance_summary">الوضع الداكن، Material You</string>

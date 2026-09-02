@@ -13,6 +13,8 @@
     <string name="home_open_url">Ouvrir une URL</string>
     <string name="home_url_input_label">URL</string>
     <string name="home_invalid_protocol">Protocole invalide</string>
+    <string name="history_title">Historique de lecture</string>
+    <string name="history_empty">Pas encore d\'historique de lecture. Les vidéos visionnées apparaîtront ici.</string>
     <string name="pref_preferences">Préférences</string>
     <string name="pref_appearance_title">Apparence</string>
     <string name="pref_appearance_summary">Mode sombre, Material You</string>

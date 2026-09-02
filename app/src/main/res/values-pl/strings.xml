@@ -13,6 +13,8 @@
     <string name="home_open_url">Otwórz adres URL</string>
     <string name="home_url_input_label">URL</string>
     <string name="home_invalid_protocol">Nieprawidłowy protokół</string>
+    <string name="history_title">Historia odtwarzania</string>
+    <string name="history_empty">Brak historii odtwarzania. Odtwarzane filmy pojawią się tutaj.</string>
     <string name="pref_preferences">Preferencje</string>
     <string name="pref_appearance_title">Wygląd</string>
     <string name="pref_appearance_summary">Tryb ciemny, Material You</string>

@@ -12,6 +12,8 @@
     <string name="home_open_url">打开 URL</string>
     <string name="home_url_input_label">URL</string>
     <string name="home_invalid_protocol">无效的协议</string>
+    <string name="history_title">播放历史</string>
+    <string name="history_empty">暂无播放历史，观看过的视频会显示在这里。</string>
 
     <string name="storage_all_files_title">“所有文件访问”权限</string>
     <string name="storage_all_files_message">mpvKt 需要“所有文件访问”权限来播放本地视频、自动加载外挂字幕并保存截图。请在下一个页面中授权。</string>

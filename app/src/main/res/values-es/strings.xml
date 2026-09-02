@@ -12,6 +12,8 @@
     <string name="home_open_url">Abrir URL</string>
     <string name="home_url_input_label">URL</string>
     <string name="home_invalid_protocol">Protocolo no válido</string>
+    <string name="history_title">Historial de reproducción</string>
+    <string name="history_empty">Aún no hay historial de reproducción. Los vídeos que reproduzcas aparecerán aquí.</string>
 
     <string name="pref_preferences">Preferencias</string>
 
