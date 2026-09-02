@@ -11,7 +11,7 @@ on:
 
 jobs:
   release-for-github:
-    name: "Release for GitHub and F-Droid"
+    name: "Release for GitHub"
     runs-on: ubuntu-latest
 
     steps:
