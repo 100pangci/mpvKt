@@ -20,6 +20,21 @@
 
     <string name="home_play_selected">Play %1$d</string>
 
+    <string name="home_network_sources">Network sources</string>
+    <string name="network_add_source">Add server</string>
+    <string name="network_name">Name</string>
+    <string name="network_host">Host</string>
+    <string name="network_port">Port</string>
+    <string name="network_path">Root path</string>
+    <string name="network_secure">Use HTTPS</string>
+    <string name="network_username">Username</string>
+    <string name="network_password">Password</string>
+    <string name="network_password_notice">The password is stored obfuscated (Base64), not encrypted.</string>
+    <string name="network_empty">No servers yet. Add one to browse network media.</string>
+    <string name="network_browse_error">Couldn\'t load the directory</string>
+    <string name="network_retry">Retry</string>
+    <string name="network_delete_confirm">Delete this server?</string>
+
     <string name="player_sheets_queue_title">Play queue</string>
     <string name="player_sheets_queue_clear">Clear</string>
 

@@ -15,6 +15,20 @@
     <string name="history_title">Historial de reproducción</string>
     <string name="history_empty">Aún no hay historial de reproducción. Los vídeos que reproduzcas aparecerán aquí.</string>
     <string name="home_play_selected">Reproducir %1$d</string>
+    <string name="home_network_sources">Fuentes de red</string>
+    <string name="network_add_source">Añadir servidor</string>
+    <string name="network_name">Nombre</string>
+    <string name="network_host">Host</string>
+    <string name="network_port">Puerto</string>
+    <string name="network_path">Ruta raíz</string>
+    <string name="network_secure">Usar HTTPS</string>
+    <string name="network_username">Usuario</string>
+    <string name="network_password">Contraseña</string>
+    <string name="network_password_notice">La contraseña se guarda ofuscada (Base64), no cifrada.</string>
+    <string name="network_empty">Aún no hay servidores. Añade uno para explorar medios de red.</string>
+    <string name="network_browse_error">No se pudo cargar la carpeta</string>
+    <string name="network_retry">Reintentar</string>
+    <string name="network_delete_confirm">¿Eliminar este servidor?</string>
     <string name="player_sheets_queue_title">Cola de reproducción</string>
     <string name="player_sheets_queue_clear">Vaciar</string>
 

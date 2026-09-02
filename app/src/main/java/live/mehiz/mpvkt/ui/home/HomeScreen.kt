@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.FileOpen
 import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Lan
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
@@ -64,6 +65,7 @@ import live.mehiz.mpvkt.player.FontIndexer
 import live.mehiz.mpvkt.preferences.AppPreferences
 import live.mehiz.mpvkt.presentation.Screen
 import live.mehiz.mpvkt.ui.history.HistoryScreen
+import live.mehiz.mpvkt.ui.network.NetworkScreen
 import live.mehiz.mpvkt.ui.player.PlayerActivity
 import live.mehiz.mpvkt.ui.preferences.PreferencesScreen
 import live.mehiz.mpvkt.ui.theme.spacing
@@ -197,6 +199,15 @@ object HomeScreen : Screen {
           ) {
             Icon(Icons.Default.History, null)
             Text(text = stringResource(R.string.history_title))
+          }
+        }
+        OutlinedButton(onClick = { backstack.add(NetworkScreen) }) {
+          Row(
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.smaller),
+            verticalAlignment = Alignment.CenterVertically,
+          ) {
+            Icon(Icons.Default.Lan, null)
+            Text(text = stringResource(R.string.home_network_sources))
           }
         }
       }

@@ -15,6 +15,20 @@
     <string name="history_title">播放历史</string>
     <string name="history_empty">暂无播放历史，观看过的视频会显示在这里。</string>
     <string name="home_play_selected">播放 %1$d 个</string>
+    <string name="home_network_sources">网络源</string>
+    <string name="network_add_source">添加服务器</string>
+    <string name="network_name">名称</string>
+    <string name="network_host">主机</string>
+    <string name="network_port">端口</string>
+    <string name="network_path">根路径</string>
+    <string name="network_secure">使用 HTTPS</string>
+    <string name="network_username">用户名</string>
+    <string name="network_password">密码</string>
+    <string name="network_password_notice">密码以混淆（Base64）方式存储，并非加密。</string>
+    <string name="network_empty">暂无服务器，添加一个以浏览网络媒体。</string>
+    <string name="network_browse_error">无法加载目录</string>
+    <string name="network_retry">重试</string>
+    <string name="network_delete_confirm">删除此服务器？</string>
     <string name="player_sheets_queue_title">播放队列</string>
     <string name="player_sheets_queue_clear">清空</string>
 

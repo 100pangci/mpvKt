@@ -16,6 +16,20 @@
     <string name="history_title">再生履歴</string>
     <string name="history_empty">まだ再生履歴がありません。再生した動画がここに表示されます。</string>
     <string name="home_play_selected">%1$d件を再生</string>
+    <string name="home_network_sources">ネットワークソース</string>
+    <string name="network_add_source">サーバーを追加</string>
+    <string name="network_name">名前</string>
+    <string name="network_host">ホスト</string>
+    <string name="network_port">ポート</string>
+    <string name="network_path">ルートパス</string>
+    <string name="network_secure">HTTPS を使用</string>
+    <string name="network_username">ユーザー名</string>
+    <string name="network_password">パスワード</string>
+    <string name="network_password_notice">パスワードは難読化 (Base64) して保存され、暗号化はされません。</string>
+    <string name="network_empty">サーバーがありません。追加してネットワークメディアを閲覧しましょう。</string>
+    <string name="network_browse_error">フォルダを読み込めませんでした</string>
+    <string name="network_retry">再試行</string>
+    <string name="network_delete_confirm">このサーバーを削除しますか？</string>
     <string name="player_sheets_queue_title">再生キュー</string>
     <string name="player_sheets_queue_clear">クリア</string>
 

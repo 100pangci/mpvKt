@@ -15,6 +15,20 @@
     <string name="history_title">История воспроизведения</string>
     <string name="history_empty">История воспроизведения пуста. Просмотренные видео появятся здесь.</string>
     <string name="home_play_selected">Воспроизвести: %1$d</string>
+    <string name="home_network_sources">Сетевые источники</string>
+    <string name="network_add_source">Добавить сервер</string>
+    <string name="network_name">Название</string>
+    <string name="network_host">Хост</string>
+    <string name="network_port">Порт</string>
+    <string name="network_path">Корневой путь</string>
+    <string name="network_secure">Использовать HTTPS</string>
+    <string name="network_username">Имя пользователя</string>
+    <string name="network_password">Пароль</string>
+    <string name="network_password_notice">Пароль хранится обфусцированным (Base64), без шифрования.</string>
+    <string name="network_empty">Серверов пока нет. Добавьте один для просмотра сетевых медиа.</string>
+    <string name="network_browse_error">Не удалось загрузить каталог</string>
+    <string name="network_retry">Повторить</string>
+    <string name="network_delete_confirm">Удалить этот сервер?</string>
     <string name="player_sheets_queue_title">Очередь воспроизведения</string>
     <string name="player_sheets_queue_clear">Очистить</string>
 

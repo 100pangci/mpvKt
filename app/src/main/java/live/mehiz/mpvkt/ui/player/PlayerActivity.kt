@@ -55,11 +55,14 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.serialization.json.Json
 import live.mehiz.mpvkt.R
 import live.mehiz.mpvkt.database.entities.CustomButtonEntity
 import live.mehiz.mpvkt.database.entities.PlaybackStateEntity
 import live.mehiz.mpvkt.databinding.PlayerLayoutBinding
 import live.mehiz.mpvkt.domain.playbackstate.repository.PlaybackStateRepository
+import live.mehiz.mpvkt.network.NetworkSource
+import live.mehiz.mpvkt.network.RemoteFontStager
 import live.mehiz.mpvkt.player.FontConfigManager
 import live.mehiz.mpvkt.player.FontIndexer
 import live.mehiz.mpvkt.player.MPVLib
@@ -95,6 +98,8 @@ class PlayerActivity : AppCompatActivity() {
   private val fileManager: FileManager by inject()
   private val fontIndexer: FontIndexer by inject()
   private val fontConfigManager: FontConfigManager by inject()
+  private val json: Json by inject()
+  private val remoteFontStager: RemoteFontStager by inject()
   private val intentResolver by lazy { IntentResolver(this) }
   private val fontPipeline by lazy {
     SubtitleFontPipeline(this, fontIndexer, subtitlesPreferences, lifecycleScope) {
@@ -298,7 +303,17 @@ class PlayerActivity : AppCompatActivity() {
         fontConfigManager.regenerate(videoPath)
         val stagedSub = siblingSubPath?.let { fontPipeline.preloadSubtitleFonts(it) } ?: false
         val stagedVideo = fontPipeline.stageVideoFonts()
-        val staged = stagedSub || stagedVideo
+        var staged = stagedSub || stagedVideo
+        // Remote sources carry their own fonts/ folder: download it into the
+        // subtitle font cache (sub-fonts-dir) before the renderer scans it.
+        // A slow download outlives the loadfile budget on purpose; the late
+        // reload applies it once done.
+        intent.getStringExtra(REMOTE_SOURCE_EXTRA)?.let { remoteSourceJson ->
+          intent.getStringExtra(REMOTE_PLAY_PATH_EXTRA)?.let { remoteDirPath ->
+            val remoteSource = json.decodeFromString<NetworkSource>(remoteSourceJson)
+            staged = remoteFontStager.stageFonts(remoteSource, remoteDirPath, fontPipeline.fontsCacheDir) || staged
+          }
+        }
         fontSetupDone.complete(staged)
         if (staged) {
           // Late fix for fonts that landed after the subtitle renderer
@@ -1212,6 +1227,11 @@ class PlayerActivity : AppCompatActivity() {
   companion object {
     // action of result intent
     private const val RESULT_INTENT = "live.ywpc05.mpvkt.ui.player.PlayerActivity.result"
+
+    // extras of remote-source playback: the serialized NetworkSource and the
+    // remote directory the video lives in (its fonts/ folder gets staged)
+    const val REMOTE_SOURCE_EXTRA = "remote-source"
+    const val REMOTE_PLAY_PATH_EXTRA = "remote-play-path"
 
     @Volatile
     var lastMpvError: String? = null
