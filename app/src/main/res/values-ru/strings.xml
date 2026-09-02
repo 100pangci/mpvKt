@@ -17,6 +17,8 @@
     <string name="home_play_selected">Воспроизвести: %1$d</string>
     <string name="home_network_sources">Сетевые источники</string>
     <string name="network_add_source">Добавить сервер</string>
+    <string name="network_edit_source">Изменить сервер</string>
+    <string name="network_password_keep">Оставьте пустым, чтобы сохранить</string>
     <string name="network_name">Название</string>
     <string name="network_host">Хост</string>
     <string name="network_port">Порт</string>

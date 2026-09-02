@@ -22,6 +22,8 @@
 
     <string name="home_network_sources">Network sources</string>
     <string name="network_add_source">Add server</string>
+    <string name="network_edit_source">Edit server</string>
+    <string name="network_password_keep">Leave empty to keep</string>
     <string name="network_name">Name</string>
     <string name="network_host">Host</string>
     <string name="network_port">Port</string>

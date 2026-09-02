@@ -18,6 +18,8 @@
     <string name="home_play_selected">%1$d चलाएँ</string>
     <string name="home_network_sources">नेटवर्क स्रोत</string>
     <string name="network_add_source">सर्वर जोड़ें</string>
+    <string name="network_edit_source">सर्वर संपादित करें</string>
+    <string name="network_password_keep">बनाए रखने के लिए खाली छोड़ें</string>
     <string name="network_name">नाम</string>
     <string name="network_host">होस्ट</string>
     <string name="network_port">पोर्ट</string>

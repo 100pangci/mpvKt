@@ -404,7 +404,7 @@ data class FilePickerScreen(val uri: String) : Screen {
     val i = Intent(Intent.ACTION_VIEW, startPath.toUri())
     i.setClass(context, PlayerActivity::class.java)
     if (queue.size > 1) {
-      i.putExtra("queue", ArrayList(queue))
+      i.putExtra(PlayerActivity.QUEUE_EXTRA, ArrayList(queue))
     }
     if (subtitlePaths.isNotEmpty()) {
       val subtitleUris = subtitlePaths.map { it.toUri() }.toTypedArray()

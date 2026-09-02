@@ -18,6 +18,8 @@
     <string name="home_play_selected">เล่น %1$d รายการ</string>
     <string name="home_network_sources">แหล่งเครือข่าย</string>
     <string name="network_add_source">เพิ่มเซิร์ฟเวอร์</string>
+    <string name="network_edit_source">แก้ไขเซิร์ฟเวอร์</string>
+    <string name="network_password_keep">เว้นว่างเพื่อคงเดิม</string>
     <string name="network_name">ชื่อ</string>
     <string name="network_host">โฮสต์</string>
     <string name="network_port">พอร์ต</string>

@@ -18,6 +18,8 @@
     <string name="home_play_selected">Reproduzir %1$d</string>
     <string name="home_network_sources">Fontes de rede</string>
     <string name="network_add_source">Adicionar servidor</string>
+    <string name="network_edit_source">Editar servidor</string>
+    <string name="network_password_keep">Deixe vazio para manter</string>
     <string name="network_name">Nome</string>
     <string name="network_host">Host</string>
     <string name="network_port">Porta</string>

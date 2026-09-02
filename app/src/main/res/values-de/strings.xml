@@ -18,6 +18,8 @@
     <string name="home_play_selected">%1$d abspielen</string>
     <string name="home_network_sources">Netzwerkquellen</string>
     <string name="network_add_source">Server hinzufügen</string>
+    <string name="network_edit_source">Server bearbeiten</string>
+    <string name="network_password_keep">Leerlassen zum Behalten</string>
     <string name="network_name">Name</string>
     <string name="network_host">Host</string>
     <string name="network_port">Port</string>

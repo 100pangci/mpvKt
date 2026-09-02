@@ -14,6 +14,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Dns
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -40,7 +41,7 @@ import live.mehiz.mpvkt.R
 import live.mehiz.mpvkt.network.NetworkSource
 import live.mehiz.mpvkt.presentation.Screen
 import live.mehiz.mpvkt.presentation.components.ConfirmDialog
-import live.mehiz.mpvkt.presentation.network.NetworkAddSourceDialog
+import live.mehiz.mpvkt.presentation.network.NetworkSourceDialog
 import live.mehiz.mpvkt.ui.theme.spacing
 import live.mehiz.mpvkt.ui.utils.LocalBackStack
 import org.koin.compose.viewmodel.koinViewModel
@@ -55,6 +56,7 @@ object NetworkScreen : Screen {
     val sources by viewModel.sources.collectAsState()
     var showAddDialog by remember { mutableStateOf(false) }
     var pendingDelete by remember { mutableStateOf<NetworkSource?>(null) }
+    var pendingEdit by remember { mutableStateOf<NetworkSource?>(null) }
 
     Scaffold(
       topBar = {
@@ -103,6 +105,7 @@ object NetworkScreen : Screen {
             NetworkSourceListItem(
               source = source,
               onOpen = { backstack.add(NetworkBrowserScreen(source)) },
+              onEdit = { pendingEdit = source },
               onDelete = { pendingDelete = source },
             )
           }
@@ -111,14 +114,25 @@ object NetworkScreen : Screen {
     }
 
     if (showAddDialog) {
-      NetworkAddSourceDialog(
-        onDismissRequest = { showAddDialog = false },
-        onAdd = { type, name, host, port, path, secure, user, pass ->
-          viewModel.addSource(
-            NewNetworkServer(type, name, host, port, path, secure, user, pass),
-          )
+      NetworkSourceDialog(
+        title = stringResource(R.string.network_add_source),
+        initial = null,
+        onConfirm = { draft ->
+          viewModel.addSource(draft)
           showAddDialog = false
         },
+        onDismissRequest = { showAddDialog = false },
+      )
+    }
+    pendingEdit?.let { source ->
+      NetworkSourceDialog(
+        title = stringResource(R.string.network_edit_source),
+        initial = source,
+        onConfirm = { draft ->
+          viewModel.updateSource(source, draft)
+          pendingEdit = null
+        },
+        onDismissRequest = { pendingEdit = null },
       )
     }
     pendingDelete?.let { source ->
@@ -139,6 +153,7 @@ object NetworkScreen : Screen {
 private fun NetworkSourceListItem(
   source: NetworkSource,
   onOpen: () -> Unit,
+  onEdit: () -> Unit,
   onDelete: () -> Unit,
   modifier: Modifier = Modifier,
 ) {
@@ -164,6 +179,9 @@ private fun NetworkSourceListItem(
           maxLines = 1,
           overflow = TextOverflow.Ellipsis,
         )
+      }
+      IconButton(onClick = onEdit) {
+        Icon(Icons.Outlined.Edit, contentDescription = null)
       }
       IconButton(onClick = onDelete) {
         Icon(Icons.Outlined.Delete, contentDescription = null)

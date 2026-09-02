@@ -18,6 +18,8 @@
     <string name="home_play_selected">Phát %1$d</string>
     <string name="home_network_sources">Nguồn mạng</string>
     <string name="network_add_source">Thêm máy chủ</string>
+    <string name="network_edit_source">Sửa máy chủ</string>
+    <string name="network_password_keep">Để trống để giữ nguyên</string>
     <string name="network_name">Tên</string>
     <string name="network_host">Máy chủ</string>
     <string name="network_port">Cổng</string>

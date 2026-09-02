@@ -2,8 +2,10 @@ package live.mehiz.mpvkt.ui.network
 
 import android.content.Context
 import android.content.Intent
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,6 +13,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -26,18 +29,24 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -65,8 +74,9 @@ data class NetworkBrowserScreen(
   val path: String = "",
 ) : Screen {
 
-  @OptIn(ExperimentalMaterial3Api::class)
+  @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
   @Composable
+  @Suppress("CyclomaticComplexMethod")
   override fun Content() {
     val backstack = LocalBackStack.current
     val context = LocalContext.current
@@ -76,6 +86,15 @@ data class NetworkBrowserScreen(
     var error by remember { mutableStateOf(false) }
     var entries by remember { mutableStateOf<List<RemoteEntry>>(emptyList()) }
     var retryKey by remember { mutableIntStateOf(0) }
+    var multiSelectMode by remember { mutableStateOf(false) }
+    // Selected file names in tap order: the queue must follow the user's
+    // pick order, not the directory listing.
+    val selectedNames = remember { mutableStateListOf<String>() }
+
+    fun exitMultiSelect() {
+      multiSelectMode = false
+      selectedNames.clear()
+    }
 
     LaunchedEffect(source, path, retryKey) {
       loading = true
@@ -97,7 +116,15 @@ data class NetworkBrowserScreen(
         TopAppBar(
           title = {
             Column {
-              Text(source.name, maxLines = 1, overflow = TextOverflow.Ellipsis)
+              Text(
+                text = if (multiSelectMode) {
+                  pluralStringResource(R.plurals.plural_items, selectedNames.size, selectedNames.size)
+                } else {
+                  source.name
+                },
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+              )
               Text(
                 text = "/${path.trimStart('/')}",
                 style = MaterialTheme.typography.bodySmall,
@@ -108,11 +135,29 @@ data class NetworkBrowserScreen(
             }
           },
           navigationIcon = {
-            IconButton(onClick = { backstack.removeLastOrNull() }) {
+            IconButton(
+              onClick = {
+                if (multiSelectMode) exitMultiSelect() else backstack.removeLastOrNull()
+              },
+            ) {
               Icon(Icons.AutoMirrored.Default.ArrowBack, null)
             }
           },
         )
+      },
+      bottomBar = {
+        if (multiSelectMode) {
+          MultiSelectBar(
+            selectedCount = selectedNames.size,
+            onCancel = ::exitMultiSelect,
+            onPlay = {
+              // enabled guards the empty case, first() is always valid.
+              val names = selectedNames.toList()
+              exitMultiSelect()
+              playSelectedFiles(names, factory, json, context)
+            },
+          )
+        }
       },
     ) { padding ->
       when {
@@ -158,12 +203,23 @@ data class NetworkBrowserScreen(
             }
             items(sorted, key = { "${it.isDirectory}-${it.name}" }) { entry ->
               val childPath = NetworkSource.joinPath(path, entry.name)
+              val selected = entry.name in selectedNames
               RemoteEntryRow(
                 entry = entry,
+                isSelected = multiSelectMode && selected,
                 onOpen = {
                   when {
+                    multiSelectMode && !entry.isDirectory ->
+                      toggleSelection(entry, selected, selectedNames)
+
                     entry.isDirectory -> backstack.add(NetworkBrowserScreen(source, childPath))
                     entry.name.isVideoFile() -> playRemoteFile(entry, factory, json, context)
+                  }
+                },
+                onLongClick = {
+                  if (!multiSelectMode && entry.name.isVideoFile()) {
+                    multiSelectMode = true
+                    selectedNames.add(entry.name)
                   }
                 },
               )
@@ -174,18 +230,78 @@ data class NetworkBrowserScreen(
     }
   }
 
+  private fun toggleSelection(
+    entry: RemoteEntry,
+    selected: Boolean,
+    selectedNames: SnapshotStateList<String>,
+  ) {
+    if (selected) selectedNames.remove(entry.name) else selectedNames.add(entry.name)
+  }
+
   private fun playRemoteFile(
     entry: RemoteEntry,
     factory: RemoteClientFactory,
     json: Json,
     context: Context,
   ) {
-    val fileUrl = factory.create(source).fileUrl(NetworkSource.joinPath(path, entry.name))
+    val fileUrl = fileUrlFor(entry.name, factory)
     val i = Intent(Intent.ACTION_VIEW, fileUrl.toUri())
     i.setClass(context, PlayerActivity::class.java)
     i.putExtra(PlayerActivity.REMOTE_SOURCE_EXTRA, json.encodeToString(source))
     i.putExtra(PlayerActivity.REMOTE_PLAY_PATH_EXTRA, path)
     context.startActivity(i)
+  }
+
+  /**
+   * Plays the picked files as an explicit mpv queue (native playlist), in
+   * tap order and starting at the first pick. The remote source and the
+   * browsed directory ride along so per-episode fonts/ staging keeps
+   * working when mpv advances through the queue by itself.
+   */
+  private fun playSelectedFiles(
+    names: List<String>,
+    factory: RemoteClientFactory,
+    json: Json,
+    context: Context,
+  ) {
+    val urls = names.map { fileUrlFor(it, factory) }
+    val i = Intent(Intent.ACTION_VIEW, urls.first().toUri())
+    i.setClass(context, PlayerActivity::class.java)
+    if (urls.size > 1) {
+      i.putExtra(PlayerActivity.QUEUE_EXTRA, ArrayList(urls))
+    }
+    i.putExtra(PlayerActivity.REMOTE_SOURCE_EXTRA, json.encodeToString(source))
+    i.putExtra(PlayerActivity.REMOTE_PLAY_PATH_EXTRA, path)
+    context.startActivity(i)
+  }
+
+  private fun fileUrlFor(name: String, factory: RemoteClientFactory): String =
+    factory.create(source).fileUrl(NetworkSource.joinPath(path, name))
+}
+
+@Composable
+private fun MultiSelectBar(
+  selectedCount: Int,
+  onCancel: () -> Unit,
+  onPlay: () -> Unit,
+  modifier: Modifier = Modifier,
+) {
+  Surface(modifier = modifier, tonalElevation = 3.dp) {
+    Row(
+      modifier = Modifier
+        .fillMaxWidth()
+        .navigationBarsPadding()
+        .padding(horizontal = MaterialTheme.spacing.medium, vertical = MaterialTheme.spacing.smaller),
+      horizontalArrangement = Arrangement.End,
+      verticalAlignment = Alignment.CenterVertically,
+    ) {
+      TextButton(onClick = onCancel) {
+        Text(stringResource(R.string.generic_cancel))
+      }
+      Button(onClick = onPlay, enabled = selectedCount > 0) {
+        Text(stringResource(R.string.home_play_selected, selectedCount))
+      }
+    }
   }
 }
 
@@ -209,13 +325,21 @@ private fun DirectoryRow(name: String, onClick: () -> Unit, modifier: Modifier =
 @Composable
 private fun RemoteEntryRow(
   entry: RemoteEntry,
+  isSelected: Boolean,
   onOpen: () -> Unit,
   modifier: Modifier = Modifier,
+  onLongClick: (() -> Unit)? = null,
 ) {
   Row(
     modifier = modifier
       .fillMaxWidth()
-      .clickable(enabled = entry.isDirectory || entry.name.isVideoFile(), onClick = onOpen)
+      .combinedClickable(
+        onClick = onOpen,
+        onLongClick = onLongClick,
+      )
+      .background(
+        if (isSelected) MaterialTheme.colorScheme.primaryContainer else Color.Unspecified,
+      )
       .heightIn(min = 64.dp)
       .padding(vertical = MaterialTheme.spacing.smaller, horizontal = MaterialTheme.spacing.medium),
     horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.smaller),

@@ -18,6 +18,8 @@
     <string name="home_play_selected">%1$d개 재생</string>
     <string name="home_network_sources">네트워크 소스</string>
     <string name="network_add_source">서버 추가</string>
+    <string name="network_edit_source">서버 편집</string>
+    <string name="network_password_keep">비워두면 유지</string>
     <string name="network_name">이름</string>
     <string name="network_host">호스트</string>
     <string name="network_port">포트</string>

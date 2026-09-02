@@ -17,6 +17,8 @@
     <string name="home_play_selected">播放 %1$d 个</string>
     <string name="home_network_sources">网络源</string>
     <string name="network_add_source">添加服务器</string>
+    <string name="network_edit_source">编辑服务器</string>
+    <string name="network_password_keep">留空保持不变</string>
     <string name="network_name">名称</string>
     <string name="network_host">主机</string>
     <string name="network_port">端口</string>

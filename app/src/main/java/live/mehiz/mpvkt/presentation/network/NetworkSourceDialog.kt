@@ -26,36 +26,31 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import live.mehiz.mpvkt.R
+import live.mehiz.mpvkt.network.NetworkSource
 import live.mehiz.mpvkt.network.NetworkType
 import live.mehiz.mpvkt.ui.theme.spacing
 
 /**
- * Add-server dialog for the network sources list. The password is typed in
- * plain text here and immediately Base64-obfuscated by the store; it is
- * never encrypted (notice shown inline).
+ * Add/edit dialog for the network sources list. [initial] pre-fills the
+ * fields for editing; the password is never echoed back in plain text —
+ * leaving it empty keeps the stored one. The password is Base64-obfuscated
+ * by the store, never encrypted (notice shown inline).
  */
 @Composable
-fun NetworkAddSourceDialog(
+fun NetworkSourceDialog(
+  title: String,
+  initial: NetworkSource?,
+  onConfirm: (draft: NetworkDraft) -> Unit,
   onDismissRequest: () -> Unit,
-  onAdd: (
-    type: NetworkType,
-    name: String,
-    host: String,
-    port: Int,
-    basePath: String,
-    secure: Boolean,
-    username: String,
-    password: String,
-  ) -> Unit,
   modifier: Modifier = Modifier,
 ) {
-  var type by rememberSaveable { mutableStateOf(NetworkType.WEBDAV) }
-  var name by rememberSaveable { mutableStateOf("") }
-  var host by rememberSaveable { mutableStateOf("") }
-  var port by rememberSaveable { mutableStateOf("") }
-  var basePath by rememberSaveable { mutableStateOf("") }
-  var secure by rememberSaveable { mutableStateOf(false) }
-  var username by rememberSaveable { mutableStateOf("") }
+  var type by rememberSaveable { mutableStateOf(initial?.type ?: NetworkType.WEBDAV) }
+  var name by rememberSaveable { mutableStateOf(initial?.name ?: "") }
+  var host by rememberSaveable { mutableStateOf(initial?.host ?: "") }
+  var port by rememberSaveable { mutableStateOf(initial?.port?.toString() ?: "") }
+  var basePath by rememberSaveable { mutableStateOf(initial?.basePath ?: "") }
+  var secure by rememberSaveable { mutableStateOf(initial?.secure ?: false) }
+  var username by rememberSaveable { mutableStateOf(initial?.username ?: "") }
   var password by rememberSaveable { mutableStateOf("") }
 
   val defaultPort = if (type == NetworkType.WEBDAV) {
@@ -68,13 +63,13 @@ fun NetworkAddSourceDialog(
   AlertDialog(
     onDismissRequest = onDismissRequest,
     modifier = modifier,
-    title = { Text(stringResource(R.string.network_add_source)) },
+    title = { Text(title) },
     text = {
       Column(
         modifier = Modifier.verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
       ) {
-        ExposedTypeSelector(type, onTypeChange = { type = it })
+        TypeSelector(type, onTypeChange = { type = it })
         OutlinedTextField(
           value = name,
           onValueChange = { name = it },
@@ -121,6 +116,11 @@ fun NetworkAddSourceDialog(
           value = password,
           onValueChange = { password = it },
           label = { Text(stringResource(R.string.network_password)) },
+          placeholder = if (initial == null) {
+            null
+          } else {
+            { Text(stringResource(R.string.network_password_keep)) }
+          },
           visualTransformation = PasswordVisualTransformation(),
           keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
           singleLine = true,
@@ -135,15 +135,17 @@ fun NetworkAddSourceDialog(
     confirmButton = {
       TextButton(
         onClick = {
-          onAdd(
-            type,
-            name.trim(),
-            host.trim(),
-            port.toInt(),
-            basePath.trim(),
-            secure,
-            username.trim(),
-            password,
+          onConfirm(
+            NetworkDraft(
+              type = type,
+              name = name.trim(),
+              host = host.trim(),
+              port = port.toInt(),
+              basePath = basePath.trim(),
+              secure = secure,
+              username = username.trim(),
+              password = password,
+            ),
           )
         },
         enabled = valid,
@@ -159,8 +161,20 @@ fun NetworkAddSourceDialog(
   )
 }
 
+/** The dialog output; [password] is plain text and empty means "keep it". */
+data class NetworkDraft(
+  val type: NetworkType,
+  val name: String,
+  val host: String,
+  val port: Int,
+  val basePath: String,
+  val secure: Boolean,
+  val username: String,
+  val password: String,
+)
+
 @Composable
-private fun ExposedTypeSelector(
+private fun TypeSelector(
   selected: NetworkType,
   onTypeChange: (NetworkType) -> Unit,
   modifier: Modifier = Modifier,

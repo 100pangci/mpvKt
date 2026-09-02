@@ -125,6 +125,14 @@ class PlayerActivity : AppCompatActivity() {
   private var expectedIntentPath: String? = null
   private var currentPlaybackPath: String? = null
 
+  /**
+   * Remote context of the currently playing media, from the launching
+   * intent: the saved server config and the browsed directory. Queue
+   * advances reuse them to re-stage that directory's fonts/ per episode.
+   */
+  private var currentRemoteSource: NetworkSource? = null
+  private var currentRemoteDir: String? = null
+
   private var audioFocusRequest: AudioFocusRequestCompat? = null
   private var restoreAudioFocus: () -> Unit = {}
 
@@ -206,7 +214,7 @@ class PlayerActivity : AppCompatActivity() {
   private suspend fun CoroutineScope.startPlaybackFlow(intent: Intent) {
     val playable = intentResolver.getPlayableUri(intent)
     Log.i(TAG, "playback flow: playable=$playable")
-    val queue = intent.getStringArrayListExtra("queue")
+    val queue = intent.getStringArrayListExtra(QUEUE_EXTRA)
     if (!queue.isNullOrEmpty()) {
       startQueuePlaybackFlow(intent, queue, playable)
       return
@@ -307,10 +315,13 @@ class PlayerActivity : AppCompatActivity() {
         // Remote sources carry their own fonts/ folder: download it into the
         // subtitle font cache (sub-fonts-dir) before the renderer scans it.
         // A slow download outlives the loadfile budget on purpose; the late
-        // reload applies it once done.
+        // reload applies it once done. The remote context is remembered for
+        // queue advances, which bypass this flow entirely.
         intent.getStringExtra(REMOTE_SOURCE_EXTRA)?.let { remoteSourceJson ->
           intent.getStringExtra(REMOTE_PLAY_PATH_EXTRA)?.let { remoteDirPath ->
             val remoteSource = json.decodeFromString<NetworkSource>(remoteSourceJson)
+            currentRemoteSource = remoteSource
+            currentRemoteDir = remoteDirPath
             staged = remoteFontStager.stageFonts(remoteSource, remoteDirPath, fontPipeline.fontsCacheDir) || staged
           }
         }
@@ -340,7 +351,7 @@ class PlayerActivity : AppCompatActivity() {
     lifecycleScope.launch(Dispatchers.IO) {
       val videoFile = File(path).takeIf { it.isFile }
       if (videoFile == null) {
-        Log.i(TAG, "playback flow: queue advance is not a local file, skipping font setup")
+        stageRemoteFontsForQueueAdvance()
         return@launch
       }
       runCatching {
@@ -354,6 +365,28 @@ class PlayerActivity : AppCompatActivity() {
       }
       Log.i(TAG, "playback flow: queue advance font setup finished")
     }
+  }
+
+  /**
+   * Queue advance on a network source: mpv moved to another remote URL on
+   * its own, so re-stage the browsed directory's fonts/ (they differ per
+   * episode) and reload the renderer. Same caps and swallow-all-failures
+   * policy as the first episode; there is no local sibling subtitle to
+   * preload by design (remote .ass files are not auto-loaded yet).
+   */
+  private fun stageRemoteFontsForQueueAdvance() {
+    val source = currentRemoteSource
+    val dir = currentRemoteDir
+    if (source == null || dir == null) {
+      Log.i(TAG, "playback flow: queue advance is not a local file, skipping font setup")
+      return
+    }
+    val staged = runCatching {
+      remoteFontStager.stageFonts(source, dir, fontPipeline.fontsCacheDir)
+    }.onFailure { Log.w(TAG, "queue advance remote font staging failed: ${it.message}") }
+      .getOrDefault(false)
+    if (staged) fontPipeline.reloadSubtitleRenderer()
+    Log.i(TAG, "playback flow: queue advance font setup finished")
   }
 
   override fun onDestroy() {
@@ -871,8 +904,8 @@ class PlayerActivity : AppCompatActivity() {
         lifecycleScope.launch(Dispatchers.IO) {
           loadVideoPlaybackState(fileName)
         }
-        if (isQueueAdvance && mpvPath != null) {
-          prepareFontsForQueueAdvance(mpvPath)
+        if (isQueueAdvance) {
+          mpvPath?.let(::prepareFontsForQueueAdvance)
         }
         setOrientation()
         viewModel.changeVideoAspect(playerPreferences.videoAspect.get())
@@ -1227,6 +1260,10 @@ class PlayerActivity : AppCompatActivity() {
   companion object {
     // action of result intent
     private const val RESULT_INTENT = "live.ywpc05.mpvkt.ui.player.PlayerActivity.result"
+
+    // extras of queue playback: the full playlist in playback order (raw
+    // paths or URLs), the intent data being the entry to start at
+    const val QUEUE_EXTRA = "queue"
 
     // extras of remote-source playback: the serialized NetworkSource and the
     // remote directory the video lives in (its fonts/ folder gets staged)

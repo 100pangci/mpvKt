@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import live.mehiz.mpvkt.network.NetworkSource
 import live.mehiz.mpvkt.network.NetworkStore
-import live.mehiz.mpvkt.network.NetworkType
+import live.mehiz.mpvkt.presentation.network.NetworkDraft
 
 class NetworkViewModel(
   private val networkStore: NetworkStore,
@@ -21,21 +21,15 @@ class NetworkViewModel(
       initialValue = emptyList(),
     )
 
-  fun addSource(draft: NewNetworkServer) {
+  fun addSource(draft: NetworkDraft) {
     viewModelScope.launch(Dispatchers.IO) {
-      networkStore.add(
-        NetworkSource(
-          id = System.currentTimeMillis(),
-          type = draft.type,
-          name = draft.name,
-          host = draft.host,
-          port = draft.port,
-          basePath = draft.basePath,
-          secure = draft.secure,
-          username = draft.username,
-          encodedPassword = NetworkSource.encodePassword(draft.password),
-        ),
-      )
+      networkStore.add(draft.toNetworkSource(id = System.currentTimeMillis()))
+    }
+  }
+
+  fun updateSource(original: NetworkSource, draft: NetworkDraft) {
+    viewModelScope.launch(Dispatchers.IO) {
+      networkStore.update(original.updatedWith(draft))
     }
   }
 
@@ -46,14 +40,32 @@ class NetworkViewModel(
   }
 }
 
-/** Dialog input before an id and the obfuscated password are assigned. */
-data class NewNetworkServer(
-  val type: NetworkType,
-  val name: String,
-  val host: String,
-  val port: Int,
-  val basePath: String,
-  val secure: Boolean,
-  val username: String,
-  val password: String,
+private fun NetworkDraft.toNetworkSource(id: Long): NetworkSource = NetworkSource(
+  id = id,
+  type = type,
+  name = name,
+  host = host,
+  port = port,
+  basePath = basePath,
+  secure = secure,
+  username = username,
+  encodedPassword = NetworkSource.encodePassword(password),
+)
+
+/**
+ * An empty password means "keep the current one": the dialog never echoes
+ * the stored secret back in plain text.
+ */
+private fun NetworkSource.updatedWith(draft: NetworkDraft): NetworkSource = NetworkSource(
+  id = id,
+  type = draft.type,
+  name = draft.name,
+  host = draft.host,
+  port = draft.port,
+  basePath = draft.basePath,
+  secure = draft.secure,
+  username = draft.username,
+  encodedPassword = draft.password.takeIf { it.isNotEmpty() }
+    ?.let(NetworkSource::encodePassword)
+    ?: encodedPassword,
 )

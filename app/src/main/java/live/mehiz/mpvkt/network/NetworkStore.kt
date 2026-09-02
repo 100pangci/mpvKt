@@ -22,6 +22,11 @@ class NetworkStore(
     preferences.sources.set(json.encodeToString(current + source))
   }
 
+  suspend fun update(source: NetworkSource) {
+    val current = decode(preferences.sources.get())
+    preferences.sources.set(json.encodeToString(current.map { if (it.id == source.id) source else it }))
+  }
+
   suspend fun remove(id: Long) {
     val current = decode(preferences.sources.get())
     preferences.sources.set(json.encodeToString(current.filterNot { it.id == id }))

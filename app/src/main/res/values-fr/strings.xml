@@ -18,6 +18,8 @@
     <string name="home_play_selected">Lire %1$d</string>
     <string name="home_network_sources">Sources réseau</string>
     <string name="network_add_source">Ajouter un serveur</string>
+    <string name="network_edit_source">Modifier le serveur</string>
+    <string name="network_password_keep">Laisser vide pour conserver</string>
     <string name="network_name">Nom</string>
     <string name="network_host">Hôte</string>
     <string name="network_port">Port</string>

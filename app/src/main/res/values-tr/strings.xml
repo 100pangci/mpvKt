@@ -18,6 +18,8 @@
     <string name="home_play_selected">%1$d oynat</string>
     <string name="home_network_sources">Ağ kaynakları</string>
     <string name="network_add_source">Sunucu ekle</string>
+    <string name="network_edit_source">Sunucuyu düzenle</string>
+    <string name="network_password_keep">Korumak için boş bırakın</string>
     <string name="network_name">Ad</string>
     <string name="network_host">Host</string>
     <string name="network_port">Port</string>

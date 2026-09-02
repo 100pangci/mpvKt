@@ -18,6 +18,8 @@
     <string name="home_play_selected">%1$d件を再生</string>
     <string name="home_network_sources">ネットワークソース</string>
     <string name="network_add_source">サーバーを追加</string>
+    <string name="network_edit_source">サーバーを編集</string>
+    <string name="network_password_keep">空欄で変更なし</string>
     <string name="network_name">名前</string>
     <string name="network_host">ホスト</string>
     <string name="network_port">ポート</string>

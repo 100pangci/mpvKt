@@ -18,6 +18,8 @@
     <string name="home_play_selected">Odtwórz %1$d</string>
     <string name="home_network_sources">Źródła sieciowe</string>
     <string name="network_add_source">Dodaj serwer</string>
+    <string name="network_edit_source">Edytuj serwer</string>
+    <string name="network_password_keep">Pozostaw puste, aby zachować</string>
     <string name="network_name">Nazwa</string>
     <string name="network_host">Host</string>
     <string name="network_port">Port</string>
