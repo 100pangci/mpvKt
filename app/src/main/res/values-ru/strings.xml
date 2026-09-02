@@ -14,6 +14,9 @@
     <string name="home_invalid_protocol">Недопустимый протокол</string>
     <string name="history_title">История воспроизведения</string>
     <string name="history_empty">История воспроизведения пуста. Просмотренные видео появятся здесь.</string>
+    <string name="home_play_selected">Воспроизвести: %1$d</string>
+    <string name="player_sheets_queue_title">Очередь воспроизведения</string>
+    <string name="player_sheets_queue_clear">Очистить</string>
 
     <string name="pref_preferences">Предпочтения</string>
 

@@ -15,6 +15,9 @@
     <string name="home_invalid_protocol">Ungültiges Protokoll</string>
     <string name="history_title">Wiedergabeverlauf</string>
     <string name="history_empty">Noch kein Wiedergabeverlauf. Gesehene Videos erscheinen hier.</string>
+    <string name="home_play_selected">%1$d abspielen</string>
+    <string name="player_sheets_queue_title">Wiedergabeliste</string>
+    <string name="player_sheets_queue_clear">Leeren</string>
     <string name="pref_preferences">Einstellungen</string>
     <string name="pref_appearance_title">Erscheinungsbild</string>
     <string name="pref_appearance_summary">Dunkelmodus, Material You</string>

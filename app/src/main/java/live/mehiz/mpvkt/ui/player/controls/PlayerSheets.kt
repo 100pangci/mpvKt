@@ -10,6 +10,7 @@ import kotlinx.collections.immutable.toImmutableList
 import live.mehiz.mpvkt.database.entities.CustomButtonEntity
 import live.mehiz.mpvkt.ui.player.Decoder
 import live.mehiz.mpvkt.ui.player.Panels
+import live.mehiz.mpvkt.ui.player.PlaylistNode
 import live.mehiz.mpvkt.ui.player.Sheets
 import live.mehiz.mpvkt.ui.player.TrackNode
 import live.mehiz.mpvkt.ui.player.controls.components.sheets.AudioTracksSheet
@@ -17,6 +18,7 @@ import live.mehiz.mpvkt.ui.player.controls.components.sheets.ChaptersSheet
 import live.mehiz.mpvkt.ui.player.controls.components.sheets.DecodersSheet
 import live.mehiz.mpvkt.ui.player.controls.components.sheets.MoreSheet
 import live.mehiz.mpvkt.ui.player.controls.components.sheets.PlaybackSpeedSheet
+import live.mehiz.mpvkt.ui.player.controls.components.sheets.QueueSheet
 import live.mehiz.mpvkt.ui.player.controls.components.sheets.SubtitlesSheet
 
 @Composable
@@ -51,6 +53,11 @@ fun PlayerSheets(
   sleepTimerTimeRemaining: Int,
   onStartSleepTimer: (Int) -> Unit,
   buttons: ImmutableList<CustomButtonEntity>,
+  // Queue sheet
+  playlist: ImmutableList<PlaylistNode>,
+  onJumpToQueueIndex: (Int) -> Unit,
+  onRemoveQueueIndex: (Int) -> Unit,
+  onClearQueue: () -> Unit,
 
   onOpenPanel: (Panels) -> Unit,
   onDismissRequest: () -> Unit,
@@ -128,6 +135,16 @@ fun PlayerSheets(
         onResetPresets = onResetSpeedPresets,
         onMakeDefault = onMakeDefaultSpeed,
         onResetDefault = onResetDefaultSpeed,
+        onDismissRequest = onDismissRequest,
+      )
+    }
+
+    Sheets.Queue -> {
+      QueueSheet(
+        entries = playlist,
+        onJump = onJumpToQueueIndex,
+        onRemove = onRemoveQueueIndex,
+        onClear = onClearQueue,
         onDismissRequest = onDismissRequest,
       )
     }

@@ -147,6 +147,7 @@ fun PlayerControls(
   }
   val customButtons by viewModel.customButtons.collectAsState()
   val customButton by viewModel.primaryButton.collectAsState()
+  val playlist by viewModel.playlist.collectAsState(persistentListOf())
 
   LaunchedEffect(
     controlsShown,
@@ -496,6 +497,8 @@ fun PlayerControls(
             onSubtitlesLongClick = { onOpenPanel(Panels.SubtitleSettings) },
             onAudioClick = { onOpenSheet(Sheets.AudioTracks) },
             onAudioLongClick = { onOpenPanel(Panels.AudioDelay) },
+            isQueueVisible = playlist.size > 1,
+            onQueueClick = { onOpenSheet(Sheets.Queue) },
             onMoreClick = { onOpenSheet(Sheets.More) },
             onMoreLongClick = { onOpenPanel(Panels.VideoFilters) },
           )
@@ -620,6 +623,10 @@ fun PlayerControls(
       sleepTimerTimeRemaining = sleepTimerTimeRemaining,
       onStartSleepTimer = viewModel::startTimer,
       buttons = customButtons.getButtons().toImmutableList(),
+      playlist = playlist,
+      onJumpToQueueIndex = viewModel::playPlaylistIndex,
+      onRemoveQueueIndex = viewModel::removePlaylistIndex,
+      onClearQueue = viewModel::clearPlaylist,
       onOpenPanel = onOpenPanel,
       onDismissRequest = { onOpenSheet(Sheets.None) },
     )

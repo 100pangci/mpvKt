@@ -15,6 +15,9 @@
     <string name="home_invalid_protocol">Protocollo non valido</string>
     <string name="history_title">Cronologia di riproduzione</string>
     <string name="history_empty">Nessuna cronologia di riproduzione. I video guardati compariranno qui.</string>
+    <string name="home_play_selected">Riproduci %1$d</string>
+    <string name="player_sheets_queue_title">Coda di riproduzione</string>
+    <string name="player_sheets_queue_clear">Svuota</string>
     <string name="pref_preferences">Preferenze</string>
     <string name="pref_appearance_title">Aspetto</string>
     <string name="pref_appearance_summary">Tema scuro, Material You</string>

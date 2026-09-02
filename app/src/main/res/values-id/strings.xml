@@ -15,6 +15,9 @@
     <string name="home_invalid_protocol">Protokol tidak valid.</string>
     <string name="history_title">Riwayat Tontonan</string>
     <string name="history_empty">Belum ada riwayat tontonan. Video yang Anda tonton akan muncul di sini.</string>
+    <string name="home_play_selected">Putar %1$d</string>
+    <string name="player_sheets_queue_title">Antrean putar</string>
+    <string name="player_sheets_queue_clear">Bersihkan</string>
 
     <string name="pref_preferences">Pengaturan</string>
 

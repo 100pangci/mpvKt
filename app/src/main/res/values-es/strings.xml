@@ -14,6 +14,9 @@
     <string name="home_invalid_protocol">Protocolo no válido</string>
     <string name="history_title">Historial de reproducción</string>
     <string name="history_empty">Aún no hay historial de reproducción. Los vídeos que reproduzcas aparecerán aquí.</string>
+    <string name="home_play_selected">Reproducir %1$d</string>
+    <string name="player_sheets_queue_title">Cola de reproducción</string>
+    <string name="player_sheets_queue_clear">Vaciar</string>
 
     <string name="pref_preferences">Preferencias</string>
 

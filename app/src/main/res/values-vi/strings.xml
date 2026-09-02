@@ -15,6 +15,9 @@
     <string name="home_invalid_protocol">Giao thức không hợp lệ</string>
     <string name="history_title">Lịch sử phát</string>
     <string name="history_empty">Chưa có lịch sử phát. Các video bạn phát sẽ xuất hiện tại đây.</string>
+    <string name="home_play_selected">Phát %1$d</string>
+    <string name="player_sheets_queue_title">Hàng đợi phát</string>
+    <string name="player_sheets_queue_clear">Xoá</string>
     <string name="pref_preferences">Cài đặt</string>
     <string name="pref_appearance_title">Giao diện</string>
     <string name="pref_appearance_summary">Chế độ tối, Material You</string>

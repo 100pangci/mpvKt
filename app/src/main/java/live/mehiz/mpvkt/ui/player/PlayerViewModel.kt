@@ -113,6 +113,16 @@ class PlayerViewModel(
   val chapters = MPVLib.propNode["chapter-list"]
     .map { (it?.toObject<List<ChapterNode>>(json) ?: persistentListOf()).map { it.toSegment() }.toImmutableList() }
 
+  val playlist = MPVLib.propNode["playlist"]
+    .map { (it?.toObject<List<PlaylistNode>>(json) ?: persistentListOf()).toImmutableList() }
+
+  fun playPlaylistIndex(index: Int) = MPVLib.command("playlist-play-index", index.toString())
+
+  fun removePlaylistIndex(index: Int) = MPVLib.command("playlist-remove", index.toString())
+
+  /** Clears every entry but the currently playing one, so playback continues. */
+  fun clearPlaylist() = MPVLib.command("playlist-clear")
+
   private val _controlsShown = MutableStateFlow(true)
   val controlsShown = _controlsShown.asStateFlow()
   private val _seekBarShown = MutableStateFlow(true)

@@ -15,6 +15,9 @@
     <string name="home_invalid_protocol">Nieprawidłowy protokół</string>
     <string name="history_title">Historia odtwarzania</string>
     <string name="history_empty">Brak historii odtwarzania. Odtwarzane filmy pojawią się tutaj.</string>
+    <string name="home_play_selected">Odtwórz %1$d</string>
+    <string name="player_sheets_queue_title">Kolejka odtwarzania</string>
+    <string name="player_sheets_queue_clear">Wyczyść</string>
     <string name="pref_preferences">Preferencje</string>
     <string name="pref_appearance_title">Wygląd</string>
     <string name="pref_appearance_summary">Tryb ciemny, Material You</string>

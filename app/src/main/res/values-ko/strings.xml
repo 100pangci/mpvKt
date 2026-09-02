@@ -15,6 +15,9 @@
     <string name="home_invalid_protocol">잘못된 프로토콜</string>
     <string name="history_title">재생 기록</string>
     <string name="history_empty">재생 기록이 없습니다. 재생한 동영상이 여기에 표시됩니다.</string>
+    <string name="home_play_selected">%1$d개 재생</string>
+    <string name="player_sheets_queue_title">재생 대기열</string>
+    <string name="player_sheets_queue_clear">지우기</string>
     <string name="pref_preferences">설정</string>
     <string name="pref_appearance_title">화면</string>
     <string name="pref_appearance_summary">다크 모드, Material You</string>

@@ -67,6 +67,7 @@ enum class Sheets {
   Chapters,
   Decoders,
   More,
+  Queue,
 }
 
 enum class Panels {

@@ -15,6 +15,9 @@
     <string name="home_invalid_protocol">بروتوكول غير صالح</string>
     <string name="history_title">سجل المشاهدة</string>
     <string name="history_empty">لا يوجد سجل مشاهدة بعد. ستظهر مقاطع الفيديو التي تشاهدها هنا.</string>
+    <string name="home_play_selected">تشغيل %1$d</string>
+    <string name="player_sheets_queue_title">قائمة التشغيل</string>
+    <string name="player_sheets_queue_clear">مسح</string>
     <string name="pref_preferences">الإعدادات</string>
     <string name="pref_appearance_title">المظهر</string>
     <string name="pref_appearance_summary">الوضع الداكن، Material You</string>

@@ -15,6 +15,9 @@
     <string name="home_invalid_protocol">無効なプロトコル</string>
     <string name="history_title">再生履歴</string>
     <string name="history_empty">まだ再生履歴がありません。再生した動画がここに表示されます。</string>
+    <string name="home_play_selected">%1$d件を再生</string>
+    <string name="player_sheets_queue_title">再生キュー</string>
+    <string name="player_sheets_queue_clear">クリア</string>
 
     <string name="pref_preferences">設定</string>
 

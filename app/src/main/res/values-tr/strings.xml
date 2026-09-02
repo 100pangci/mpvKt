@@ -15,6 +15,9 @@
     <string name="home_invalid_protocol">Geçersiz protokol</string>
     <string name="history_title">Oynatma geçmişi</string>
     <string name="history_empty">Henüz oynatma geçmişi yok. İzlediğiniz videolar burada görünecek.</string>
+    <string name="home_play_selected">%1$d oynat</string>
+    <string name="player_sheets_queue_title">Oynatma kuyruğu</string>
+    <string name="player_sheets_queue_clear">Temizle</string>
     <string name="pref_preferences">Ayarlar</string>
     <string name="pref_appearance_title">Görünüm</string>
     <string name="pref_appearance_summary">Karanlık mod, Material You</string>

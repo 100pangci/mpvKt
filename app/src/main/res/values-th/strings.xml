@@ -15,6 +15,9 @@
     <string name="home_invalid_protocol">โปรโตคอลไม่ถูกต้อง</string>
     <string name="history_title">ประวัติการเล่น</string>
     <string name="history_empty">ยังไม่มีประวัติการเล่น วิดีโอที่คุณเล่นจะปรากฏที่นี่</string>
+    <string name="home_play_selected">เล่น %1$d รายการ</string>
+    <string name="player_sheets_queue_title">คิวการเล่น</string>
+    <string name="player_sheets_queue_clear">ล้าง</string>
     <string name="pref_preferences">การตั้งค่า</string>
     <string name="pref_appearance_title">หน้าตา</string>
     <string name="pref_appearance_summary">โหมดมืด, Material You</string>

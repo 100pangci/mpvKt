@@ -5,6 +5,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Audiotrack
 import androidx.compose.material.icons.filled.Bookmarks
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.PlaylistPlay
 import androidx.compose.material.icons.filled.Subtitles
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -27,6 +28,9 @@ fun TopRightPlayerControls(
   // audio
   onAudioClick: () -> Unit,
   onAudioLongClick: () -> Unit,
+  // queue
+  isQueueVisible: Boolean,
+  onQueueClick: () -> Unit,
   // more
   onMoreClick: () -> Unit,
   onMoreLongClick: () -> Unit,
@@ -58,6 +62,14 @@ fun TopRightPlayerControls(
       onClick = onAudioClick,
       onLongClick = onAudioLongClick,
     )
+    // The queue only exists once something was appended to it; hide the
+    // button for single-file playback.
+    if (isQueueVisible) {
+      ControlsButton(
+        Icons.Default.PlaylistPlay,
+        onClick = onQueueClick,
+      )
+    }
     ControlsButton(
       Icons.Default.MoreVert,
       onClick = onMoreClick,

@@ -12,6 +12,19 @@ data class ChapterNode(
   fun toSegment(): Segment = Segment(title, time)
 }
 
+/** One entry of mpv's native `playlist` property. */
+@Serializable
+data class PlaylistNode(
+  val filename: String,
+  val current: Boolean? = null,
+  val playing: Boolean? = null,
+  val title: String? = null,
+  val id: Long? = null,
+) {
+  val isCurrent = current == true
+  val displayName: String get() = title?.takeIf { it.isNotBlank() } ?: filename.substringAfterLast('/')
+}
+
 @Serializable
 data class TrackNode(
   val id: Int,

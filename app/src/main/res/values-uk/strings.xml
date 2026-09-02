@@ -15,6 +15,9 @@
     <string name="home_invalid_protocol">Недійсний протокол</string>
     <string name="history_title">Історія відтворення</string>
     <string name="history_empty">Історії відтворення ще немає. Переглянуті відео з\'являться тут.</string>
+    <string name="home_play_selected">Відтворити %1$d</string>
+    <string name="player_sheets_queue_title">Черга відтворення</string>
+    <string name="player_sheets_queue_clear">Очистити</string>
     <string name="pref_preferences">Налаштування</string>
     <string name="pref_appearance_title">Вигляд</string>
     <string name="pref_appearance_summary">Темний режим, Material You</string>

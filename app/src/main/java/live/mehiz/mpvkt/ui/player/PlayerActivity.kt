@@ -109,6 +109,17 @@ class PlayerActivity : AppCompatActivity() {
   private var mediaPlaybackService: MediaPlaybackService? = null
   private var serviceBound = false
 
+  /**
+   * Playlist bookkeeping: [expectedIntentPath] is the entry the current
+   * intent was supposed to play; mpv's native queue advance never goes
+   * through onNewIntent, so a FILE_LOADED "path" mismatching it means the
+   * player moved on by itself. [currentPlaybackPath] mirrors mpv's "path"
+   * so per-episode state (and the watch history source) always refers to
+   * the file that is actually playing.
+   */
+  private var expectedIntentPath: String? = null
+  private var currentPlaybackPath: String? = null
+
   private var audioFocusRequest: AudioFocusRequestCompat? = null
   private var restoreAudioFocus: () -> Unit = {}
 
@@ -190,20 +201,95 @@ class PlayerActivity : AppCompatActivity() {
   private suspend fun CoroutineScope.startPlaybackFlow(intent: Intent) {
     val playable = intentResolver.getPlayableUri(intent)
     Log.i(TAG, "playback flow: playable=$playable")
-    if (playable == null) return
-    var videoPath = playable.takeUnless { it.startsWith("fd://") }
-    if (videoPath == null) {
-      // fd:// has no directory context: resolve the real video location from
-      // the content URI so sibling fonts and subtitles still resolve.
-      videoPath = intentResolver.realVideoFileFromContentUri(intent.data)?.absolutePath
-        ?: intentResolver.realDirFromContentUri(intent.data)?.let { dir ->
-          intentResolver.getFileName(intent).takeIf { it.isNotBlank() }
-            ?.let { name -> File(dir, name).takeIf { f -> f.isFile } }?.absolutePath
-        }
+    val queue = intent.getStringArrayListExtra("queue")
+    if (!queue.isNullOrEmpty()) {
+      startQueuePlaybackFlow(intent, queue, playable)
+      return
     }
-    val siblingSubPath = videoPath?.let(::File)?.takeIf { it.isFile }
-      ?.let { guessSiblingSubtitle(it) }?.absolutePath
+    if (playable == null) return
+    val videoPath = resolveVideoContextPath(intent, playable)
+    val siblingSubPath = siblingSubtitlePath(videoPath)
     Log.i(TAG, "playback flow: sibling=$siblingSubPath")
+    awaitFontSetup(videoPath, siblingSubPath)
+    withContext(Dispatchers.Main) {
+      expectedIntentPath = playable
+      if (isMpvIdleOrEmpty()) {
+        // NOT player.playFile(): that only stores the path for the surface
+        // callback to consume ONCE — if the surface already exists the file
+        // would never load (black screen). Issue the command directly, exactly
+        // like onNewIntent does; it is valid in any mpv state.
+        MPVLib.command("loadfile", playable)
+        siblingSubPath?.let { MPVLib.command("sub-add", it, "auto") }
+      } else {
+        // A second intent while playback runs must not tear down the queue:
+        // append the new file instead of replacing the current entry.
+        MPVLib.command("loadfile", playable, "append-play")
+      }
+    }
+    Log.i(TAG, "playback flow: playFile issued")
+  }
+
+  /**
+   * Builds mpv's native playlist from [queue] (raw, player-openable paths)
+   * and starts at the entry the user tapped. Entries are appended in list
+   * order first and only then jumped to, so the queue order stays identical
+   * to the directory listing ("next" keeps following the listing).
+   */
+  private suspend fun CoroutineScope.startQueuePlaybackFlow(
+    intent: Intent,
+    queue: List<String>,
+    playable: String?,
+  ) {
+    val startEntry = queue.firstOrNull { it == intent.dataString }
+      ?: queue.firstOrNull { it == playable }
+      ?: queue.first()
+    val videoPath = resolveVideoContextPath(intent, startEntry)
+    val siblingSubPath = siblingSubtitlePath(videoPath)
+    Log.i(TAG, "playback flow: queue=${queue.size} start=$startEntry sibling=$siblingSubPath")
+    awaitFontSetup(videoPath, siblingSubPath)
+    withContext(Dispatchers.Main) {
+      expectedIntentPath = startEntry
+      if (isMpvIdleOrEmpty()) {
+        queue.forEach { MPVLib.command("loadfile", it, "append") }
+        val index = queue.indexOf(startEntry).coerceAtLeast(0)
+        MPVLib.command("playlist-play-index", index.toString())
+        Log.i(TAG, "playback flow: queue loaded, start index=$index")
+      } else {
+        // Playback already running: append the whole queue, don't disturb it.
+        queue.forEach { MPVLib.command("loadfile", it, "append-play") }
+        Log.i(TAG, "playback flow: queue appended while playing")
+      }
+    }
+    Log.i(TAG, "playback flow: queue playFile issued")
+  }
+
+  /**
+   * Where the media lives on disk for font/subtitle purposes: fd:// carries
+   * no directory context, so fall back to the real file behind the content
+   * URI (or its directory + file name).
+   */
+  private fun resolveVideoContextPath(intent: Intent, playablePath: String?): String? {
+    playablePath?.takeUnless { it.startsWith("fd://") }?.let { return it }
+    return intentResolver.realVideoFileFromContentUri(intent.data)?.absolutePath
+      ?: intentResolver.realDirFromContentUri(intent.data)?.let { dir ->
+        intentResolver.getFileName(intent).takeIf { it.isNotBlank() }
+          ?.let { name -> File(dir, name).takeIf { f -> f.isFile } }?.absolutePath
+      }
+  }
+
+  private fun siblingSubtitlePath(videoPath: String?): String? =
+    videoPath?.let(::File)?.takeIf { it.isFile }?.let { guessSiblingSubtitle(it) }?.absolutePath
+
+  private fun isMpvIdleOrEmpty(): Boolean =
+    (MPVLib.getPropertyBoolean("idle-active") ?: true) || (MPVLib.getPropertyInt("playlist-count") ?: 0) == 0
+
+  /**
+   * Runs the font setup concurrently and waits a short budget for it, so a
+   * warm setup applies before the subtitle renderer initializes while a cold
+   * one keeps running and applies the late fix (decoder recreation) on its
+   * own once fonts have landed.
+   */
+  private suspend fun CoroutineScope.awaitFontSetup(videoPath: String?, siblingSubPath: String?) {
     val fontSetupDone = CompletableDeferred<Boolean>()
     launch {
       runCatching {
@@ -224,15 +310,35 @@ class PlayerActivity : AppCompatActivity() {
       Log.i(TAG, "playback flow: font setup finished")
     }
     withTimeoutOrNull(FONT_SETUP_BUDGET_MS) { fontSetupDone.await() }
-    withContext(Dispatchers.Main) {
-      // NOT player.playFile(): that only stores the path for the surface
-      // callback to consume ONCE — if the surface already exists the file
-      // would never load (black screen). Issue the command directly, exactly
-      // like onNewIntent does; it is valid in any mpv state.
-      MPVLib.command("loadfile", playable)
-      siblingSubPath?.let { MPVLib.command("sub-add", it, "auto") }
+  }
+
+  /**
+   * mpv's native playlist advance never goes through startPlaybackFlow, so
+   * the font setup would only ever run for the first episode. Re-run the
+   * lightweight part on every queue-loaded file: regenerate fonts.conf for
+   * the new file's directory, preload the sibling subtitle's families and
+   * rebuild the subtitle renderer if fonts actually landed. Staged fonts
+   * live in the shared fonts cache, so each episode's renderer
+   * initialization picks them up even without the late reload.
+   */
+  private fun prepareFontsForQueueAdvance(path: String) {
+    lifecycleScope.launch(Dispatchers.IO) {
+      val videoFile = File(path).takeIf { it.isFile }
+      if (videoFile == null) {
+        Log.i(TAG, "playback flow: queue advance is not a local file, skipping font setup")
+        return@launch
+      }
+      runCatching {
+        fontConfigManager.regenerate(videoFile.absolutePath)
+        val siblingSubPath = guessSiblingSubtitle(videoFile)?.absolutePath
+        val stagedSub = siblingSubPath?.let { fontPipeline.preloadSubtitleFonts(it) } ?: false
+        val stagedVideo = fontPipeline.stageVideoFonts()
+        if (stagedSub || stagedVideo) {
+          fontPipeline.reloadSubtitleRenderer()
+        }
+      }
+      Log.i(TAG, "playback flow: queue advance font setup finished")
     }
-    Log.i(TAG, "playback flow: playFile issued")
   }
 
   override fun onDestroy() {
@@ -687,7 +793,11 @@ class PlayerActivity : AppCompatActivity() {
     when (property) {
       "pause" if value -> window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
       "pause" -> window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-      "eof-reached" if value && playerPreferences.closeAfterReachingEndOfVideo.get() -> finishAndRemoveTask()
+      // Only end the activity when the queue has nothing left to play:
+      // mpv reports eof-reached for a moment between queue entries, too.
+      "eof-reached" if value && playerPreferences.closeAfterReachingEndOfVideo.get() &&
+        (MPVLib.getPropertyInt("playlist-pos") ?: 0) >= (MPVLib.getPropertyInt("playlist-count") ?: 1) - 1 ->
+        finishAndRemoveTask()
     }
   }
 
@@ -716,8 +826,25 @@ class PlayerActivity : AppCompatActivity() {
     if (player.isExiting) return
     when (eventId) {
       MPVLib.mpvEventId.MPV_EVENT_FILE_LOADED -> {
-        fileName = intentResolver.getFileName(intent)
-        setIntentExtras(intent.extras)
+        val mpvPath = MPVLib.getPropertyString("path")
+        // mpv advancing to the next queue entry bypasses onNewIntent: when
+        // the loaded path differs from the one the current intent was meant
+        // to play, this is an automatic queue advance.
+        val isQueueAdvance = mpvPath != null && mpvPath != expectedIntentPath
+        currentPlaybackPath = mpvPath
+        fileName = if (isQueueAdvance) {
+          mpvPath!!.substringAfterLast('/').ifBlank { intentResolver.getFileName(intent) }
+        } else {
+          intentResolver.getFileName(intent)
+        }
+        if (isQueueAdvance) {
+          // The intent's subtitle/position extras belong to the first file;
+          // reapplying them would add stale subtitle tracks every episode.
+          // A leftover force-media-title would also leak onto every next file.
+          MPVLib.setPropertyString("force-media-title", "")
+        } else {
+          setIntentExtras(intent.extras)
+        }
         // Track choices are per video: a previous file's restore must not
         // block the current file's deterministic selection.
         restoredTrackState = false
@@ -728,6 +855,9 @@ class PlayerActivity : AppCompatActivity() {
         }
         lifecycleScope.launch(Dispatchers.IO) {
           loadVideoPlaybackState(fileName)
+        }
+        if (isQueueAdvance && mpvPath != null) {
+          prepareFontsForQueueAdvance(mpvPath)
         }
         setOrientation()
         viewModel.changeVideoAspect(playerPreferences.videoAspect.get())
@@ -781,11 +911,23 @@ class PlayerActivity : AppCompatActivity() {
           audioDelay = delayMillis(MPVLib.getPropertyDouble("audio-delay"), oldState?.audioDelay),
           duration = viewModel.duration ?: oldState?.duration ?: 0,
           lastPlayedAt = System.currentTimeMillis(),
-          uri = resolveHistoryUri() ?: oldState?.uri.orEmpty(),
+          uri = historyUriFor(oldState),
         ),
       )
     }
   }
+
+  /**
+   * Source the currently playing file came from: mpv's own "path" is the
+   * most accurate one (queue advances bypass the intent); fd:// handles are
+   * ephemeral, so fall back to the raw intent source and the previously
+   * stored value.
+   */
+  private fun historyUriFor(oldState: PlaybackStateEntity?): String =
+    currentPlaybackPath?.takeUnless { it.startsWith("fd://") }
+      ?: resolveHistoryUri()
+      ?: oldState?.uri
+      ?: ""
 
   /**
    * Remembers where the current media came from so the watch history can
