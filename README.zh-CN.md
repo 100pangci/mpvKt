@@ -5,6 +5,7 @@
 [English](README.md) | 简体中文
 
 ![许可证](https://img.shields.io/badge/license-MPL--2.0-blue)
+![发行版](https://img.shields.io/github/v/release/100pangci/mpvKt)
 ![平台](https://img.shields.io/badge/platform-Android%206.0%2B-green)
 ![语言](https://img.shields.io/badge/localization-18%20%E7%A7%8D%E8%AF%AD%E8%A8%80-orange)
 ![欢迎 PR](https://img.shields.io/badge/PRs-welcome-brightgreen)
@@ -16,7 +17,12 @@
 
 本分支目前的亮点：
 
-- **mpv-android-lib 0.1.12**——通过兼容层从 0.1.9 升级，用户侧体验无回退。
+- **字幕原字体渲染**——mpv 内置的 fontconfig 把系统字体、字体文件夹与
+  视频所在目录**原地索引**，ASS 字幕以制作时指定的字体渲染，与桌面端
+  一致：不拷贝字体、字体文件改名不影响识别，缺失字体弹窗提示并支持
+  一键复制字体名单、直达字体设置。
+- **mpv-android-lib 0.1.13**——通过兼容层从 0.1.9 升级，用户侧体验无
+  回退；原生库以 API 23 编译，字幕获得基于 fontconfig 的系统字体发现。
 - **截图功能重做**——带字幕/不带字幕独立按钮，按住滑动逐帧取材，上滑取消，自定义保存目录并正确处理存储权限。
 - **18 种语言**，应用内即可切换语言。
 - 修复了大量上游 issue：字幕延迟被重置、打开不支持文件时崩溃、画中画 NPE、销毁后段错误等。
@@ -43,6 +49,8 @@
 
 **字幕**
 
+- ASS 字体经 fontconfig 原地解析：系统字体、字体文件夹、视频同目录，
+  按字体文件内部的家族名匹配——改名不影响识别，不做任何拷贝
 - 自动加载同名外挂字幕
 - 首选字幕/音轨语言（ISO 代码）
 - 主字幕 + 次字幕，延迟独立可调
@@ -70,8 +78,9 @@
 
 ## 安装
 
-本分支暂未发布预编译 APK——先从源码构建吧（只需一条命令，见下文）。
-日常使用拷贝 `app-arm64-v8a-debug.apk` 到手机安装即可；`universal` 包覆盖全部架构。
+预编译签名 APK 已发布在
+[Releases](https://github.com/100pangci/mpvKt/releases/latest) 页面：日常设备用
+`arm64-v8a`，`universal` 覆盖全部架构。也可以从源码构建（只需一条命令，见下文）。
 
 ## 构建
 
@@ -111,15 +120,13 @@ PR。请以 `dev` 分支为目标，提交前先跑一遍
 ### 关于 `mpv-android-lib`
 
 本项目使用的 mpv 绑定库是
-[`io.github.abdallahmehiz:mpv-android-lib`](https://github.com/abdallahmehiz/mpv-android)
-——[mpv-android](https://github.com/mpv-android/mpv-android) 的库化分支，提供
-实例化 `MPV` API、`mpv_node` 绑定、多实例与 DASH 支持，由 mpvKt 原作者发布到
-Maven Central。本分支的播放器层（`MPVLib` 兼容单例与 `MPVView`）即基于该
-fork 的 API 构建。
-
-该库的上游仓库已归档，但 Maven Central 构件是不可变的，依赖解析不受影响。
-若日后需要修改该库（例如升级 libmpv），计划将其 fork 到本组织下，通过其
-`buildscripts` 重新构建 AAR 并以新的 group id 发布——其 MIT 许可允许这样做。
+[`io.github.100pangci:mpv-android-lib`](https://github.com/100pangci/mpv-android)
+——由 mpvKt 原作者从 [mpv-android](https://github.com/mpv-android/mpv-android)
+中抽出的库化分支的持续维护版，提供实例化 `MPV` API、`mpv_node` 绑定、
+多实例与 DASH 支持。该分支跟随 mpv-android 上游的 master 构建脚本，需要
+修补时以我们自己的 group id 重新构建并发布；自 0.1.13 起原生库以 API 23
+编译，并为字幕提供基于 fontconfig 的系统字体发现。本分支的播放器层
+（`MPVLib` 兼容单例与 `MPVView`）即基于该 API 构建。
 
 ## 许可证
 

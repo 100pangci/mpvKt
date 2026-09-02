@@ -5,6 +5,7 @@ A media player for Android based on [mpv](https://mpv.io) / [mpv-android](https:
 English | [简体中文](README.zh-CN.md)
 
 ![License](https://img.shields.io/badge/license-MPL--2.0-blue)
+![Release](https://img.shields.io/github/v/release/100pangci/mpvKt)
 ![Platform](https://img.shields.io/badge/platform-Android%206.0%2B-green)
 ![Languages](https://img.shields.io/badge/localization-18%20languages-orange)
 ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)
@@ -18,8 +19,15 @@ and features, tracked on the `dev` branch.
 
 Highlights of this fork so far:
 
-- **mpv-android-lib 0.1.12** — upgraded from 0.1.9 through a compatibility
-  layer, no user-facing regression.
+- **Original-font subtitle rendering** — mpv's built-in fontconfig indexes
+  system fonts, your fonts folder and the video's own directory *in place*,
+  so ASS subtitles render with the fonts their authors intended, exactly
+  like on desktop. No font copying, file renames don't break matching, and
+  a missing-font dialog offers one-tap copying plus a shortcut to the font
+  settings.
+- **mpv-android-lib 0.1.13** — upgraded from 0.1.9 through a compatibility
+  layer, no user-facing regression; native libraries target API 23 and
+  subtitles gain fontconfig-based system-font discovery.
 - **Reworked screenshots** — dedicated with/without-subtitles buttons,
   frame-stepping capture, swipe-up-to-cancel, custom save directory with
   proper storage permissions.
@@ -49,6 +57,9 @@ Highlights of this fork so far:
 
 **Subtitles**
 
+- ASS fonts resolved in place via fontconfig: system fonts, your fonts
+  folder and the video's own directory, matched by the family names inside
+  the font files — rename-safe, nothing is copied
 - Automatic loading of external subtitles with matching names
 - Preferred subtitle/audio languages (ISO codes)
 - Primary + secondary subtitles with independent delays
@@ -78,10 +89,10 @@ Highlights of this fork so far:
 
 ## Installation
 
-Prebuilt APKs are not yet published for this fork — build from source for now
-(it only takes one command, see below). Copy `app-arm64-v8a-debug.apk` to your
-device and install it for everyday use; the `universal` APK covers all
-architectures.
+Prebuilt, signed APKs are published on the
+[Releases](https://github.com/100pangci/mpvKt/releases/latest) page —
+`arm64-v8a` covers most devices, `universal` covers all architectures.
+Building from source only takes one command (see below).
 
 ## Building
 
