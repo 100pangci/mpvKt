@@ -41,5 +41,33 @@ data class NetworkSource(
     /** Joins two remote path segments keeping exactly one separator. */
     fun joinPath(parent: String, child: String): String =
       parent.trimEnd('/') + "/" + child.trimStart('/')
+
+    /**
+     * Splits a host input that may have been pasted as a full URL
+     * ("http://192.168.1.1:5244/dav") into its host, port and base path
+     * parts; plain host names pass through untouched. IPv6 literals are
+     * not handled.
+     */
+    fun splitHost(input: String): HostParts {
+      val trimmed = input.trim()
+      if (trimmed.isEmpty()) return HostParts("", null, null)
+      val withoutScheme = trimmed.substringAfter("://", trimmed)
+      val basePath = withoutScheme
+        .substringAfter('/', "")
+        .takeIf { it.isNotEmpty() }
+        ?.trimEnd('/')
+        ?.let { "/$it" }
+      val hostPort = withoutScheme.substringBefore('/')
+      val host = hostPort.substringBeforeLast(':')
+      val port = hostPort.substringAfterLast(':', "").toIntOrNull()
+        ?.takeIf { it in 1..65535 }
+      return HostParts(host, port, basePath)
+    }
   }
 }
+
+data class HostParts(
+  val host: String,
+  val port: Int?,
+  val basePath: String?,
+)

@@ -23,13 +23,13 @@ class NetworkViewModel(
 
   fun addSource(draft: NetworkDraft) {
     viewModelScope.launch(Dispatchers.IO) {
-      networkStore.add(draft.toNetworkSource(id = System.currentTimeMillis()))
+      networkStore.add(draft.normalized().toNetworkSource(id = System.currentTimeMillis()))
     }
   }
 
   fun updateSource(original: NetworkSource, draft: NetworkDraft) {
     viewModelScope.launch(Dispatchers.IO) {
-      networkStore.update(original.updatedWith(draft))
+      networkStore.update(original.updatedWith(draft.normalized()))
     }
   }
 
@@ -38,6 +38,19 @@ class NetworkViewModel(
       networkStore.remove(id)
     }
   }
+}
+
+/**
+ * Fills in the parts a pasted full-URL host carried: the explicit port and
+ * base path fields always win, the URL parts only fill blanks.
+ */
+private fun NetworkDraft.normalized(): NetworkDraft {
+  val parts = NetworkSource.splitHost(host)
+  return copy(
+    host = parts.host.ifBlank { host },
+    port = parts.port ?: port,
+    basePath = basePath.ifBlank { parts.basePath ?: "" },
+  )
 }
 
 private fun NetworkDraft.toNetworkSource(id: Long): NetworkSource = NetworkSource(

@@ -2,6 +2,7 @@ package live.mehiz.mpvkt.ui.network
 
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -105,6 +106,7 @@ data class NetworkBrowserScreen(
         entries = it
         loading = false
       }.onFailure {
+        Log.w(TAG, "remote listing failed for ${source.name}: ${it.message}")
         entries = emptyList()
         error = true
         loading = false
@@ -358,3 +360,5 @@ private fun RemoteEntryRow(
 }
 
 private fun String.isVideoFile(): Boolean = substringAfterLast('.').lowercase() in videoExtensions
+
+private const val TAG = "mpvKt"

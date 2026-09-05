@@ -37,6 +37,7 @@ import live.mehiz.mpvkt.ui.theme.spacing
  * by the store, never encrypted (notice shown inline).
  */
 @Composable
+@Suppress("CyclomaticComplexMethod")
 fun NetworkSourceDialog(
   title: String,
   initial: NetworkSource?,
@@ -58,7 +59,9 @@ fun NetworkSourceDialog(
   } else {
     "21"
   }
-  val valid = host.isNotBlank() && name.isNotBlank() && port.toIntOrNull() in 1..65535
+  // An empty port falls back to the type's default on confirm.
+  val valid = host.isNotBlank() && name.isNotBlank() &&
+    (port.isEmpty() || port.toIntOrNull() in 1..65535)
 
   AlertDialog(
     onDismissRequest = onDismissRequest,
@@ -140,7 +143,7 @@ fun NetworkSourceDialog(
               type = type,
               name = name.trim(),
               host = host.trim(),
-              port = port.toInt(),
+              port = port.toIntOrNull() ?: defaultPort.toInt(),
               basePath = basePath.trim(),
               secure = secure,
               username = username.trim(),

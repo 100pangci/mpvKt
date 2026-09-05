@@ -23,7 +23,7 @@ class WebDavClient(
     .build()
 
   private val basicAuth: String? =
-    source.username.takeIf { it.isNotEmpty() }?.let { Credentials.basic(it, source.password) }
+    source.username.takeIf { it.isNotEmpty() }?.let { Credentials.basic(it, source.password, Charsets.UTF_8) }
 
   private fun authorityUrl(path: String): String {
     val scheme = if (source.secure) "https" else "http"
@@ -87,7 +87,9 @@ class WebDavClient(
     var size = 0L
 
     fun startTag() {
-      when (parser.name.lowercase()) {
+      // Namespaces are off, so the name is a raw qname ("d:href", "D:response",
+      // "ns0:getcontentlength" depending on the server): strip the prefix.
+      when (parser.name.substringAfterLast(':').lowercase()) {
         "href" -> href = parser.nextText()
         "collection" -> isDirectory = true
         "getcontentlength" -> size = parser.nextText()?.toLongOrNull() ?: 0L
@@ -95,7 +97,7 @@ class WebDavClient(
     }
 
     fun endTag() {
-      if (!parser.name.equals("response", true)) return
+      if (!parser.name.substringAfterLast(':').equals("response", true)) return
       href?.let { h ->
         if (!isSelf(h, selfPath)) {
           displayName(h)?.let { entries.add(RemoteEntry(it, isDirectory, size)) }
@@ -124,9 +126,9 @@ class WebDavClient(
     return normalized.trimEnd('/') == selfPath.trimEnd('/')
   }
 
-  /** The percent-encoded path part of the request URL, without authority. */
+  /** The decoded path part of the request URL, without authority. */
   private fun selfPathOf(path: String): String =
-    runCatching { URI(authorityUrl(path)).rawPath }.getOrDefault("/${path.trimStart('/')}")
+    runCatching { URI(authorityUrl(path)).path }.getOrDefault("/${path.trimStart('/')}")
 
   /** Extracts the percent-decoded file name from a WebDAV href. */
   private fun displayName(href: String): String? {
