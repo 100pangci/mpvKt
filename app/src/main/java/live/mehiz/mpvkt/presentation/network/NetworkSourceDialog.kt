@@ -97,6 +97,11 @@ fun NetworkSourceDialog(
           value = basePath,
           onValueChange = { basePath = it },
           label = { Text(stringResource(R.string.network_path)) },
+          supportingText = if (type == NetworkType.WEBDAV) {
+            { Text(stringResource(R.string.network_path_hint_webdav)) }
+          } else {
+            null
+          },
           singleLine = true,
         )
         if (type == NetworkType.WEBDAV) {

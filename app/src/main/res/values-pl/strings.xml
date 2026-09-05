@@ -24,6 +24,7 @@
     <string name="network_host">Host</string>
     <string name="network_port">Port</string>
     <string name="network_path">Ścieżka główna</string>
+    <string name="network_path_hint_webdav">Ścieżka punktu WebDAV, np. /dav w Alist/OpenList</string>
     <string name="network_secure">Użyj HTTPS</string>
     <string name="network_username">Nazwa użytkownika</string>
     <string name="network_password">Hasło</string>

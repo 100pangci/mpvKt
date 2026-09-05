@@ -24,6 +24,7 @@
     <string name="network_host">호스트</string>
     <string name="network_port">포트</string>
     <string name="network_path">루트 경로</string>
+    <string name="network_path_hint_webdav">WebDAV 엔드포인트 경로(예: Alist/OpenList의 /dav)</string>
     <string name="network_secure">HTTPS 사용</string>
     <string name="network_username">사용자 이름</string>
     <string name="network_password">비밀번호</string>

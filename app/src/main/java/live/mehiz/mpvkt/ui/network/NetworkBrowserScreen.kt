@@ -85,6 +85,7 @@ data class NetworkBrowserScreen(
     val json = koinInject<Json>()
     var loading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf(false) }
+    var errorDetail by remember { mutableStateOf<String?>(null) }
     var entries by remember { mutableStateOf<List<RemoteEntry>>(emptyList()) }
     var retryKey by remember { mutableIntStateOf(0) }
     var multiSelectMode by remember { mutableStateOf(false) }
@@ -107,6 +108,7 @@ data class NetworkBrowserScreen(
         loading = false
       }.onFailure {
         Log.w(TAG, "remote listing failed for ${source.name}: ${it.message}")
+        errorDetail = it.message
         entries = emptyList()
         error = true
         loading = false
@@ -179,6 +181,17 @@ data class NetworkBrowserScreen(
           verticalArrangement = Arrangement.Center,
         ) {
           Text(stringResource(R.string.network_browse_error))
+          // The raw cause (HTTP status, auth failure, timeouts) is what
+          // makes a misconfigured endpoint diagnosable without logs.
+          errorDetail?.let { detail ->
+            Text(
+              text = detail,
+              style = MaterialTheme.typography.bodySmall,
+              color = MaterialTheme.colorScheme.onSurfaceVariant,
+              textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+              modifier = Modifier.padding(top = MaterialTheme.spacing.extraSmall),
+            )
+          }
           Button(
             onClick = { retryKey++ },
             modifier = Modifier.padding(top = MaterialTheme.spacing.small),

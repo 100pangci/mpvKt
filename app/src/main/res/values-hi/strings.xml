@@ -24,6 +24,7 @@
     <string name="network_host">होस्ट</string>
     <string name="network_port">पोर्ट</string>
     <string name="network_path">रूट पथ</string>
+    <string name="network_path_hint_webdav">WebDAV एंडपॉइंट पथ, जैसे Alist/OpenList पर /dav</string>
     <string name="network_secure">HTTPS उपयोग करें</string>
     <string name="network_username">उपयोगकर्ता नाम</string>
     <string name="network_password">पासवर्ड</string>

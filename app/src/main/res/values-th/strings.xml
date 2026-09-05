@@ -24,6 +24,7 @@
     <string name="network_host">โฮสต์</string>
     <string name="network_port">พอร์ต</string>
     <string name="network_path">พาธราก</string>
+    <string name="network_path_hint_webdav">พาธปลายทาง WebDAV เช่น /dav บน Alist/OpenList</string>
     <string name="network_secure">ใช้ HTTPS</string>
     <string name="network_username">ชื่อผู้ใช้</string>
     <string name="network_password">รหัสผ่าน</string>

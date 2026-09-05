@@ -24,6 +24,7 @@
     <string name="network_host">Máy chủ</string>
     <string name="network_port">Cổng</string>
     <string name="network_path">Đường dẫn gốc</string>
+    <string name="network_path_hint_webdav">Đường dẫn điểm truy cập WebDAV, vd. /dav trên Alist/OpenList</string>
     <string name="network_secure">Dùng HTTPS</string>
     <string name="network_username">Tên đăng nhập</string>
     <string name="network_password">Mật khẩu</string>

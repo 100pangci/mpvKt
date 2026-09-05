@@ -24,6 +24,7 @@
     <string name="network_host">Host</string>
     <string name="network_port">Port</string>
     <string name="network_path">Kök yolu</string>
+    <string name="network_path_hint_webdav">WebDAV uç nokta yolu, ör. Alist/OpenList için /dav</string>
     <string name="network_secure">HTTPS kullan</string>
     <string name="network_username">Kullanıcı adı</string>
     <string name="network_password">Parola</string>

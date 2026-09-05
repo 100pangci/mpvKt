@@ -24,6 +24,7 @@
     <string name="network_host">المضيف</string>
     <string name="network_port">المنفذ</string>
     <string name="network_path">المسار الجذري</string>
+    <string name="network_path_hint_webdav">مسار نقطة نهاية WebDAV، مثال /dav في Alist/OpenList</string>
     <string name="network_secure">استخدام HTTPS</string>
     <string name="network_username">اسم المستخدم</string>
     <string name="network_password">كلمة المرور</string>

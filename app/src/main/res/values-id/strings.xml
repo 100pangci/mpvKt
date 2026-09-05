@@ -24,6 +24,7 @@
     <string name="network_host">Host</string>
     <string name="network_port">Port</string>
     <string name="network_path">Jalur akar</string>
+    <string name="network_path_hint_webdav">Jalur endpoint WebDAV, mis. /dav pada Alist/OpenList</string>
     <string name="network_secure">Gunakan HTTPS</string>
     <string name="network_username">Nama pengguna</string>
     <string name="network_password">Kata sandi</string>

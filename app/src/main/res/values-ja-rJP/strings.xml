@@ -24,6 +24,7 @@
     <string name="network_host">ホスト</string>
     <string name="network_port">ポート</string>
     <string name="network_path">ルートパス</string>
+    <string name="network_path_hint_webdav">WebDAV エンドポイントのパス（Alist/OpenList では /dav など）</string>
     <string name="network_secure">HTTPS を使用</string>
     <string name="network_username">ユーザー名</string>
     <string name="network_password">パスワード</string>
