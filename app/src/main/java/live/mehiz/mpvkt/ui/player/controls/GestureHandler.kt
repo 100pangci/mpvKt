@@ -165,6 +165,7 @@ fun GestureHandler(
         var startingPosition = position ?: 0
         var startingX = 0f
         var wasPlayerAlreadyPause = false
+        var gestureEndTarget: Int? = null
         detectHorizontalDragGestures(
           onDragStart = {
             startingPosition = position ?: 0
@@ -175,6 +176,11 @@ fun GestureHandler(
           onDragEnd = {
             viewModel.gestureSeekAmount.update { null }
             viewModel.hideSeekBar()
+            // While dragging we seek by keyframes for fluidity, so mpv stops
+            // at the keyframe before the target; one exact seek on release
+            // snaps playback to the position the user actually let go of.
+            gestureEndTarget?.let { viewModel.seekTo(it, precise = true) }
+            gestureEndTarget = null
             if (!wasPlayerAlreadyPause) viewModel.unpause()
           },
         ) { change, dragAmount ->
@@ -186,6 +192,7 @@ fun GestureHandler(
             change.position.x,
             0.15f
           ).let {
+            gestureEndTarget = it
             viewModel.gestureSeekAmount.update { _ ->
               Pair(
                 startingPosition,

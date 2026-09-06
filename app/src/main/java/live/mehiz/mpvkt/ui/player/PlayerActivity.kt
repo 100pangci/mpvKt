@@ -110,7 +110,8 @@ class PlayerActivity : AppCompatActivity() {
   private var restoredTrackState = false
   private var autoSubSelectedForThisVideo = false
 
-  private var fileName = ""
+  var fileName = ""
+    private set
   private var mediaPlaybackService: MediaPlaybackService? = null
   private var serviceBound = false
 

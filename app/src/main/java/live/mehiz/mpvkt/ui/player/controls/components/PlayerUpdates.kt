@@ -3,8 +3,11 @@ package live.mehiz.mpvkt.ui.player.controls.components
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DoubleArrow
@@ -28,14 +31,23 @@ fun PlayerUpdate(
   modifier: Modifier = Modifier,
   content: @Composable () -> Unit = {},
 ) {
-  Box(
-    modifier = modifier
-      .clip(RoundedCornerShape(16.dp))
-      .background(Color.Black.copy(0.4f))
-      .padding(vertical = MaterialTheme.spacing.smaller, horizontal = MaterialTheme.spacing.medium)
-      .animateContentSize(),
+  BoxWithConstraints(
+    modifier = modifier.fillMaxWidth(),
     contentAlignment = Alignment.Center,
-  ) { content() }
+  ) {
+    // Auto-width: the pill grows with the text but never crosses a fixed
+    // margin from either screen edge, whatever the orientation.
+    val sideMargin = MaterialTheme.spacing.medium
+    Box(
+      modifier = Modifier
+        .widthIn(max = maxWidth - sideMargin - sideMargin)
+        .clip(RoundedCornerShape(16.dp))
+        .background(Color.Black.copy(0.4f))
+        .padding(vertical = MaterialTheme.spacing.smaller, horizontal = MaterialTheme.spacing.medium)
+        .animateContentSize(),
+      contentAlignment = Alignment.Center,
+    ) { content() }
+  }
 }
 
 @Composable

@@ -389,11 +389,12 @@ class PlayerViewModel(
     val timeText = MPVLib.getPropertyDouble("time-pos")
       ?.let { formatScreenshotTimestamp(it) }
       ?: "unknown"
+    val videoName = activity.fileName.substringBeforeLast('.').ifBlank { "video" }
     var counter = ++screenshotCounter
-    var file = File(dir, "$timeText-N${counter.toString().padStart(4, '0')}.png")
+    var file = File(dir, "$videoName-$timeText-N${counter.toString().padStart(4, '0')}.png")
     while (file.exists()) {
       counter = ++screenshotCounter
-      file = File(dir, "$timeText-N${counter.toString().padStart(4, '0')}.png")
+      file = File(dir, "$videoName-$timeText-N${counter.toString().padStart(4, '0')}.png")
     }
     return file
   }

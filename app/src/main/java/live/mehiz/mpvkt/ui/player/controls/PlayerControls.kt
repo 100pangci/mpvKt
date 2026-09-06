@@ -423,6 +423,7 @@ fun PlayerControls(
           val readAhead by MPVLib.propFloat["demuxer-cache-time"].collectAsState()
           val remaining by MPVLib.propFloat["playtime-remaining"].collectAsState()
           val preciseSeeking by playerPreferences.preciseSeeking.collectAsState()
+          var seekbarEndTarget by remember { mutableStateOf<Int?>(null) }
           SeekbarWithTimers(
             position = position?.toFloat() ?: 0f,
             duration = duration?.toFloat() ?: 0f,
@@ -430,9 +431,16 @@ fun PlayerControls(
             readAheadValue = readAhead ?: 0f,
             onValueChange = {
               isSeeking = true
+              seekbarEndTarget = it.toInt()
               viewModel.seekTo(it.toInt(), preciseSeeking)
             },
-            onValueChangeFinished = { isSeeking = false },
+            onValueChangeFinished = {
+              // Same keyframe drift as the horizontal gesture: dragging
+              // seeks by keyframes, so snap exactly to where the user let go.
+              seekbarEndTarget?.let { viewModel.seekTo(it, precise = true) }
+              seekbarEndTarget = null
+              isSeeking = false
+            },
             timersInverted = Pair(false, invertDuration),
             durationTimerOnCLick = { playerPreferences.invertDuration.set(!invertDuration) },
             positionTimerOnClick = {},
