@@ -13,6 +13,28 @@
     <string name="home_open_url">URL を開く</string>
     <string name="home_url_input_label">URL</string>
     <string name="home_invalid_protocol">無効なプロトコル</string>
+    <string name="history_title">再生履歴</string>
+    <string name="history_empty">まだ再生履歴がありません。再生した動画がここに表示されます。</string>
+    <string name="home_play_selected">%1$d件を再生</string>
+    <string name="home_network_sources">ネットワークソース</string>
+    <string name="network_add_source">サーバーを追加</string>
+    <string name="network_edit_source">サーバーを編集</string>
+    <string name="network_password_keep">空欄で変更なし</string>
+    <string name="network_name">名前</string>
+    <string name="network_host">ホスト</string>
+    <string name="network_port">ポート</string>
+    <string name="network_path">ルートパス</string>
+    <string name="network_path_hint_webdav">WebDAV エンドポイントのパス（Alist/OpenList では /dav など）</string>
+    <string name="network_secure">HTTPS を使用</string>
+    <string name="network_username">ユーザー名</string>
+    <string name="network_password">パスワード</string>
+    <string name="network_password_notice">パスワードは難読化 (Base64) して保存され、暗号化はされません。</string>
+    <string name="network_empty">サーバーがありません。追加してネットワークメディアを閲覧しましょう。</string>
+    <string name="network_browse_error">フォルダを読み込めませんでした</string>
+    <string name="network_retry">再試行</string>
+    <string name="network_delete_confirm">このサーバーを削除しますか？</string>
+    <string name="player_sheets_queue_title">再生キュー</string>
+    <string name="player_sheets_queue_clear">クリア</string>
 
     <string name="pref_preferences">設定</string>
 
@@ -297,6 +319,8 @@
     <string name="screenshot_raw">字幕なしスクリーンショット</string>
     <string name="screenshot_saved">スクリーンショットを保存しました: %1$s</string>
     <string name="screenshot_failed">スクリーンショットに失敗しました</string>
+    <string name="screenshot_with_subtitles">スクリーンショット(字幕あり)</string>
+    <string name="screenshot_without_subtitles">スクリーンショット(字幕なし)</string>
     <string name="screenshot_cancel_hint">指を離すとキャンセルされます</string>
     <string name="error_unsupported_file">このファイル形式は再生できません</string>
     <string name="screenshot_dir_missing">ディレクトリが存在しません</string>

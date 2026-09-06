@@ -4,6 +4,7 @@ import android.app.Application
 import live.mehiz.mpvkt.di.AppModule
 import live.mehiz.mpvkt.di.DatabaseModule
 import live.mehiz.mpvkt.di.FileManagerModule
+import live.mehiz.mpvkt.di.NetworkModule
 import live.mehiz.mpvkt.di.PreferencesModule
 import live.mehiz.mpvkt.di.ViewModelModule
 import live.mehiz.mpvkt.presentation.crash.CrashActivity
@@ -27,6 +28,7 @@ class App : Application(), KoinStartup {
       PreferencesModule,
       DatabaseModule,
       FileManagerModule,
+      NetworkModule,
       ViewModelModule,
     )
   }

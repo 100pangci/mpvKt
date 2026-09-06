@@ -13,6 +13,28 @@
     <string name="home_open_url">Abrir URL</string>
     <string name="home_url_input_label">URL</string>
     <string name="home_invalid_protocol">Protocolo inválido</string>
+    <string name="history_title">Histórico de reprodução</string>
+    <string name="history_empty">Ainda não há histórico de reprodução. Os vídeos assistidos aparecerão aqui.</string>
+    <string name="home_play_selected">Reproduzir %1$d</string>
+    <string name="home_network_sources">Fontes de rede</string>
+    <string name="network_add_source">Adicionar servidor</string>
+    <string name="network_edit_source">Editar servidor</string>
+    <string name="network_password_keep">Deixe vazio para manter</string>
+    <string name="network_name">Nome</string>
+    <string name="network_host">Host</string>
+    <string name="network_port">Porta</string>
+    <string name="network_path">Caminho raiz</string>
+    <string name="network_path_hint_webdav">Caminho do endpoint WebDAV, ex.: /dav no Alist/OpenList</string>
+    <string name="network_secure">Usar HTTPS</string>
+    <string name="network_username">Usuário</string>
+    <string name="network_password">Senha</string>
+    <string name="network_password_notice">A senha é armazenada ofuscada (Base64), não criptografada.</string>
+    <string name="network_empty">Nenhum servidor ainda. Adicione um para navegar por mídias de rede.</string>
+    <string name="network_browse_error">Não foi possível carregar o diretório</string>
+    <string name="network_retry">Tentar novamente</string>
+    <string name="network_delete_confirm">Excluir este servidor?</string>
+    <string name="player_sheets_queue_title">Fila de reprodução</string>
+    <string name="player_sheets_queue_clear">Limpar</string>
 
     <string name="pref_preferences">Preferências</string>
 
@@ -286,6 +308,8 @@
     <string name="screenshot_raw">Captura sem legendas</string>
     <string name="screenshot_saved">Captura salva: %1$s</string>
     <string name="screenshot_failed">Falha na captura de tela</string>
+    <string name="screenshot_with_subtitles">Captura com legendas</string>
+    <string name="screenshot_without_subtitles">Captura sem legendas</string>
     <string name="screenshot_cancel_hint">Solte para cancelar a captura</string>
     <string name="error_unsupported_file">Não é possível reproduzir este tipo de arquivo</string>
     <string name="screenshot_dir_missing">o diretório não existe</string>

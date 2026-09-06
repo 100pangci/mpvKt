@@ -32,6 +32,9 @@ androidx-documentfile = { group = "androidx.documentfile", name = "documentfile"
 mpv-lib = "io.github.100pangci:mpv-android-lib:0.1.13"
 seeker = "com.github.abdallahmehiz:seeker:2.0.1"
 
+okhttp = "com.squareup.okhttp3:okhttp:4.12.0"
+commons-net = "commons-net:commons-net:3.11.1"
+
 material = "com.google.android.material:material:1.14.0-alpha05"
 
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin" }

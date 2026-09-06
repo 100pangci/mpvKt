@@ -12,6 +12,59 @@ data class ChapterNode(
   fun toSegment(): Segment = Segment(title, time)
 }
 
+/** One entry of mpv's native `playlist` property. */
+@Serializable
+data class PlaylistNode(
+  val filename: String,
+  val current: Boolean? = null,
+  val playing: Boolean? = null,
+  val title: String? = null,
+  val id: Long? = null,
+) {
+  val isCurrent = current == true
+  val isPlaying = playing == true
+
+  /**
+   * Human-readable file name for the queue sheet. mpv's `filename` is the
+   * raw string loadfile received: local real paths, SAF content URIs whose
+   * document path is percent-encoded ("primary%3AFolder%2Fmovie.mp4"),
+   * fd:// handles and network URLs with embedded credentials. Percent signs
+   * are decoded (without ever turning "+" into a space, so file names keep
+   * their literal plus signs) and everything up to the last path separator
+   * is dropped, which also folds encoded separators back into plain slashes.
+   */
+  val displayName: String
+    get() {
+      title?.takeIf { it.isNotBlank() }?.let { return it }
+      val path = filename.substringBefore('?').substringBefore('#')
+      val lastSegment = path.substringAfterLast('/')
+      val decoded = percentDecode(lastSegment)
+      val name = if (decoded != lastSegment) decoded.substringAfterLast('/') else lastSegment
+      return name.takeIf { it.isNotBlank() } ?: filename
+    }
+}
+
+/** Decodes %XX escapes only; "+" and invalid escapes pass through untouched. */
+private fun percentDecode(value: String): String {
+  val bytes = java.io.ByteArrayOutputStream(value.length)
+  var i = 0
+  while (i < value.length) {
+    val c = value[i]
+    if (c == '%' && i + 2 < value.length) {
+      val hi = value[i + 1].digitToIntOrNull(16)
+      val lo = value[i + 2].digitToIntOrNull(16)
+      if (hi != null && lo != null) {
+        bytes.write(hi * 16 + lo)
+        i += 3
+        continue
+      }
+    }
+    bytes.write(c.toString().toByteArray(Charsets.UTF_8))
+    i += 1
+  }
+  return bytes.toString(Charsets.UTF_8.name())
+}
+
 @Serializable
 data class TrackNode(
   val id: Int,

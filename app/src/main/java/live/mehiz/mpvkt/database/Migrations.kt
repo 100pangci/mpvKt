@@ -11,6 +11,7 @@ val Migrations: Array<Migration> = arrayOf(
   MIGRATION5to6,
   MIGRATION6to7,
   MIGRATION7to8,
+  MIGRATION8to9,
 )
 
 private object MIGRATION1to2 : Migration(1, 2) {
@@ -95,5 +96,15 @@ private object MIGRATION7to8 : Migration(7, 8) {
       """.trimIndent()
     )
     db.execSQL("CREATE INDEX IF NOT EXISTS `index_FontEntity_family` ON `FontEntity` (`family`)")
+  }
+}
+
+// Watch history: duration feeds the progress bar, lastPlayedAt orders the
+// list and uri remembers where the media came from so it can be resumed.
+private object MIGRATION8to9 : Migration(8, 9) {
+  override fun migrate(db: SupportSQLiteDatabase) {
+    db.execSQL("ALTER TABLE PlaybackStateEntity ADD COLUMN duration INTEGER NOT NULL DEFAULT 0")
+    db.execSQL("ALTER TABLE PlaybackStateEntity ADD COLUMN lastPlayedAt INTEGER NOT NULL DEFAULT 0")
+    db.execSQL("ALTER TABLE PlaybackStateEntity ADD COLUMN uri TEXT NOT NULL DEFAULT ''")
   }
 }

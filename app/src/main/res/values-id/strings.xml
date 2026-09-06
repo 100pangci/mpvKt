@@ -13,6 +13,28 @@
     <string name="home_open_url">Buka URL</string>
     <string name="home_url_input_label">URL</string>
     <string name="home_invalid_protocol">Protokol tidak valid.</string>
+    <string name="history_title">Riwayat Tontonan</string>
+    <string name="history_empty">Belum ada riwayat tontonan. Video yang Anda tonton akan muncul di sini.</string>
+    <string name="home_play_selected">Putar %1$d</string>
+    <string name="home_network_sources">Sumber jaringan</string>
+    <string name="network_add_source">Tambah server</string>
+    <string name="network_edit_source">Edit server</string>
+    <string name="network_password_keep">Biarkan kosong untuk mempertahankan</string>
+    <string name="network_name">Nama</string>
+    <string name="network_host">Host</string>
+    <string name="network_port">Port</string>
+    <string name="network_path">Jalur akar</string>
+    <string name="network_path_hint_webdav">Jalur endpoint WebDAV, mis. /dav pada Alist/OpenList</string>
+    <string name="network_secure">Gunakan HTTPS</string>
+    <string name="network_username">Nama pengguna</string>
+    <string name="network_password">Kata sandi</string>
+    <string name="network_password_notice">Kata sandi disimpan terobfuskasi (Base64), tidak terenkripsi.</string>
+    <string name="network_empty">Belum ada server. Tambahkan satu untuk menelusuri media jaringan.</string>
+    <string name="network_browse_error">Tidak dapat memuat direktori</string>
+    <string name="network_retry">Coba lagi</string>
+    <string name="network_delete_confirm">Hapus server ini?</string>
+    <string name="player_sheets_queue_title">Antrean putar</string>
+    <string name="player_sheets_queue_clear">Bersihkan</string>
 
     <string name="pref_preferences">Pengaturan</string>
 
@@ -297,6 +319,8 @@
     <string name="screenshot_raw">Tangkapan layar tanpa subtitle</string>
     <string name="screenshot_saved">Tangkapan layar disimpan: %1$s</string>
     <string name="screenshot_failed">Tangkapan layar gagal</string>
+    <string name="screenshot_with_subtitles">Tangkapan layar dengan subtitle</string>
+    <string name="screenshot_without_subtitles">Tangkapan layar tanpa subtitle</string>
     <string name="screenshot_cancel_hint">Lepaskan untuk membatalkan</string>
     <string name="error_unsupported_file">Tipe file ini tidak dapat diputar</string>
     <string name="screenshot_dir_missing">direktori tidak ada</string>

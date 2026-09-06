@@ -12,6 +12,28 @@
     <string name="home_open_url">Abrir URL</string>
     <string name="home_url_input_label">URL</string>
     <string name="home_invalid_protocol">Protocolo no válido</string>
+    <string name="history_title">Historial de reproducción</string>
+    <string name="history_empty">Aún no hay historial de reproducción. Los vídeos que reproduzcas aparecerán aquí.</string>
+    <string name="home_play_selected">Reproducir %1$d</string>
+    <string name="home_network_sources">Fuentes de red</string>
+    <string name="network_add_source">Añadir servidor</string>
+    <string name="network_edit_source">Editar servidor</string>
+    <string name="network_password_keep">Dejar vacío para mantener</string>
+    <string name="network_name">Nombre</string>
+    <string name="network_host">Host</string>
+    <string name="network_port">Puerto</string>
+    <string name="network_path">Ruta raíz</string>
+    <string name="network_path_hint_webdav">Ruta del punto de acceso WebDAV, p. ej. /dav en Alist/OpenList</string>
+    <string name="network_secure">Usar HTTPS</string>
+    <string name="network_username">Usuario</string>
+    <string name="network_password">Contraseña</string>
+    <string name="network_password_notice">La contraseña se guarda ofuscada (Base64), no cifrada.</string>
+    <string name="network_empty">Aún no hay servidores. Añade uno para explorar medios de red.</string>
+    <string name="network_browse_error">No se pudo cargar la carpeta</string>
+    <string name="network_retry">Reintentar</string>
+    <string name="network_delete_confirm">¿Eliminar este servidor?</string>
+    <string name="player_sheets_queue_title">Cola de reproducción</string>
+    <string name="player_sheets_queue_clear">Vaciar</string>
 
     <string name="pref_preferences">Preferencias</string>
 
@@ -268,6 +290,8 @@
     <string name="screenshot_raw">Captura sin subtítulos</string>
     <string name="screenshot_saved">Captura guardada: %1$s</string>
     <string name="screenshot_failed">Error al tomar la captura</string>
+    <string name="screenshot_with_subtitles">Captura con subtítulos</string>
+    <string name="screenshot_without_subtitles">Captura sin subtítulos</string>
     <string name="screenshot_cancel_hint">Suelta para cancelar la captura</string>
     <string name="error_unsupported_file">No se puede reproducir este tipo de archivo</string>
     <string name="screenshot_dir_missing">el directorio no existe</string>

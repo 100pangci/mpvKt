@@ -11,6 +11,9 @@
         android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
 
+    <!-- Cleartext is a hard requirement for a player: home NAS setups expose
+         WebDAV/FTP/DLNA over plain http on the LAN, and blocking it made
+         every network source unusable on Android 9+. -->
     <application
         android:name=".App"
         android:allowBackup="true"
@@ -24,6 +27,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MpvKt"
+        android:usesCleartextTraffic="true"
         tools:targetApi="35">
         <meta-data
             android:name="autoStoreLocales"

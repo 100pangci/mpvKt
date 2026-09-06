@@ -15,4 +15,7 @@ data class PlaybackStateEntity(
   val secondarySubDelay: Int,
   val aid: Int,
   val audioDelay: Int,
+  val duration: Int = 0, // in seconds, feeds the watch history progress bar
+  val lastPlayedAt: Long = 0, // epoch millis, orders the watch history
+  val uri: String = "", // source the media was last opened from, lets history resume playback
 )
