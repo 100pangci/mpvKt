@@ -58,7 +58,8 @@ class FtpClient(private val source: NetworkSource) : RemoteClient {
       "${urlEncode(source.username)}:${urlEncode(source.password)}@"
     }
     val base = source.basePath.trimEnd('/')
-    return "ftp://$auth${source.host}:${source.port}$base/${path.trimStart('/')}"
+    val encodedPath = path.trimStart('/').split('/').joinToString("/") { urlEncode(it) }
+    return "ftp://$auth${source.host}:${source.port}$base/$encodedPath"
   }
 
   private fun urlEncode(value: String): String =

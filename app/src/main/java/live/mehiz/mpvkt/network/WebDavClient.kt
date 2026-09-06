@@ -28,7 +28,7 @@ class WebDavClient(
   private fun authorityUrl(path: String): String {
     val scheme = if (source.secure) "https" else "http"
     val base = source.basePath.trimEnd('/')
-    return "$scheme://${source.host}:${source.port}$base/${path.trimStart('/')}"
+    return "$scheme://${source.host}:${source.port}$base/${encodePath(path.trimStart('/'))}"
   }
 
   override fun fileUrl(path: String): String {
@@ -39,6 +39,15 @@ class WebDavClient(
     val password = urlEncode(source.password)
     return url.replace("://", "://$user:$password@")
   }
+
+  /**
+   * Percent-encodes every path segment except the "/" separators. The paths
+   * come from human-readable directory/file names (spaces, brackets, CJK...);
+   * OkHttp's .url() tolerated them when listing, but the same raw string was
+   * handed to mpv's http layer which mis-parses e.g. "[" / "]" or raw spaces.
+   */
+  private fun encodePath(path: String): String =
+    path.split('/').joinToString("/") { urlEncode(it) }
 
   override fun list(path: String): List<RemoteEntry> {
     val request = Request.Builder()
