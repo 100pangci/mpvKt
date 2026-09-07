@@ -29,7 +29,7 @@ Highlights of this fork so far:
   layer, no user-facing regression; native libraries target API 23 and
   subtitles gain fontconfig-based system-font discovery.
 - **Reworked screenshots** — dedicated with/without-subtitles buttons,
-  frame-stepping capture, swipe-up-to-cancel, custom save directory with
+  swipe-up-to-cancel, custom save directory with
   proper storage permissions.
 - **18 languages** with an in-app language switcher.
 - Dozens of upstream issue fixes: subtitle delay resets, crashes on opening
