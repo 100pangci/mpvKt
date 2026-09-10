@@ -18,8 +18,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AspectRatio
 import androidx.compose.material.icons.filled.PictureInPictureAlt
 import androidx.compose.material.icons.filled.Screenshot
-import androidx.compose.material.icons.filled.SkipNext
-import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material.icons.filled.Subtitles
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -30,7 +28,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import live.mehiz.mpvkt.R
@@ -102,12 +102,14 @@ fun BottomRightPlayerControls(
     )
 
     ControlsButton(
-      Icons.Default.SkipPrevious,
+      ImageVector.vectorResource(R.drawable.ic_frame_step_backward_24),
       onClick = { onFrameStep(false) },
+      title = stringResource(R.string.frame_step_backward),
     )
     ControlsButton(
-      Icons.Default.SkipNext,
+      ImageVector.vectorResource(R.drawable.ic_frame_step_forward_24),
       onClick = { onFrameStep(true) },
+      title = stringResource(R.string.frame_step_forward),
     )
 
     ControlsButton(
