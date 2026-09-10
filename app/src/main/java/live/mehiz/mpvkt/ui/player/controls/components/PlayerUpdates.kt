@@ -26,6 +26,8 @@ import androidx.compose.ui.unit.dp
 import live.mehiz.mpvkt.R
 import live.mehiz.mpvkt.ui.theme.spacing
 
+private val WHITESPACE_RUN = Regex("\\s+")
+
 @Composable
 fun PlayerUpdate(
   modifier: Modifier = Modifier,
@@ -55,8 +57,12 @@ fun TextPlayerUpdate(
   text: String,
   modifier: Modifier = Modifier
 ) {
+  // Break wherever the width cap lands instead of preferring spaces:
+  // space-boundary wrapping leaves rows ending early on titles like
+  // "[Group] Show! [01][tags]-00-31-27-N0001.png". Non-breaking spaces
+  // turn the message into one run that fills every row edge to edge.
   PlayerUpdate(modifier) {
-    Text(text)
+    Text(text.trim().replace(WHITESPACE_RUN, "\u00A0"))
   }
 }
 

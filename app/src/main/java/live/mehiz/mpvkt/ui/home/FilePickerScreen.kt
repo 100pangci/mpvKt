@@ -3,6 +3,7 @@ package live.mehiz.mpvkt.ui.home
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.os.Bundle
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -82,6 +83,7 @@ data class FilePickerScreen(val uri: String) : Screen {
     val fileManager = koinInject<FileManager>()
     val context = LocalContext.current
     val subtitlesPreferences = koinInject<SubtitlesPreferences>()
+    val directory = fileManager.fromUri(uri.toUri())!!
     var multiSelectMode by remember { mutableStateOf(false) }
     // Selected file paths in tap order: the queue must follow the user's
     // pick order, not the directory listing.
@@ -133,8 +135,24 @@ data class FilePickerScreen(val uri: String) : Screen {
                 onClick = {
                   // enabled guards the empty case, first() is always valid.
                   val paths = selectedPaths.toList()
+                  val directoryFiles = fileManager.listFiles(directory)
+                  val filesByPath = directoryFiles.associateBy { it.getFullPath() }
+                  val selectedFiles = paths.mapNotNull(filesByPath::get)
+                  val autoLoadSubtitles = subtitlesPreferences.autoLoadExternal.get()
+                  val subtitlePaths = if (autoLoadSubtitles) {
+                    selectedFiles.firstOrNull()?.let {
+                      collectSiblingSubtitles(it, directoryFiles, fileManager)
+                    }.orEmpty()
+                  } else {
+                    emptyList()
+                  }
+                  val queueSubtitles = if (autoLoadSubtitles) {
+                    buildQueueSubtitlePaths(selectedFiles, directoryFiles, fileManager)
+                  } else {
+                    null
+                  }
                   exitMultiSelect()
-                  playFileFromQueue(paths.first(), paths, emptyList(), context)
+                  playFileFromQueue(paths.first(), paths, subtitlePaths, context, queueSubtitles)
                 },
                 enabled = selectedPaths.isNotEmpty(),
               ) {
@@ -145,7 +163,6 @@ data class FilePickerScreen(val uri: String) : Screen {
         }
       },
     ) { paddingValues ->
-      val directory = fileManager.fromUri(uri.toUri())!!
       FilePicker(
         directory = directory,
         onNavigate = { newFile ->
@@ -199,20 +216,30 @@ data class FilePickerScreen(val uri: String) : Screen {
     if (fileManager.getName(file).isVideoFile()) {
       // Opening one video queues every video of the directory in natural
       // order and starts at the tapped one.
-      val queue = fileManager.listFiles(directory)
+      val directoryFiles = fileManager.listFiles(directory)
+      val videoFiles = directoryFiles
         .filter { fileManager.isFile(it) && fileManager.getName(it).isVideoFile() }
-        .map { it.getFullPath() }
+      val queue = videoFiles.map { it.getFullPath() }
         .sortedWith(NaturalOrderComparator)
       val subtitlePaths = if (autoLoadSubtitles) {
-        collectSiblingSubtitles(file, directory, fileManager)
+        collectSiblingSubtitles(file, directoryFiles, fileManager)
       } else {
         emptyList()
       }
-      playFileFromQueue(path, queue, subtitlePaths, context)
+      val queueSubtitles = if (autoLoadSubtitles) {
+        buildQueueSubtitlePaths(videoFiles, directoryFiles, fileManager)
+      } else {
+        null
+      }
+      playFileFromQueue(path, queue, subtitlePaths, context, queueSubtitles)
       return
     }
     if (autoLoadSubtitles) {
-      playFileWithSubtitles(path, collectSiblingSubtitles(file, directory, fileManager), context)
+      playFileWithSubtitles(
+        path,
+        collectSiblingSubtitles(file, fileManager.listFiles(directory), fileManager),
+        context,
+      )
     } else {
       HomeScreen.playFile(path, context)
     }
@@ -220,12 +247,12 @@ data class FilePickerScreen(val uri: String) : Screen {
 
   private fun collectSiblingSubtitles(
     video: AbstractFile,
-    directory: AbstractFile,
+    directoryFiles: List<AbstractFile>,
     fileManager: FileManager,
   ): List<String> {
     val videoNameWithoutExt = fileManager.getName(video).substringBeforeLast(".")
     val subtitleExtensions = setOf("srt", "ass", "ssa", "vtt", "sub")
-    return fileManager.listFiles(directory).filter { potentialSubFile ->
+    return directoryFiles.filter { potentialSubFile ->
       if (fileManager.isDirectory(potentialSubFile)) {
         false
       } else {
@@ -236,6 +263,19 @@ data class FilePickerScreen(val uri: String) : Screen {
         subFileNameWithoutExt.startsWith(videoNameWithoutExt) && subFileExt in subtitleExtensions
       }
     }.map { it.getFullPath() }
+  }
+
+  private fun buildQueueSubtitlePaths(
+    videoFiles: List<AbstractFile>,
+    directoryFiles: List<AbstractFile>,
+    fileManager: FileManager,
+  ): Bundle = Bundle().apply {
+    videoFiles.forEach { video ->
+      val subtitles = collectSiblingSubtitles(video, directoryFiles, fileManager)
+      if (subtitles.isNotEmpty()) {
+        putStringArrayList(video.getFullPath(), ArrayList(subtitles))
+      }
+    }
   }
 
   @Composable
@@ -400,11 +440,13 @@ data class FilePickerScreen(val uri: String) : Screen {
     queue: List<String>,
     subtitlePaths: List<String>,
     context: Context,
+    queueSubtitles: Bundle? = null,
   ) {
     val i = Intent(Intent.ACTION_VIEW, startPath.toUri())
     i.setClass(context, PlayerActivity::class.java)
     if (queue.size > 1) {
       i.putExtra(PlayerActivity.QUEUE_EXTRA, ArrayList(queue))
+      queueSubtitles?.let { i.putExtra(PlayerActivity.QUEUE_SUBTITLES_EXTRA, it) }
     }
     if (subtitlePaths.isNotEmpty()) {
       val subtitleUris = subtitlePaths.map { it.toUri() }.toTypedArray()

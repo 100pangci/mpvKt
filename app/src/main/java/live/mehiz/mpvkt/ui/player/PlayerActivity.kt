@@ -20,7 +20,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
-import android.os.ParcelFileDescriptor
 import android.util.Log
 import android.util.Rational
 import android.view.KeyEvent
@@ -342,31 +341,23 @@ class PlayerActivity : AppCompatActivity() {
 
   /**
    * mpv's native playlist advance never goes through startPlaybackFlow, so
-   * the first episode's subtitle extras never apply again. Re-run their
-   * equivalent on every queue-loaded file: find the sibling subtitle the
-   * same way FilePickerScreen does for the first episode (SAF listing via
-   * fsaf — no direct directory access needed), attach and select it, then
-   * run the lightweight font setup for the new file's directory.
+   * the font setup would only ever run for the first episode. Re-run the
+   * lightweight part on every queue-loaded file: regenerate fonts.conf for
+   * the new file's directory, preload the sibling subtitle's families and
+   * rebuild the subtitle renderer if fonts actually landed. Staged fonts
+   * live in the shared fonts cache, so each episode's renderer
+   * initialization picks them up even without the late reload.
    */
   private fun prepareFontsForQueueAdvance(mpvPath: String) {
     lifecycleScope.launch(Dispatchers.IO) {
-      val directFile = File(mpvPath).takeIf { it.isFile }
-      val entry = directFile?.absolutePath ?: playlistEntry()
-      Log.i(TAG, "playback flow: queue advance entry=$entry")
-      val videoFile = directFile ?: entry?.let(::contentEntryVideoFile)
-      Log.i(TAG, "playback flow: queue advance video=${videoFile?.absolutePath}")
-      val siblingSubPath = videoFile?.let { guessSiblingSubtitle(it)?.absolutePath }
-        ?: entry?.takeIf { it.startsWith("content://") }?.let { safSiblingSubtitlePath(it) }
-      Log.i(TAG, "playback flow: queue advance sibling=$siblingSubPath")
-      if (siblingSubPath != null && subtitlesPreferences.autoLoadExternal.get()) {
-        attachSiblingSubtitle(siblingSubPath)
-      }
+      val videoFile = File(mpvPath).takeIf { it.isFile }
       if (videoFile == null) {
         stageRemoteFontsForQueueAdvance()
         return@launch
       }
       runCatching {
         fontConfigManager.regenerate(videoFile.absolutePath)
+        val siblingSubPath = guessSiblingSubtitle(videoFile)?.absolutePath
         val stagedSub = siblingSubPath?.let { fontPipeline.preloadSubtitleFonts(it) } ?: false
         val stagedVideo = fontPipeline.stageVideoFonts()
         if (stagedSub || stagedVideo) {
@@ -377,72 +368,31 @@ class PlayerActivity : AppCompatActivity() {
     }
   }
 
-  /** The original entry string behind the queue item mpv advanced to, read
-   * back from the playlist (content URIs carry no directory context). */
-  private fun playlistEntry(): String? {
-    val index = MPVLib.getPropertyInt("playlist-current-pos") ?: return null
+  private fun currentPlaylistEntry(): String? {
+    val index = MPVLib.getPropertyInt("playlist-pos") ?: return null
     return MPVLib.getPropertyString("playlist/$index/filename")
+      ?: intent.getStringArrayListExtra(QUEUE_EXTRA)?.getOrNull(index)
   }
 
   /**
-   * Real file behind a queue entry, when one is resolvable: the opened fd
-   * usually maps back to a real path via /proc/self/fd. Only used for the
-   * font pipeline; the subtitle lookup never depends on it.
+   * Adds subtitles using the same URI resolution as the first queue entry.
+   * Queue entries carry a subtitle list for each video, so SAF permissions
+   * remain valid without trying to infer a directory from mpv's path.
    */
-  private fun contentEntryVideoFile(entry: String): File? {
-    if (!entry.startsWith("content://")) return File(entry).takeIf { it.isFile }
-    val resolved = entry.toUri().openContentFd(this)
-    if (resolved != null && resolved.startsWith("fd://")) {
-      // Only the real path was wanted; release the detached descriptor.
-      runCatching {
-        ParcelFileDescriptor.adoptFd(resolved.removePrefix("fd://").toInt()).close()
-      }
-      return null
-    }
-    return resolved?.let { File(it).takeIf { f -> f.isFile } }
+  private fun loadQueueSubtitles(entry: String?) {
+    if (!subtitlesPreferences.autoLoadExternal.get() || entry == null) return
+    val queueSubtitles = intent.getBundleExtra(QUEUE_SUBTITLES_EXTRA) ?: return
+    val subtitles = queueSubtitles.getStringArrayList(entry) ?: return
+    addSubtitlePaths(subtitles, subtitles.firstOrNull()?.let(::setOf) ?: emptySet())
   }
 
-  /**
-   * SAF-based sibling subtitle lookup for a content:// queue entry, the
-   * queue-advance equivalent of the first episode's intent extras: lists
-   * the video's directory through fsaf (works without All-Files-Access,
-   * where File.listFiles fails) and resolves the match via openContentFd,
-   * handing mpv a real path or fd:// handle either way.
-   */
-  private fun safSiblingSubtitlePath(entry: String): String? = runCatching {
-    val video = fileManager.fromUri(entry.toUri()) ?: return@runCatching null
-    val dir = video.clone(video.getFileSegments().dropLast(1))
-    val base = fileManager.getName(video).substringBeforeLast('.')
-    val extensions = setOf("srt", "ass", "ssa", "vtt", "sub")
-    val sibling = fileManager.listFiles(dir)
-      .asSequence()
-      .filter { !fileManager.isDirectory(it) }
-      .map { file -> file to fileManager.getName(file) }
-      .filter { (_, name) -> name.substringBeforeLast('.').startsWith(base) }
-      .filter { (_, name) -> name.substringAfterLast('.').lowercase() in extensions }
-      .minByOrNull { (_, name) -> name.length } ?: return@runCatching null
-    val fullPath = sibling.first.getFullPath()
-    if (fullPath.startsWith("content://")) fullPath.toUri().openContentFd(this) else fullPath
-  }.getOrNull()
-
-  /**
-   * Attaches [path] as the active subtitle, mirroring what the first
-   * episode's intent extras do: mpv may have loaded it already through its
-   * own sub-auto (real-path entries) — then only select that track;
-   * otherwise add it with "select" so mpv activates it right away.
-   */
-  private fun attachSiblingSubtitle(path: String) {
-    val count = MPVLib.getPropertyInt("track-list/count") ?: return
-    for (i in 0 until count) {
-      if (MPVLib.getPropertyString("track-list/$i/external-filename") == path) {
-        MPVLib.getPropertyInt("track-list/$i/id")?.let { id ->
-          MPVLib.setPropertyInt("sid", id)
-          Log.d(TAG, "queue advance: selected loaded sibling subtitle track $id")
-        }
-        return
-      }
+  private fun addSubtitlePaths(subtitles: List<String>, selected: Set<String>) {
+    for (subtitlePath in subtitles) {
+      val subtitleFile = subtitlePath.toUri().resolveUri(this) ?: continue
+      val flag = if (subtitlePath in selected) "select" else "auto"
+      Log.v(TAG, "Adding subtitles: $subtitleFile")
+      MPVLib.command("sub-add", subtitleFile, flag)
     }
-    MPVLib.command("sub-add", path, "select")
   }
 
   /**
@@ -868,16 +818,11 @@ class PlayerActivity : AppCompatActivity() {
 
     // subtitles
     if (extras.containsKey("subs")) {
-      val subList = Utils.getParcelableArray<Uri>(extras, "subs")
-      val subsToEnable = Utils.getParcelableArray<Uri>(extras, "subs.enable")
-
-      for (suburi in subList) {
-        val subfile = suburi.resolveUri(this) ?: continue
-        val flag = if (subsToEnable.any { it == suburi }) "select" else "auto"
-
-        Log.v(TAG, "Adding subtitles from intent extras: $subfile")
-        MPVLib.command("sub-add", subfile, flag)
-      }
+      val subtitles = Utils.getParcelableArray<Uri>(extras, "subs").map { it.toString() }
+      val selected = Utils.getParcelableArray<Uri>(extras, "subs.enable")
+        .map { it.toString() }
+        .toSet()
+      addSubtitlePaths(subtitles, selected)
     }
 
     extras.getStringArray("headers")?.let { headers ->
@@ -957,9 +902,13 @@ class PlayerActivity : AppCompatActivity() {
         // the loaded path differs from the one the current intent was meant
         // to play, this is an automatic queue advance.
         val isQueueAdvance = mpvPath != null && mpvPath != expectedIntentPath
+        val queueEntry = if (isQueueAdvance) currentPlaylistEntry() else null
         currentPlaybackPath = mpvPath
         fileName = if (isQueueAdvance) {
-          mpvPath!!.substringAfterLast('/').ifBlank { intentResolver.getFileName(intent) }
+          (queueEntry ?: mpvPath)?.takeUnless { it.startsWith("fd://") }
+            ?.let { PlaylistNode(it).displayName }
+            ?.takeIf { it.isNotBlank() }
+            ?: intentResolver.getFileName(intent)
         } else {
           intentResolver.getFileName(intent)
         }
@@ -983,6 +932,7 @@ class PlayerActivity : AppCompatActivity() {
           loadVideoPlaybackState(fileName)
         }
         if (isQueueAdvance) {
+          loadQueueSubtitles(queueEntry)
           mpvPath?.let(::prepareFontsForQueueAdvance)
         }
         setOrientation()
@@ -1342,6 +1292,7 @@ class PlayerActivity : AppCompatActivity() {
     // extras of queue playback: the full playlist in playback order (raw
     // paths or URLs), the intent data being the entry to start at
     const val QUEUE_EXTRA = "queue"
+    const val QUEUE_SUBTITLES_EXTRA = "queue-subtitles"
 
     // extras of remote-source playback: the serialized NetworkSource and the
     // remote directory the video lives in (its fonts/ folder gets staged)
