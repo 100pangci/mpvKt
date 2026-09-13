@@ -36,6 +36,7 @@ import androidx.compose.ui.zIndex
 import live.mehiz.mpvkt.R
 import live.mehiz.mpvkt.database.entities.CustomButtonEntity
 import live.mehiz.mpvkt.ui.player.controls.components.ControlsButton
+import live.mehiz.mpvkt.ui.player.controls.components.FrameStepButton
 import live.mehiz.mpvkt.ui.player.execute
 import live.mehiz.mpvkt.ui.player.executeLongClick
 import live.mehiz.mpvkt.ui.theme.spacing
@@ -101,15 +102,17 @@ fun BottomRightPlayerControls(
       title = stringResource(R.string.screenshot_without_subtitles),
     )
 
-    ControlsButton(
-      ImageVector.vectorResource(R.drawable.ic_frame_step_backward_24),
-      onClick = { onFrameStep(false) },
-      title = stringResource(R.string.frame_step_backward),
+    FrameStepButton(
+      icon = ImageVector.vectorResource(R.drawable.ic_frame_step_backward_24),
+      contentDescription = stringResource(R.string.frame_step_backward),
+      forward = false,
+      onFrameStep = onFrameStep,
     )
-    ControlsButton(
-      ImageVector.vectorResource(R.drawable.ic_frame_step_forward_24),
-      onClick = { onFrameStep(true) },
-      title = stringResource(R.string.frame_step_forward),
+    FrameStepButton(
+      icon = ImageVector.vectorResource(R.drawable.ic_frame_step_forward_24),
+      contentDescription = stringResource(R.string.frame_step_forward),
+      forward = true,
+      onFrameStep = onFrameStep,
     )
 
     ControlsButton(
