@@ -25,7 +25,7 @@
     <string name="network_port">ポート</string>
     <string name="network_path">ルートパス</string>
     <string name="network_path_hint_webdav">WebDAV エンドポイントのパス（Alist/OpenList では /dav など）</string>
-    <string name="network_path_hint_smb">共有名を先に、その後にフォルダ（例: /media または /media/Movies）</string>
+    <string name="network_path_hint_smb">共有名を先に、その後にフォルダ。空欄にするとすべての共有を一覧表示します</string>
     <string name="network_secure">HTTPS を使用</string>
     <string name="network_username">ユーザー名</string>
     <string name="network_username_hint_smb">ドメインは任意で DOMAIN\\user 形式。空欄の場合はゲストとして接続します</string>

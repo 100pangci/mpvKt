@@ -25,7 +25,7 @@
     <string name="network_port">Порт</string>
     <string name="network_path">Кореневий шлях</string>
     <string name="network_path_hint_webdav">Шлях до WebDAV-ендпоінту, напр. /dav в Alist/OpenList</string>
-    <string name="network_path_hint_smb">Спочатку назва ресурсу, потім теки, наприклад /media або /media/Movies</string>
+    <string name="network_path_hint_smb">Спочатку назва ресурсу, потім теки; залиште порожнім, щоб показати всі ресурси</string>
     <string name="network_secure">Використовувати HTTPS</string>
     <string name="network_username">Ім\'я користувача</string>
     <string name="network_username_hint_smb">Домен необов\'язковий у форматі ДОМЕН\\користувач; порожнє поле — гість</string>

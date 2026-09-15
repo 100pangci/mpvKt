@@ -59,11 +59,10 @@ fun NetworkSourceDialog(
     NetworkType.FTP -> "21"
     NetworkType.SMB -> "445"
   }
-  // An empty port falls back to the type's default on confirm. SMB always
-  // needs a share name, which lives in the root path.
+  // An empty port falls back to the type's default on confirm; a blank SMB
+  // root path is valid and browses the server's shares.
   val valid = host.isNotBlank() && name.isNotBlank() &&
-    (port.isEmpty() || port.toIntOrNull() in 1..65535) &&
-    (type != NetworkType.SMB || basePath.isNotBlank())
+    (port.isEmpty() || port.toIntOrNull() in 1..65535)
 
   AlertDialog(
     onDismissRequest = onDismissRequest,

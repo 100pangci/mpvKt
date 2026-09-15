@@ -1,128 +1,105 @@
 package live.mehiz.mpvkt.network
 
-import com.hierynomus.msdtyp.AccessMask
-import com.hierynomus.msfscc.FileAttributes
-import com.hierynomus.mssmb2.SMB2CreateDisposition
-import com.hierynomus.mssmb2.SMB2ShareAccess
-import com.hierynomus.smbj.SMBClient
-import com.hierynomus.smbj.SmbConfig
-import com.hierynomus.smbj.auth.AuthenticationContext
-import com.hierynomus.smbj.share.DiskShare
+import jcifs.CIFSContext
+import jcifs.config.PropertyConfiguration
+import jcifs.context.BaseContext
+import jcifs.smb.NtlmPasswordAuthenticator
+import jcifs.smb.SmbFile
+import jcifs.smb.SmbRandomAccessFile
 import java.io.File
 import java.io.IOException
-import java.util.EnumSet
-import java.util.concurrent.TimeUnit
-import com.hierynomus.smbj.share.File as SmbFile
+import java.util.Properties
 
 /**
- * One read-only SMB2/3 conversation with a [NetworkSource]. Every call
- * connects, authenticates, tree-connects, acts and tears down on its own, so
- * an unreachable NAS fails fast without poisoning later calls and instances
+ * Read-only SMB access to one [NetworkSource], backed by jcifs-ng. Every
+ * call opens its own session/tree/file and closes it again, so an
+ * unreachable NAS fails fast without poisoning later calls and instances
  * stay cheap to create on demand (browsing, font staging, streaming).
+ *
+ * A blank root path lists the server's shares, which only jcifs-ng can
+ * enumerate (smbj cannot); selecting a share then browses it.
  */
 internal class SmbRemote(private val source: NetworkSource) : AutoCloseable {
 
-  private val client = SMBClient(
-    SmbConfig.builder()
-      .withTimeout(TRANSFER_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-      .withSoTimeout(TRANSFER_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-      .build(),
-  )
+  private val context: CIFSContext = createContext()
 
-  fun list(path: String): List<RemoteEntry> = withShare(path) { share, relative ->
-    share.list(relative)
-      .asSequence()
-      .filterNot { it.fileName == "." || it.fileName == ".." }
-      .map {
-        RemoteEntry(
-          name = it.fileName,
-          isDirectory = it.fileAttributes and DIRECTORY_ATTRIBUTE != 0L,
-          size = it.endOfFile,
-        )
-      }
-      .toList()
+  fun list(path: String): List<RemoteEntry> {
+    val target = SmbRemotePath.resolve(source.basePath, path) ?: return listShares()
+    return fileFor(target).listFiles().mapNotNull { it.toRemoteEntry() }
   }
 
-  fun download(path: String, destination: File, expectedSize: Long): Boolean =
-    withShare(path) { share, relative ->
-      open(share, relative).use { file ->
-        file.inputStream.use { input ->
-          destination.outputStream().use { output -> input.copyTo(output) }
-        }
-      }
-      // A truncated copy must never count as staged.
-      val length = destination.length()
-      length > 0 && (expectedSize <= 0 || length == expectedSize)
+  fun download(path: String, destination: File, expectedSize: Long): Boolean {
+    fileFor(requireTarget(path)).openInputStream().use { input ->
+      destination.outputStream().use { output -> input.copyTo(output) }
     }
+    // A truncated copy must never count as staged.
+    val length = destination.length()
+    return length > 0 && (expectedSize <= 0 || length == expectedSize)
+  }
 
   /** Opens [path] for random access; the reader is only valid inside [block]. */
   fun <T> withReader(path: String, block: (RemoteFileReader) -> T): T =
-    withShare(path) { share, relative ->
-      open(share, relative).use { file ->
-        block(SmbFileReader(file, file.fileInformation.standardInformation.endOfFile))
-      }
+    SmbRandomAccessFile(fileFor(requireTarget(path)), "r").use { random ->
+      block(SmbRandomFileReader(random, random.length()))
     }
 
-  private fun open(share: DiskShare, path: String): SmbFile = share.openFile(
-    path,
-    READ_ACCESS,
-    null,
-    SHARE_ACCESS,
-    SMB2CreateDisposition.FILE_OPEN,
-    null,
-  )
-
-  private fun <T> withShare(path: String, block: (DiskShare, String) -> T): T {
-    val target = SmbRemotePath.resolve(source.basePath, path)
-      ?: throw IOException("SMB root path must start with a share name, e.g. /media")
-    val connection = client.connect(source.host, source.port)
-    try {
-      val session = connection.authenticate(credentials())
-      try {
-        val share = session.connectShare(target.share) as? DiskShare
-          ?: throw IOException("SMB ${target.share} is not a disk share")
-        try {
-          return block(share, target.path)
-        } finally {
-          share.close()
-        }
-      } finally {
-        session.close()
-      }
-    } finally {
-      connection.close()
-    }
+  private fun fileFor(target: SmbRemotePath): SmbFile {
+    val share = SmbFile(SmbFile(serverUrl(), context), target.share)
+    return target.path.split('/')
+      .filter { it.isNotEmpty() }
+      .fold(share) { parent, name -> SmbFile(parent, name) }
   }
 
-  /**
-   * "DOMAIN\user" in the username field selects the NTLM domain; anything
-   * else (including user@realm) goes through as the bare username. An empty
-   * username authenticates as guest.
-   */
-  private fun credentials(): AuthenticationContext {
-    val raw = source.username.trim()
-    if (raw.isEmpty()) return AuthenticationContext.guest()
-    val separator = raw.indexOf('\\')
-    return if (separator > 0) {
-      AuthenticationContext(
-        raw.substring(separator + 1),
-        source.password.toCharArray(),
-        raw.substring(0, separator),
-      )
+  /** Server root: jcifs-ng enumerates shares here, hidden ones ($) are dropped. */
+  private fun listShares(): List<RemoteEntry> =
+    SmbFile(serverUrl(), context).listFiles()
+      .filterNot { it.name.endsWith("$") }
+      .map { RemoteEntry(it.name, true, 0L) }
+
+  private fun SmbFile.toRemoteEntry(): RemoteEntry? = runCatching {
+    val directory = isDirectory
+    RemoteEntry(name, directory, if (directory) 0L else length())
+  }.getOrNull()
+
+  private fun requireTarget(path: String): SmbRemotePath =
+    SmbRemotePath.resolve(source.basePath, path)
+      ?: throw IOException("Open a share on ${source.host} first")
+
+  private fun serverUrl(): String = "smb://${source.host}:${source.port}/"
+
+  private fun createContext(): CIFSContext {
+    val properties = Properties().apply {
+      setProperty("jcifs.smb.client.connTimeout", CONNECT_TIMEOUT_MILLIS.toString())
+      setProperty("jcifs.smb.client.responseTimeout", TRANSFER_TIMEOUT_MILLIS.toString())
+      setProperty("jcifs.smb.client.soTimeout", TRANSFER_TIMEOUT_MILLIS.toString())
+      // DFS referrals and NetBIOS broadcast lookups only add latency on a
+      // plain home network; direct DNS is enough.
+      setProperty("jcifs.smb.client.dfs.disabled", "true")
+      setProperty("jcifs.resolveOrder", "DNS")
+    }
+    val base = BaseContext(PropertyConfiguration(properties))
+    val username = source.username.trim()
+    return if (username.isEmpty()) {
+      base.withGuestCrendentials()
     } else {
-      AuthenticationContext(raw, source.password.toCharArray(), null)
+      // "DOMAIN\user" and "user@realm" are split up by the authenticator.
+      base.withCredentials(NtlmPasswordAuthenticator(username, source.password))
     }
   }
 
   override fun close() {
-    runCatching { client.close() }
+    runCatching { context.close() }
   }
 
-  private class SmbFileReader(private val file: SmbFile, override val size: Long) : RemoteFileReader {
+  private class SmbRandomFileReader(
+    private val file: SmbRandomAccessFile,
+    override val size: Long,
+  ) : RemoteFileReader {
     override fun read(offset: Long, buffer: ByteArray, length: Int): Int {
+      file.seek(offset)
       var total = 0
       while (total < length) {
-        val read = file.read(buffer, offset + total, total, length - total)
+        val read = file.read(buffer, total, length - total)
         if (read <= 0) break
         total += read
       }
@@ -131,9 +108,7 @@ internal class SmbRemote(private val source: NetworkSource) : AutoCloseable {
   }
 
   private companion object {
-    const val TRANSFER_TIMEOUT_SECONDS = 30L
-    val DIRECTORY_ATTRIBUTE = FileAttributes.FILE_ATTRIBUTE_DIRECTORY.value
-    val READ_ACCESS: Set<AccessMask> = EnumSet.of(AccessMask.GENERIC_READ)
-    val SHARE_ACCESS: Set<SMB2ShareAccess> = EnumSet.allOf(SMB2ShareAccess::class.java)
+    const val CONNECT_TIMEOUT_MILLIS = 10_000
+    const val TRANSFER_TIMEOUT_MILLIS = 30_000
   }
 }

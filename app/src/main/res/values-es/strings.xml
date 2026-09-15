@@ -24,7 +24,7 @@
     <string name="network_port">Puerto</string>
     <string name="network_path">Ruta raíz</string>
     <string name="network_path_hint_webdav">Ruta del punto de acceso WebDAV, p. ej. /dav en Alist/OpenList</string>
-    <string name="network_path_hint_smb">Primero el nombre del recurso compartido y luego las carpetas; p. ej. /media o /media/Movies</string>
+    <string name="network_path_hint_smb">Primero el nombre del recurso compartido y luego las carpetas; déjalo vacío para ver todos los recursos</string>
     <string name="network_secure">Usar HTTPS</string>
     <string name="network_username">Usuario</string>
     <string name="network_username_hint_smb">Dominio opcional como DOMINIO\\usuario; vacío significa invitado</string>

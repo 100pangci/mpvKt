@@ -131,6 +131,8 @@ before submitting.
   library
 - [K1rakishou/Fuck-Storage-Access-Framework](https://github.com/K1rakishou/Fuck-Storage-Access-Framework)
   and [zhanghai/MaterialPreference](https://github.com/zhanghai/MaterialPreference)
+- [AgNO3/jcifs-ng](https://github.com/AgNO3/jcifs-ng) for the SMB client
+  (LGPL-2.1)
 - All upstream contributors and translators
 
 ### About `mpv-android-lib`

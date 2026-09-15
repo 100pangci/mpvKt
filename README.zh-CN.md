@@ -115,6 +115,7 @@ PR。请以 `dev` 分支为目标，提交前先跑一遍
 - [mpv-android](https://github.com/mpv-android/mpv-android)——基础 mpv 库
 - [K1rakishou/Fuck-Storage-Access-Framework](https://github.com/K1rakishou/Fuck-Storage-Access-Framework)
   与 [zhanghai/MaterialPreference](https://github.com/zhanghai/MaterialPreference)
+- [AgNO3/jcifs-ng](https://github.com/AgNO3/jcifs-ng)——SMB 客户端（LGPL-2.1）
 - 所有上游贡献者与翻译者
 
 ### 关于 `mpv-android-lib`

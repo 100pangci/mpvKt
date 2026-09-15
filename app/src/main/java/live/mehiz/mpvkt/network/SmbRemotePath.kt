@@ -1,22 +1,25 @@
 package live.mehiz.mpvkt.network
 
 /**
- * An SMB location split into the share and the path inside it. SMB has no
- * cross-share browsing, so the share must be the first segment of the
- * source's root path: "/media/Movies" plus a browsed "S1" resolves to share
- * "media" and path "Movies/S1". Backslashes are accepted and normalized;
- * smbj itself takes "/" separators.
+ * An SMB location split into the share and the path inside it. The share is
+ * always the first segment of the source's root path plus the browsed path,
+ * so a blank root path browses share by share ("media/Movies" plus a picked
+ * "S1" resolves to share "media" and path "Movies/S1"). Backslashes are
+ * accepted and normalized; jcifs-ng itself takes "/" separators.
  */
 data class SmbRemotePath(val share: String, val path: String) {
   companion object {
-    /** @return null when no share name can be derived (a share is mandatory). */
+    /**
+     * @return null when neither the root path nor the browsed path names a
+     * share, i.e. the server root where shares are listed.
+     */
     fun resolve(basePath: String, path: String): SmbRemotePath? {
-      val segments = basePath.replace('\\', '/').split('/').filter { it.isNotBlank() }
+      val segments = "$basePath/$path"
+        .replace('\\', '/')
+        .split('/')
+        .filter { it.isNotBlank() }
       val share = segments.firstOrNull() ?: return null
-      val prefix = segments.drop(1)
-      val relative = (prefix + path.replace('\\', '/').split('/').filter { it.isNotBlank() })
-        .joinToString("/")
-      return SmbRemotePath(share, relative)
+      return SmbRemotePath(share, segments.drop(1).joinToString("/"))
     }
   }
 }

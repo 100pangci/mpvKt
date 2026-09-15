@@ -25,7 +25,7 @@
     <string name="network_port">Port</string>
     <string name="network_path">Ścieżka główna</string>
     <string name="network_path_hint_webdav">Ścieżka punktu WebDAV, np. /dav w Alist/OpenList</string>
-    <string name="network_path_hint_smb">Najpierw nazwa udziału, potem foldery, np. /media lub /media/Movies</string>
+    <string name="network_path_hint_smb">Najpierw nazwa udziału, potem foldery; pozostaw puste, aby wyświetlić wszystkie udziały</string>
     <string name="network_secure">Użyj HTTPS</string>
     <string name="network_username">Nazwa użytkownika</string>
     <string name="network_username_hint_smb">Opcjonalna domena w formacie DOMENA\\użytkownik; puste pole oznacza gościa</string>

@@ -156,7 +156,7 @@ dependencies {
   implementation(libs.fsaf)
   implementation(libs.okhttp)
   implementation(libs.commons.net)
-  implementation(libs.smbj)
+  implementation(libs.jcifs.ng)
 }
 
 detekt {

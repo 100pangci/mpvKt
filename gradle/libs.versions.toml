@@ -34,8 +34,7 @@ seeker = "com.github.abdallahmehiz:seeker:2.0.1"
 
 okhttp = "com.squareup.okhttp3:okhttp:4.12.0"
 commons-net = "commons-net:commons-net:3.11.1"
-smbj = "com.hierynomus:smbj:0.13.0"
-
+jcifs-ng = "eu.agno3.jcifs:jcifs-ng:2.1.10"
 material = "com.google.android.material:material:1.14.0-alpha05"
 
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin" }

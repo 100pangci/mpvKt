@@ -22,12 +22,12 @@
 -dontobfuscate
 -keep,allowoptimization class is.xyz.mpv.** { *; }
 
-# SMB client (smbj) drags in BouncyCastle as its crypto backend; BC ships
-# optional JDK-only integrations that Android does not have.
+# SMB client (jcifs-ng) drags in BouncyCastle as its crypto backend; both
+# reference optional JDK-only APIs that Android does not ship.
 -dontwarn java.awt.**
 -dontwarn javax.naming.**
 -dontwarn javax.security.auth.**
 -dontwarn org.bouncycastle.**
 -dontwarn org.slf4j.**
-# smbj instantiates its authenticator factories reflectively.
--keep class com.hierynomus.smbj.auth.NtlmAuthenticator$Factory { *; }
+# jcifs-ng resolves parts of its NTLM/SPNEGO stack dynamically.
+-keep class jcifs.** { *; }

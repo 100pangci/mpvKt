@@ -25,7 +25,7 @@
     <string name="network_port">Porta</string>
     <string name="network_path">Percorso radice</string>
     <string name="network_path_hint_webdav">Percorso dell\'endpoint WebDAV, es. /dav su Alist/OpenList</string>
-    <string name="network_path_hint_smb">Prima il nome della condivisione, poi le cartelle, es. /media o /media/Movies</string>
+    <string name="network_path_hint_smb">Prima il nome della condivisione, poi le cartelle; lascia vuoto per elencare tutte le condivisioni</string>
     <string name="network_secure">Usa HTTPS</string>
     <string name="network_username">Nome utente</string>
     <string name="network_username_hint_smb">Dominio opzionale come DOMINIO\\utente; vuoto significa ospite</string>
