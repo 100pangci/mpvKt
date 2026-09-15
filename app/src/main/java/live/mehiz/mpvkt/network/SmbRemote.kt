@@ -25,11 +25,11 @@ internal class SmbRemote(private val source: NetworkSource) : AutoCloseable {
 
   fun list(path: String): List<RemoteEntry> {
     val target = SmbRemotePath.resolve(source.basePath, path) ?: return listShares()
-    return fileFor(target).listFiles().mapNotNull { it.toRemoteEntry() }
+    return fileFor(target, directory = true).listFiles().mapNotNull { it.toRemoteEntry() }
   }
 
   fun download(path: String, destination: File, expectedSize: Long): Boolean {
-    fileFor(requireTarget(path)).openInputStream().use { input ->
+    fileFor(requireTarget(path), directory = false).openInputStream().use { input ->
       destination.outputStream().use { output -> input.copyTo(output) }
     }
     // A truncated copy must never count as staged.
@@ -39,26 +39,22 @@ internal class SmbRemote(private val source: NetworkSource) : AutoCloseable {
 
   /** Opens [path] for random access; the reader is only valid inside [block]. */
   fun <T> withReader(path: String, block: (RemoteFileReader) -> T): T =
-    SmbRandomAccessFile(fileFor(requireTarget(path)), "r").use { random ->
+    SmbRandomAccessFile(fileFor(requireTarget(path), directory = false), "r").use { random ->
       block(SmbRandomFileReader(random, random.length()))
     }
 
-  private fun fileFor(target: SmbRemotePath): SmbFile {
-    val share = SmbFile(SmbFile(serverUrl(), context), target.share)
-    return target.path.split('/')
-      .filter { it.isNotEmpty() }
-      .fold(share) { parent, name -> SmbFile(parent, name) }
-  }
+  private fun fileFor(target: SmbRemotePath, directory: Boolean): SmbFile =
+    buildFile(context, serverUrl(), target, directory)
 
   /** Server root: jcifs-ng enumerates shares here, hidden ones ($) are dropped. */
   private fun listShares(): List<RemoteEntry> =
     SmbFile(serverUrl(), context).listFiles()
       .filterNot { it.name.endsWith("$") }
-      .map { RemoteEntry(it.name, true, 0L) }
+      .map { RemoteEntry(it.name.trimEnd('/'), true, 0L) }
 
   private fun SmbFile.toRemoteEntry(): RemoteEntry? = runCatching {
     val directory = isDirectory
-    RemoteEntry(name, directory, if (directory) 0L else length())
+    RemoteEntry(name.trimEnd('/'), directory, if (directory) 0L else length())
   }.getOrNull()
 
   private fun requireTarget(path: String): SmbRemotePath =
@@ -107,8 +103,30 @@ internal class SmbRemote(private val source: NetworkSource) : AutoCloseable {
     }
   }
 
-  private companion object {
-    const val CONNECT_TIMEOUT_MILLIS = 10_000
-    const val TRANSFER_TIMEOUT_MILLIS = 30_000
+  companion object {
+    private const val CONNECT_TIMEOUT_MILLIS = 10_000
+    private const val TRANSFER_TIMEOUT_MILLIS = 30_000
+
+    /**
+     * jcifs-ng glues child paths onto the parent's URL path, and it only
+     * inserts a separator when the parent keeps its trailing slash. Without
+     * it, the child of a share root becomes "/mediaMovies" and every name
+     * carries the share prefix; a file's last segment must stay bare or the
+     * server is asked for a directory.
+     */
+    fun buildFile(
+      context: CIFSContext,
+      serverUrl: String,
+      target: SmbRemotePath,
+      directory: Boolean,
+    ): SmbFile {
+      var file = SmbFile(SmbFile(serverUrl, context), "${target.share}/")
+      val segments = target.path.split('/').filter { it.isNotEmpty() }
+      segments.forEachIndexed { index, name ->
+        val last = index == segments.lastIndex
+        file = SmbFile(file, if (directory || !last) "$name/" else name)
+      }
+      return file
+    }
   }
 }
