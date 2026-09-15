@@ -57,12 +57,15 @@ class SmbStreamServer internal constructor(
       targets[token] = StreamTarget(source, path)
     }
     val name = URLEncoder.encode(path.substringAfterLast('/'), Charsets.UTF_8.name()).replace("+", "%20")
-    return "http://127.0.0.1:$port/$PATH_PREFIX$token/$name"
+    return "http://$LOOPBACK:$port/$PATH_PREFIX$token/$name"
   }
 
   private fun ensureStarted(): Int = synchronized(lock) {
     serverSocket?.let { return it.localPort }
-    val socket = ServerSocket(0, BACKLOG, InetAddress.getLoopbackAddress())
+    // Bind IPv4 loopback explicitly: Android's getLoopbackAddress() resolves
+    // to the IPv6 ::1, and mpv connects to the 127.0.0.1 literal below, which
+    // a v6-only listener refuses ("Could not connect to server").
+    val socket = ServerSocket(0, BACKLOG, InetAddress.getByName(LOOPBACK))
     serverSocket = socket
     thread(isDaemon = true, name = "smb-stream-server") { acceptLoop(socket) }
     socket.localPort
@@ -197,6 +200,7 @@ class SmbStreamServer internal constructor(
   private companion object {
     const val TAG = "mpvKt"
     const val PATH_PREFIX = "smb/"
+    const val LOOPBACK = "127.0.0.1"
     const val TOKEN_LENGTH = 32
     const val MAX_TARGETS = 64
     const val BACKLOG = 8
