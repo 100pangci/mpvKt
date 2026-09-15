@@ -119,47 +119,22 @@ data class FilePickerScreen(val uri: String) : Screen {
       },
       bottomBar = {
         if (multiSelectMode) {
-          Surface(tonalElevation = 3.dp) {
-            Row(
-              modifier = Modifier
-                .fillMaxWidth()
-                .navigationBarsPadding()
-                .padding(horizontal = MaterialTheme.spacing.medium, vertical = MaterialTheme.spacing.smaller),
-              horizontalArrangement = Arrangement.End,
-              verticalAlignment = Alignment.CenterVertically,
-            ) {
-              TextButton(onClick = ::exitMultiSelect) {
-                Text(stringResource(R.string.generic_cancel))
-              }
-              Button(
-                onClick = {
-                  // enabled guards the empty case, first() is always valid.
-                  val paths = selectedPaths.toList()
-                  val directoryFiles = fileManager.listFiles(directory)
-                  val filesByPath = directoryFiles.associateBy { it.getFullPath() }
-                  val selectedFiles = paths.mapNotNull(filesByPath::get)
-                  val autoLoadSubtitles = subtitlesPreferences.autoLoadExternal.get()
-                  val subtitlePaths = if (autoLoadSubtitles) {
-                    selectedFiles.firstOrNull()?.let {
-                      collectSiblingSubtitles(it, directoryFiles, fileManager)
-                    }.orEmpty()
-                  } else {
-                    emptyList()
-                  }
-                  val queueSubtitles = if (autoLoadSubtitles) {
-                    buildQueueSubtitlePaths(selectedFiles, directoryFiles, fileManager)
-                  } else {
-                    null
-                  }
-                  exitMultiSelect()
-                  playFileFromQueue(paths.first(), paths, subtitlePaths, context, queueSubtitles)
-                },
-                enabled = selectedPaths.isNotEmpty(),
-              ) {
-                Text(stringResource(R.string.home_play_selected, selectedPaths.size))
-              }
-            }
-          }
+          MultiSelectBottomBar(
+            selectedCount = selectedPaths.size,
+            onCancel = ::exitMultiSelect,
+            onPlay = {
+              playSelectedFiles(
+                playback = SelectedPlayback(
+                  paths = selectedPaths.toList(),
+                  directory = directory,
+                  fileManager = fileManager,
+                  autoLoadSubtitles = subtitlesPreferences.autoLoadExternal.get(),
+                  context = context,
+                ),
+                onFinished = ::exitMultiSelect,
+              )
+            },
+          )
         }
       },
     ) { paddingValues ->
@@ -242,39 +217,6 @@ data class FilePickerScreen(val uri: String) : Screen {
       )
     } else {
       HomeScreen.playFile(path, context)
-    }
-  }
-
-  private fun collectSiblingSubtitles(
-    video: AbstractFile,
-    directoryFiles: List<AbstractFile>,
-    fileManager: FileManager,
-  ): List<String> {
-    val videoNameWithoutExt = fileManager.getName(video).substringBeforeLast(".")
-    val subtitleExtensions = setOf("srt", "ass", "ssa", "vtt", "sub")
-    return directoryFiles.filter { potentialSubFile ->
-      if (fileManager.isDirectory(potentialSubFile)) {
-        false
-      } else {
-        val subFileName = fileManager.getName(potentialSubFile)
-        val subFileNameWithoutExt = subFileName.substringBeforeLast('.')
-        val subFileExt = subFileName.substringAfterLast('.').lowercase()
-        // Matching rule: File names have the same prefix and the extension is a subtitle format
-        subFileNameWithoutExt.startsWith(videoNameWithoutExt) && subFileExt in subtitleExtensions
-      }
-    }.map { it.getFullPath() }
-  }
-
-  private fun buildQueueSubtitlePaths(
-    videoFiles: List<AbstractFile>,
-    directoryFiles: List<AbstractFile>,
-    fileManager: FileManager,
-  ): Bundle = Bundle().apply {
-    videoFiles.forEach { video ->
-      val subtitles = collectSiblingSubtitles(video, directoryFiles, fileManager)
-      if (subtitles.isNotEmpty()) {
-        putStringArrayList(video.getFullPath(), ArrayList(subtitles))
-      }
     }
   }
 
@@ -401,61 +343,6 @@ data class FilePickerScreen(val uri: String) : Screen {
     }
   }
 
-  @Composable
-  fun fileIcon(
-    isDirectory: Boolean,
-    fileExtension: String,
-  ): ImageVector {
-    if (isDirectory) return Icons.Filled.Folder
-    return when (fileExtension) {
-      in videoExtensions -> Icons.Filled.Movie
-      in audioExtensions -> Icons.Filled.Audiotrack
-      in imageExtensions -> Icons.Filled.Image
-      else -> Icons.AutoMirrored.Filled.InsertDriveFile
-    }
-  }
-
-  fun playFileWithSubtitles(
-    filepath: String,
-    subtitlePaths: List<String>,
-    context: Context,
-  ) {
-    val i = Intent(Intent.ACTION_VIEW, filepath.toUri())
-    i.setClass(context, PlayerActivity::class.java)
-    if (subtitlePaths.isNotEmpty()) {
-      val subtitleUris = subtitlePaths.map { it.toUri() }.toTypedArray()
-      i.putExtra("subs", subtitleUris)
-      i.putExtra("subs.enable", arrayOf(subtitleUris.first()))
-    }
-    context.startActivity(i)
-  }
-
-  /**
-   * Launches the player with an explicit queue: [startPath] is the entry to
-   * play (also the intent data, so sibling subtitle/font resolution works),
-   * [queue] holds every entry in playback order.
-   */
-  fun playFileFromQueue(
-    startPath: String,
-    queue: List<String>,
-    subtitlePaths: List<String>,
-    context: Context,
-    queueSubtitles: Bundle? = null,
-  ) {
-    val i = Intent(Intent.ACTION_VIEW, startPath.toUri())
-    i.setClass(context, PlayerActivity::class.java)
-    if (queue.size > 1) {
-      i.putExtra(PlayerActivity.QUEUE_EXTRA, ArrayList(queue))
-      queueSubtitles?.let { i.putExtra(PlayerActivity.QUEUE_SUBTITLES_EXTRA, it) }
-    }
-    if (subtitlePaths.isNotEmpty()) {
-      val subtitleUris = subtitlePaths.map { it.toUri() }.toTypedArray()
-      i.putExtra("subs", subtitleUris)
-      i.putExtra("subs.enable", arrayOf(subtitleUris.first()))
-    }
-    context.startActivity(i)
-  }
-
   private fun Long.asHumanReadableByteCountBin(): String {
     val absB = if (this == Long.MIN_VALUE) Long.MAX_VALUE else abs(this)
     if (absB < 1024) return "$this B"
@@ -475,6 +362,149 @@ data class FilePickerScreen(val uri: String) : Screen {
       units.current(),
     )
   }
+}
+
+@Composable
+private fun MultiSelectBottomBar(
+  selectedCount: Int,
+  onCancel: () -> Unit,
+  onPlay: () -> Unit,
+) {
+  Surface(tonalElevation = 3.dp) {
+    Row(
+      modifier = Modifier
+        .fillMaxWidth()
+        .navigationBarsPadding()
+        .padding(horizontal = MaterialTheme.spacing.medium, vertical = MaterialTheme.spacing.smaller),
+      horizontalArrangement = Arrangement.End,
+      verticalAlignment = Alignment.CenterVertically,
+    ) {
+      TextButton(onClick = onCancel) {
+        Text(stringResource(R.string.generic_cancel))
+      }
+      Button(
+        onClick = onPlay,
+        enabled = selectedCount > 0,
+      ) {
+        Text(stringResource(R.string.home_play_selected, selectedCount))
+      }
+    }
+  }
+}
+
+private data class SelectedPlayback(
+  val paths: List<String>,
+  val directory: AbstractFile,
+  val fileManager: FileManager,
+  val autoLoadSubtitles: Boolean,
+  val context: Context,
+)
+
+private fun playSelectedFiles(
+  playback: SelectedPlayback,
+  onFinished: () -> Unit,
+) {
+  val directoryFiles = playback.fileManager.listFiles(playback.directory)
+  val filesByPath = directoryFiles.associateBy { it.getFullPath() }
+  val selectedFiles = playback.paths.mapNotNull(filesByPath::get)
+  val (subtitlePaths, queueSubtitles) = if (playback.autoLoadSubtitles) {
+    val subtitles = selectedFiles.firstOrNull()?.let {
+      collectSiblingSubtitles(it, directoryFiles, playback.fileManager)
+    }.orEmpty()
+    subtitles to buildQueueSubtitlePaths(selectedFiles, directoryFiles, playback.fileManager)
+  } else {
+    emptyList<String>() to null
+  }
+  onFinished()
+  playFileFromQueue(playback.paths.first(), playback.paths, subtitlePaths, playback.context, queueSubtitles)
+}
+
+private fun collectSiblingSubtitles(
+  video: AbstractFile,
+  directoryFiles: List<AbstractFile>,
+  fileManager: FileManager,
+): List<String> {
+  val videoNameWithoutExt = fileManager.getName(video).substringBeforeLast(".")
+  val subtitleExtensions = setOf("srt", "ass", "ssa", "vtt", "sub")
+  return directoryFiles.filter { potentialSubFile ->
+    if (fileManager.isDirectory(potentialSubFile)) {
+      false
+    } else {
+      val subFileName = fileManager.getName(potentialSubFile)
+      val subFileNameWithoutExt = subFileName.substringBeforeLast('.')
+      val subFileExt = subFileName.substringAfterLast('.').lowercase()
+      // Matching rule: File names have the same prefix and the extension is a subtitle format
+      subFileNameWithoutExt.startsWith(videoNameWithoutExt) && subFileExt in subtitleExtensions
+    }
+  }.map { it.getFullPath() }
+}
+
+private fun buildQueueSubtitlePaths(
+  videoFiles: List<AbstractFile>,
+  directoryFiles: List<AbstractFile>,
+  fileManager: FileManager,
+): Bundle = Bundle().apply {
+  videoFiles.forEach { video ->
+    val subtitles = collectSiblingSubtitles(video, directoryFiles, fileManager)
+    if (subtitles.isNotEmpty()) {
+      putStringArrayList(video.getFullPath(), ArrayList(subtitles))
+    }
+  }
+}
+
+@Composable
+private fun fileIcon(
+  isDirectory: Boolean,
+  fileExtension: String,
+): ImageVector {
+  if (isDirectory) return Icons.Filled.Folder
+  return when (fileExtension) {
+    in videoExtensions -> Icons.Filled.Movie
+    in audioExtensions -> Icons.Filled.Audiotrack
+    in imageExtensions -> Icons.Filled.Image
+    else -> Icons.AutoMirrored.Filled.InsertDriveFile
+  }
+}
+
+private fun playFileWithSubtitles(
+  filepath: String,
+  subtitlePaths: List<String>,
+  context: Context,
+) {
+  val i = Intent(Intent.ACTION_VIEW, filepath.toUri())
+  i.setClass(context, PlayerActivity::class.java)
+  if (subtitlePaths.isNotEmpty()) {
+    val subtitleUris = subtitlePaths.map { it.toUri() }.toTypedArray()
+    i.putExtra("subs", subtitleUris)
+    i.putExtra("subs.enable", arrayOf(subtitleUris.first()))
+  }
+  context.startActivity(i)
+}
+
+/**
+ * Launches the player with an explicit queue: [startPath] is the entry to
+ * play (also the intent data, so sibling subtitle/font resolution works),
+ * [queue] holds every entry in playback order.
+ */
+private fun playFileFromQueue(
+  startPath: String,
+  queue: List<String>,
+  subtitlePaths: List<String>,
+  context: Context,
+  queueSubtitles: Bundle? = null,
+) {
+  val i = Intent(Intent.ACTION_VIEW, startPath.toUri())
+  i.setClass(context, PlayerActivity::class.java)
+  if (queue.size > 1) {
+    i.putExtra(PlayerActivity.QUEUE_EXTRA, ArrayList(queue))
+    queueSubtitles?.let { i.putExtra(PlayerActivity.QUEUE_SUBTITLES_EXTRA, it) }
+  }
+  if (subtitlePaths.isNotEmpty()) {
+    val subtitleUris = subtitlePaths.map { it.toUri() }.toTypedArray()
+    i.putExtra("subs", subtitleUris)
+    i.putExtra("subs.enable", arrayOf(subtitleUris.first()))
+  }
+  context.startActivity(i)
 }
 
 private fun String.isVideoFile(): Boolean = substringAfterLast('.').lowercase() in videoExtensions

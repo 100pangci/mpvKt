@@ -380,10 +380,15 @@ class PlayerActivity : AppCompatActivity() {
    * remain valid without trying to infer a directory from mpv's path.
    */
   private fun loadQueueSubtitles(entry: String?) {
-    if (!subtitlesPreferences.autoLoadExternal.get() || entry == null) return
-    val queueSubtitles = intent.getBundleExtra(QUEUE_SUBTITLES_EXTRA) ?: return
-    val subtitles = queueSubtitles.getStringArrayList(entry) ?: return
-    addSubtitlePaths(subtitles, subtitles.firstOrNull()?.let(::setOf) ?: emptySet())
+    if (subtitlesPreferences.autoLoadExternal.get()) {
+      entry?.let { path ->
+        intent.getBundleExtra(QUEUE_SUBTITLES_EXTRA)
+          ?.getStringArrayList(path)
+          ?.let { subtitles ->
+            addSubtitlePaths(subtitles, subtitles.firstOrNull()?.let(::setOf) ?: emptySet())
+          }
+      }
+    }
   }
 
   private fun addSubtitlePaths(subtitles: List<String>, selected: Set<String>) {
@@ -868,7 +873,7 @@ class PlayerActivity : AppCompatActivity() {
       // mpv reports eof-reached for a moment between queue entries, too.
       "eof-reached" if value && playerPreferences.closeAfterReachingEndOfVideo.get() &&
         (MPVLib.getPropertyInt("playlist-pos") ?: 0) >= (MPVLib.getPropertyInt("playlist-count") ?: 1) - 1 ->
-        finishAndRemoveTask()
+        finish()
     }
   }
 
