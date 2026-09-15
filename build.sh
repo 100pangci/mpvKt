@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# One-click build entry. Provisions JDK 21 + Android SDK + Gradle into
-# .android-env/ on first run (gitignored, nothing installed system-wide).
+# One-click build entry. Provisions JDK 21 + Android SDK (incl. NDK) + Gradle
+# into .android-env/ on first run (gitignored, nothing installed system-wide).
 set -e
 cd "$(dirname "$0")"
 ENV_DIR="$PWD/.android-env"
@@ -36,6 +36,11 @@ if [ ! -x "$SDK_DIR/build-tools/36.0.0/aapt2" ]; then
   yes | "$SDK_DIR/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null
   "$SDK_DIR/cmdline-tools/latest/bin/sdkmanager" \
     "platforms;android-36" "build-tools;36.0.0" "platform-tools" > /dev/null
+fi
+
+if [ ! -x "$SDK_DIR/ndk/28.0.13004108/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip" ]; then
+  echo "[mpvKt] Installing NDK r28 (~2 GB, strips the prebuilt native libraries)..."
+  yes | "$SDK_DIR/cmdline-tools/latest/bin/sdkmanager" "ndk;28.0.13004108" > /dev/null
 fi
 
 if [ ! -f "$GRADLE_USER_HOME/wrapper/dists/gradle-8.14.2-bin/2pb3mgt1p815evrl3weanttgr/gradle-8.14.2-bin.zip" ]; then

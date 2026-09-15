@@ -23,11 +23,19 @@
 -keep,allowoptimization class is.xyz.mpv.** { *; }
 
 # SMB client (jcifs-ng) drags in BouncyCastle as its crypto backend; both
-# reference optional JDK-only APIs that Android does not ship.
+# reference optional JDK-only APIs that Android does not ship. R8 can safely
+# drop the unused integrations (servlet NTLM filter, Kerberos/JGSS).
 -dontwarn java.awt.**
 -dontwarn javax.naming.**
 -dontwarn javax.security.auth.**
+-dontwarn javax.servlet.**
+-dontwarn org.ietf.jgss.**
 -dontwarn org.bouncycastle.**
 -dontwarn org.slf4j.**
-# jcifs-ng resolves parts of its NTLM/SPNEGO stack dynamically.
--keep class jcifs.** { *; }
+# jcifs-ng builds its crypto through JCE provider lookups; these digest
+# mappings are only referenced by name inside BouncyCastleProvider, so R8
+# cannot see them. NTLM needs MD4, SMB3 signing would need AESCMAC.
+-keep class org.bouncycastle.jcajce.provider.digest.MD4 { *; }
+-keep class org.bouncycastle.jcajce.provider.digest.MD4$* { *; }
+-keep class org.bouncycastle.jcajce.provider.symmetric.AES { *; }
+-keep class org.bouncycastle.jcajce.provider.symmetric.AES$* { *; }

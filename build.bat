@@ -1,6 +1,6 @@
 @echo off
-rem One-click build entry. Provisions JDK 21 + Android SDK + Gradle into
-rem .android-env\ on first run (gitignored, nothing installed system-wide).
+rem One-click build entry. Provisions JDK 21 + Android SDK (incl. NDK) + Gradle
+rem into .android-env\ on first run (gitignored, nothing installed system-wide).
 rem Foreign-platform leftovers (e.g. a .android-env copied from Linux) are
 rem detected and replaced automatically.
 setlocal EnableExtensions
@@ -45,6 +45,12 @@ if not exist "%SDK_DIR%\build-tools\36.0.0\aapt2.exe" (
   (for /l %%i in (1,1,20) do @echo y) | "%SDK_DIR%\cmdline-tools\latest\bin\sdkmanager.bat" --licenses >nul
   call "%SDK_DIR%\cmdline-tools\latest\bin\sdkmanager.bat" "platforms;android-36" "build-tools;36.0.0" "platform-tools" >nul
   if not exist "%SDK_DIR%\build-tools\36.0.0\aapt2.exe" goto :fail
+)
+
+if not exist "%SDK_DIR%\ndk\28.0.13004108\toolchains\llvm\prebuilt\windows-x86_64\bin\llvm-strip.exe" (
+  echo [mpvKt] Installing NDK r28, about 2 GB, strips the prebuilt native libraries...
+  (for /l %%i in (1,1,20) do @echo y) | "%SDK_DIR%\cmdline-tools\latest\bin\sdkmanager.bat" "ndk;28.0.13004108" >nul
+  if not exist "%SDK_DIR%\ndk\28.0.13004108\toolchains\llvm\prebuilt\windows-x86_64\bin\llvm-strip.exe" goto :fail
 )
 
 if not exist "%GRADLE_USER_HOME%\wrapper\dists\gradle-8.14.2-bin\2pb3mgt1p815evrl3weanttgr\gradle-8.14.2-bin.zip" (

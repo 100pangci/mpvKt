@@ -16,6 +16,9 @@ plugins {
 android {
   namespace = "live.mehiz.mpvkt"
   compileSdk = 36
+  // Used purely to strip the prebuilt native libraries (libc++_shared ships
+  // with debug info); build.sh/build.bat provision this version.
+  ndkVersion = "28.0.13004108"
 
   defaultConfig {
     applicationId = "live.ywpc05.mpvkt"
@@ -43,7 +46,7 @@ android {
   buildTypes {
     named("release") {
       isMinifyEnabled = true
-      isShrinkResources = false
+      isShrinkResources = true
       proguardFiles(
         getDefaultProguardFile("proguard-android-optimize.txt"),
         "proguard-rules.pro",
@@ -80,6 +83,8 @@ android {
   packaging {
     resources {
       excludes += "/META-INF/{AL2.0,LGPL2.1}"
+      // BouncyCastle ships large PQC parameter tables; SMB only needs MD4/CMAC.
+      excludes += "org/bouncycastle/pqc/**"
     }
   }
   val abiCodes = mapOf(
