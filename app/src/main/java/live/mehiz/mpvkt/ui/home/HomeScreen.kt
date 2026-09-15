@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
@@ -97,6 +98,7 @@ object HomeScreen : Screen {
           },
         )
       },
+      bottomBar = { FontIndexScanProgress() },
     ) { padding ->
       Column(
         modifier = Modifier
@@ -140,30 +142,6 @@ object HomeScreen : Screen {
         ) {
           if (it == null) return@rememberLauncherForActivityResult
           playFile(it.toString(), context)
-        }
-        val fontIndexer = koinInject<FontIndexer>()
-        val isScanning by fontIndexer.isScanning.collectAsState()
-        val scanDone by fontIndexer.scanDone.collectAsState()
-        val scanTotal by fontIndexer.scanTotal.collectAsState()
-        if (isScanning && scanTotal > 0) {
-          Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(top = MaterialTheme.spacing.medium),
-          ) {
-            Text(
-              text = stringResource(R.string.font_index_scanning) + " ($scanDone/$scanTotal)",
-              style = MaterialTheme.typography.bodySmall,
-            )
-            LinearProgressIndicator(
-              progress = {
-                if (scanTotal > 0) scanDone.toFloat() / scanTotal else 0f
-              },
-              modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = MaterialTheme.spacing.large)
-                .padding(top = MaterialTheme.spacing.smaller),
-            )
-          }
         }
         OutlinedButton(
           onClick = { documentPicker.launch(arrayOf("*/*")) },
@@ -211,6 +189,41 @@ object HomeScreen : Screen {
           }
         }
       }
+    }
+  }
+
+  /**
+   * Font index scan progress, pinned to the bottom edge: the centered home
+   * buttons should neither host it nor move while a scan runs.
+   */
+  @Composable
+  private fun FontIndexScanProgress() {
+    val fontIndexer = koinInject<FontIndexer>()
+    val isScanning by fontIndexer.isScanning.collectAsState()
+    val scanDone by fontIndexer.scanDone.collectAsState()
+    val scanTotal by fontIndexer.scanTotal.collectAsState()
+    if (!isScanning || scanTotal <= 0) return
+    Column(
+      modifier = Modifier
+        .fillMaxWidth()
+        .navigationBarsPadding()
+        .padding(
+          start = MaterialTheme.spacing.large,
+          end = MaterialTheme.spacing.large,
+          bottom = MaterialTheme.spacing.medium,
+        ),
+      horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+      Text(
+        text = stringResource(R.string.font_index_scanning) + " ($scanDone/$scanTotal)",
+        style = MaterialTheme.typography.bodySmall,
+      )
+      LinearProgressIndicator(
+        progress = { scanDone.toFloat() / scanTotal },
+        modifier = Modifier
+          .fillMaxWidth()
+          .padding(top = MaterialTheme.spacing.smaller),
+      )
     }
   }
 
