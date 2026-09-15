@@ -21,3 +21,13 @@
 #-renamesourcefileattribute SourceFile
 -dontobfuscate
 -keep,allowoptimization class is.xyz.mpv.** { *; }
+
+# SMB client (smbj) drags in BouncyCastle as its crypto backend; BC ships
+# optional JDK-only integrations that Android does not have.
+-dontwarn java.awt.**
+-dontwarn javax.naming.**
+-dontwarn javax.security.auth.**
+-dontwarn org.bouncycastle.**
+-dontwarn org.slf4j.**
+# smbj instantiates its authenticator factories reflectively.
+-keep class com.hierynomus.smbj.auth.NtlmAuthenticator$Factory { *; }

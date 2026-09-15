@@ -29,8 +29,10 @@
     <string name="network_port">Port</string>
     <string name="network_path">Root path</string>
     <string name="network_path_hint_webdav">WebDAV endpoint path, e.g. /dav on Alist/OpenList</string>
+    <string name="network_path_hint_smb">Share name first, then folders, e.g. /media or /media/Movies</string>
     <string name="network_secure">Use HTTPS</string>
     <string name="network_username">Username</string>
+    <string name="network_username_hint_smb">Optional domain as DOMAIN\\user; empty means guest</string>
     <string name="network_password">Password</string>
     <string name="network_password_notice">The password is stored obfuscated (Base64), not encrypted.</string>
     <string name="network_empty">No servers yet. Add one to browse network media.</string>

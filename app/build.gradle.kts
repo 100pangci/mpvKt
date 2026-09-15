@@ -65,6 +65,10 @@ android {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
   }
+  testOptions {
+    // The loopback stream server is JVM-tested while it logs via android.util.Log.
+    unitTests.isReturnDefaultValues = true
+  }
   buildFeatures {
     compose = true
     viewBinding = true
@@ -152,6 +156,7 @@ dependencies {
   implementation(libs.fsaf)
   implementation(libs.okhttp)
   implementation(libs.commons.net)
+  implementation(libs.smbj)
 }
 
 detekt {

@@ -9,6 +9,17 @@ data class RemoteEntry(
 )
 
 /**
+ * Random-access read view of a remote file. Only valid for the duration of
+ * the callback it is handed to; seeking is cheap and thread-confined.
+ */
+interface RemoteFileReader {
+  val size: Long
+
+  /** Reads up to [length] bytes at [offset]; returns 0 at end of file. */
+  fun read(offset: Long, buffer: ByteArray, length: Int): Int
+}
+
+/**
  * Minimal read-only client for a network media source: list a directory and
  * stream a file down. Implementations are blocking and must only be called
  * off the main thread.

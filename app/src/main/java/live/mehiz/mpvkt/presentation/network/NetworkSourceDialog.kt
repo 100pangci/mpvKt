@@ -54,14 +54,16 @@ fun NetworkSourceDialog(
   var username by rememberSaveable { mutableStateOf(initial?.username ?: "") }
   var password by rememberSaveable { mutableStateOf("") }
 
-  val defaultPort = if (type == NetworkType.WEBDAV) {
-    if (secure) "443" else "80"
-  } else {
-    "21"
+  val defaultPort = when (type) {
+    NetworkType.WEBDAV -> if (secure) "443" else "80"
+    NetworkType.FTP -> "21"
+    NetworkType.SMB -> "445"
   }
-  // An empty port falls back to the type's default on confirm.
+  // An empty port falls back to the type's default on confirm. SMB always
+  // needs a share name, which lives in the root path.
   val valid = host.isNotBlank() && name.isNotBlank() &&
-    (port.isEmpty() || port.toIntOrNull() in 1..65535)
+    (port.isEmpty() || port.toIntOrNull() in 1..65535) &&
+    (type != NetworkType.SMB || basePath.isNotBlank())
 
   AlertDialog(
     onDismissRequest = onDismissRequest,
@@ -97,10 +99,16 @@ fun NetworkSourceDialog(
           value = basePath,
           onValueChange = { basePath = it },
           label = { Text(stringResource(R.string.network_path)) },
-          supportingText = if (type == NetworkType.WEBDAV) {
-            { Text(stringResource(R.string.network_path_hint_webdav)) }
-          } else {
-            null
+          supportingText = when (type) {
+            NetworkType.WEBDAV -> {
+              { Text(stringResource(R.string.network_path_hint_webdav)) }
+            }
+
+            NetworkType.SMB -> {
+              { Text(stringResource(R.string.network_path_hint_smb)) }
+            }
+
+            NetworkType.FTP -> null
           },
           singleLine = true,
         )
@@ -118,6 +126,11 @@ fun NetworkSourceDialog(
           value = username,
           onValueChange = { username = it },
           label = { Text(stringResource(R.string.network_username)) },
+          supportingText = if (type == NetworkType.SMB) {
+            { Text(stringResource(R.string.network_username_hint_smb)) }
+          } else {
+            null
+          },
           singleLine = true,
         )
         OutlinedTextField(
@@ -205,4 +218,5 @@ private val NetworkType.label: String
   get() = when (this) {
     NetworkType.WEBDAV -> "WebDAV"
     NetworkType.FTP -> "FTP"
+    NetworkType.SMB -> "SMB"
   }

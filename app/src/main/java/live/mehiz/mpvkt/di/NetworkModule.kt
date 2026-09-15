@@ -3,6 +3,7 @@ package live.mehiz.mpvkt.di
 import live.mehiz.mpvkt.network.NetworkStore
 import live.mehiz.mpvkt.network.RemoteClientFactory
 import live.mehiz.mpvkt.network.RemoteFontStager
+import live.mehiz.mpvkt.network.SmbStreamServer
 import live.mehiz.mpvkt.preferences.NetworkPreferences
 import okhttp3.OkHttpClient
 import org.koin.core.module.dsl.singleOf
@@ -20,6 +21,7 @@ val NetworkModule = module {
   }
 
   singleOf(::NetworkStore)
+  single { SmbStreamServer() }
   singleOf(::RemoteClientFactory)
   singleOf(::RemoteFontStager)
 }
