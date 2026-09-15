@@ -61,6 +61,7 @@ private fun NetworkDraft.toNetworkSource(id: Long): NetworkSource = NetworkSourc
   port = port,
   basePath = basePath,
   secure = secure,
+  smbDialect = smbDialect,
   username = username,
   encodedPassword = NetworkSource.encodePassword(password),
 )
@@ -77,6 +78,7 @@ private fun NetworkSource.updatedWith(draft: NetworkDraft): NetworkSource = Netw
   port = draft.port,
   basePath = draft.basePath,
   secure = draft.secure,
+  smbDialect = draft.smbDialect,
   username = draft.username,
   encodedPassword = draft.password.takeIf { it.isNotEmpty() }
     ?.let(NetworkSource::encodePassword)

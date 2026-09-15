@@ -9,6 +9,18 @@ enum class NetworkType {
   SMB,
 }
 
+/**
+ * SMB dialect preference. [AUTO] keeps jcifs-ng's default range
+ * (SMB1 up to SMB2.1); the explicit values pin both ends of the
+ * negotiated range, SMB3 spanning 3.0 to 3.1.1.
+ */
+enum class SmbDialect {
+  AUTO,
+  SMB1,
+  SMB2,
+  SMB3,
+}
+
 @Serializable
 data class NetworkSource(
   val id: Long,
@@ -18,6 +30,7 @@ data class NetworkSource(
   val port: Int,
   val basePath: String,
   val secure: Boolean = false,
+  val smbDialect: SmbDialect = SmbDialect.AUTO,
   val username: String = "",
   // Stored as a serialized instance: keep this field's name stable.
   val encodedPassword: String = "",

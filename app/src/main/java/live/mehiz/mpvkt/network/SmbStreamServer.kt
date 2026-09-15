@@ -26,16 +26,22 @@ class SmbStreamServer internal constructor(
   private val openStream: StreamOpener,
 ) {
   /**
-   * Opens [path] and keeps it open for the duration of [block]. Implementations
-   * must throw when the file cannot be opened and must not retain the reader
-   * after returning.
+   * Opens [path] and passes a factory that creates independent readers.
+   * Implementations must throw when the file cannot be opened and must not
+   * retain the factory after returning; every reader the factory hands out
+   * is closed by the server.
    */
   fun interface StreamOpener {
-    fun open(source: NetworkSource, path: String, block: (RemoteFileReader) -> Unit)
+    fun open(source: NetworkSource, path: String, block: (ReaderFactory) -> Unit)
+  }
+
+  /** Creates additional independent readers of the same file. */
+  fun interface ReaderFactory {
+    fun open(): RemoteFileReader
   }
 
   constructor() : this(
-    StreamOpener { source, path, block -> SmbRemote(source).use { it.withReader(path, block) } },
+    StreamOpener { source, path, block -> block(ReaderFactory { SmbRemote(source).openReader(path) }) },
   )
 
   private val lock = Any()
@@ -132,9 +138,9 @@ class SmbStreamServer internal constructor(
     // while opening may still turn into an error status.
     var opened = false
     runCatching {
-      openStream.open(target.source, target.path) { reader ->
+      openStream.open(target.source, target.path) { factory ->
         opened = true
-        respond(output, request, reader)
+        respond(output, request, factory)
       }
     }.onFailure {
       Log.w(TAG, "SMB stream for ${target.path} failed: ${it.message}")
@@ -142,28 +148,40 @@ class SmbStreamServer internal constructor(
     }
   }
 
-  private fun respond(output: OutputStream, request: HttpRequest, reader: RemoteFileReader) {
-    val spec = RangeSpec.parse(request.rangeHeader, reader.size)
-    if (spec is RangeSpec.Unsatisfiable) {
-      writeHeaders(output, 416, 0, null, reader.size)
-      return
-    }
-    val range = (spec as? RangeSpec.Partial)?.range
-    val length = range?.length ?: reader.size
-    writeHeaders(output, if (range == null) 200 else 206, length, range, reader.size)
-    if (!request.headOnly) {
-      copyRange(reader, output, range?.start ?: 0, length)
-      output.flush()
+  private fun respond(output: OutputStream, request: HttpRequest, factory: ReaderFactory) {
+    factory.open().use { reader ->
+      val spec = RangeSpec.parse(request.rangeHeader, reader.size)
+      if (spec is RangeSpec.Unsatisfiable) {
+        writeHeaders(output, 416, 0, null, reader.size)
+        return
+      }
+      val range = (spec as? RangeSpec.Partial)?.range
+      val length = range?.length ?: reader.size
+      writeHeaders(output, if (range == null) 200 else 206, length, range, reader.size)
+      if (!request.headOnly) {
+        copyRange(reader, factory, output, range?.start ?: 0, length)
+        output.flush()
+      }
     }
   }
 
-  private fun copyRange(reader: RemoteFileReader, output: OutputStream, start: Long, length: Long) {
+  private fun copyRange(
+    first: RemoteFileReader,
+    factory: ReaderFactory,
+    output: OutputStream,
+    start: Long,
+    length: Long,
+  ) {
+    if (length > PARALLEL_THRESHOLD_BYTES) {
+      SmbParallelStreamer(factory, PARALLEL_READERS, start, length).copy(output, first)
+      return
+    }
     val buffer = ByteArray(BUFFER_SIZE)
     var position = start
     var remaining = length
     while (remaining > 0) {
       val wanted = minOf(buffer.size.toLong(), remaining).toInt()
-      val read = reader.read(position, buffer, wanted)
+      val read = first.read(position, buffer, wanted)
       if (read <= 0) return
       output.write(buffer, 0, read)
       position += read
@@ -201,6 +219,8 @@ class SmbStreamServer internal constructor(
     const val TAG = "mpvKt"
     const val PATH_PREFIX = "smb/"
     const val LOOPBACK = "127.0.0.1"
+    const val PARALLEL_READERS = 4
+    const val PARALLEL_THRESHOLD_BYTES = 2L * 1024 * 1024
     const val TOKEN_LENGTH = 32
     const val MAX_TARGETS = 64
     const val BACKLOG = 8

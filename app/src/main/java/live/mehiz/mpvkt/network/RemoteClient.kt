@@ -12,11 +12,13 @@ data class RemoteEntry(
  * Random-access read view of a remote file. Only valid for the duration of
  * the callback it is handed to; seeking is cheap and thread-confined.
  */
-interface RemoteFileReader {
+interface RemoteFileReader : AutoCloseable {
   val size: Long
 
   /** Reads up to [length] bytes at [offset]; returns 0 at end of file. */
   fun read(offset: Long, buffer: ByteArray, length: Int): Int
+
+  override fun close() {}
 }
 
 /**

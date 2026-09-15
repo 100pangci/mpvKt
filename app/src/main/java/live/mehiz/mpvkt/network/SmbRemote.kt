@@ -37,11 +37,20 @@ internal class SmbRemote(private val source: NetworkSource) : AutoCloseable {
     return length > 0 && (expectedSize <= 0 || length == expectedSize)
   }
 
-  /** Opens [path] for random access; the reader is only valid inside [block]. */
-  fun <T> withReader(path: String, block: (RemoteFileReader) -> T): T =
-    SmbRandomAccessFile(fileFor(requireTarget(path), directory = false), "r").use { random ->
-      block(SmbRandomFileReader(random, random.length()))
+  /**
+   * Opens an independent random-access reader. Readers do not share file
+   * handles or connections, so several may be read in parallel; each owns
+   * this [SmbRemote] and closes it (and its connection) with [close].
+   */
+  fun openReader(path: String): RemoteFileReader {
+    val file = try {
+      SmbRandomAccessFile(fileFor(requireTarget(path), directory = false), "r")
+    } catch (e: Exception) {
+      close()
+      throw e
     }
+    return SmbRandomFileReader(this, file, file.length())
+  }
 
   private fun fileFor(target: SmbRemotePath, directory: Boolean): SmbFile =
     buildFile(context, serverUrl(), target, directory)
@@ -72,6 +81,16 @@ internal class SmbRemote(private val source: NetworkSource) : AutoCloseable {
       // plain home network; direct DNS is enough.
       setProperty("jcifs.smb.client.dfs.disabled", "true")
       setProperty("jcifs.resolveOrder", "DNS")
+      val dialect = when (source.smbDialect) {
+        SmbDialect.AUTO -> null
+        SmbDialect.SMB1 -> "SMB1" to "SMB1"
+        SmbDialect.SMB2 -> "SMB202" to "SMB210"
+        SmbDialect.SMB3 -> "SMB300" to "SMB311"
+      }
+      dialect?.let {
+        setProperty("jcifs.smb.client.minVersion", it.first)
+        setProperty("jcifs.smb.client.maxVersion", it.second)
+      }
     }
     val base = BaseContext(PropertyConfiguration(properties))
     val username = source.username.trim()
@@ -88,6 +107,7 @@ internal class SmbRemote(private val source: NetworkSource) : AutoCloseable {
   }
 
   private class SmbRandomFileReader(
+    private val remote: SmbRemote,
     private val file: SmbRandomAccessFile,
     override val size: Long,
   ) : RemoteFileReader {
@@ -100,6 +120,11 @@ internal class SmbRemote(private val source: NetworkSource) : AutoCloseable {
         total += read
       }
       return total
+    }
+
+    override fun close() {
+      runCatching { file.close() }
+      remote.close()
     }
   }
 

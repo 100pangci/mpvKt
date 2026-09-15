@@ -10,7 +10,9 @@ class SmbStreamServerTest {
 
   private val data = ByteArray(1000) { it.toByte() }
   private val server = SmbStreamServer(
-    SmbStreamServer.StreamOpener { _, _, block -> block(FakeReader(data)) },
+    SmbStreamServer.StreamOpener { _, _, block ->
+      block(SmbStreamServer.ReaderFactory { FakeReader(data) })
+    },
   )
   private val source = NetworkSource(
     id = 1,
@@ -73,6 +75,19 @@ class SmbStreamServerTest {
     val unknown = URL(urlFor().toString().replace(TOKEN, "0".repeat(32)))
     val response = unknown.openConnection() as HttpURLConnection
     assertEquals(404, response.responseCode)
+  }
+
+  @Test
+  fun `serves a body larger than the parallel threshold`() {
+    val big = ByteArray(3 * 1024 * 1024 + 7) { (it * 7).toByte() }
+    val parallelServer = SmbStreamServer(
+      SmbStreamServer.StreamOpener { _, _, block ->
+        block(SmbStreamServer.ReaderFactory { FakeReader(big) })
+      },
+    )
+    val connection = URL(parallelServer.register(source, "big.mkv")).openConnection() as HttpURLConnection
+    assertEquals(200, connection.responseCode)
+    assertArrayEquals(big, connection.readBody())
   }
 
   private fun urlFor(path: String = "dir/movie.mkv"): URL = URL(server.register(source, path))

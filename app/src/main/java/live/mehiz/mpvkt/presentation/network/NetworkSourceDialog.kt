@@ -28,6 +28,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import live.mehiz.mpvkt.R
 import live.mehiz.mpvkt.network.NetworkSource
 import live.mehiz.mpvkt.network.NetworkType
+import live.mehiz.mpvkt.network.SmbDialect
 import live.mehiz.mpvkt.ui.theme.spacing
 
 /**
@@ -51,6 +52,7 @@ fun NetworkSourceDialog(
   var port by rememberSaveable { mutableStateOf(initial?.port?.toString() ?: "") }
   var basePath by rememberSaveable { mutableStateOf(initial?.basePath ?: "") }
   var secure by rememberSaveable { mutableStateOf(initial?.secure ?: false) }
+  var smbDialect by rememberSaveable { mutableStateOf(initial?.smbDialect ?: SmbDialect.AUTO) }
   var username by rememberSaveable { mutableStateOf(initial?.username ?: "") }
   var password by rememberSaveable { mutableStateOf("") }
 
@@ -74,6 +76,9 @@ fun NetworkSourceDialog(
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
       ) {
         TypeSelector(type, onTypeChange = { type = it })
+        if (type == NetworkType.SMB) {
+          DialectSelector(smbDialect, onSelect = { smbDialect = it })
+        }
         OutlinedTextField(
           value = name,
           onValueChange = { name = it },
@@ -163,6 +168,7 @@ fun NetworkSourceDialog(
               port = port.toIntOrNull() ?: defaultPort.toInt(),
               basePath = basePath.trim(),
               secure = secure,
+              smbDialect = smbDialect,
               username = username.trim(),
               password = password,
             ),
@@ -189,6 +195,7 @@ data class NetworkDraft(
   val port: Int,
   val basePath: String,
   val secure: Boolean,
+  val smbDialect: SmbDialect,
   val username: String,
   val password: String,
 )
@@ -213,9 +220,37 @@ private fun TypeSelector(
   }
 }
 
+@Composable
+private fun DialectSelector(
+  selected: SmbDialect,
+  onSelect: (SmbDialect) -> Unit,
+  modifier: Modifier = Modifier,
+) {
+  FlowRow(
+    modifier = modifier.fillMaxWidth(),
+    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.smaller),
+  ) {
+    SmbDialect.entries.forEach { candidate ->
+      FilterChip(
+        selected = candidate == selected,
+        onClick = { onSelect(candidate) },
+        label = { Text(candidate.label) },
+      )
+    }
+  }
+}
+
 private val NetworkType.label: String
   get() = when (this) {
     NetworkType.WEBDAV -> "WebDAV"
     NetworkType.FTP -> "FTP"
     NetworkType.SMB -> "SMB"
+  }
+
+private val SmbDialect.label: String
+  get() = when (this) {
+    SmbDialect.AUTO -> "Auto"
+    SmbDialect.SMB1 -> "SMB1"
+    SmbDialect.SMB2 -> "SMB2"
+    SmbDialect.SMB3 -> "SMB3"
   }
