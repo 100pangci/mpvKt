@@ -917,21 +917,25 @@ class PlayerActivity : AppCompatActivity() {
         } else {
           intentResolver.getFileName(intent)
         }
-        if (isQueueAdvance) {
+        // The previous file's title override must not leak onto this one:
+        // "media-title" itself is read-only in mpv, "force-media-title" is
+        // the writable override.
+        MPVLib.setPropertyString("force-media-title", "")
+        if (!isQueueAdvance) {
           // The intent's subtitle/position extras belong to the first file;
-          // reapplying them would add stale subtitle tracks every episode.
-          // A leftover force-media-title would also leak onto every next file.
-          MPVLib.setPropertyString("force-media-title", "")
-        } else {
+          // for a queue advance reapplying them would add stale subtitle
+          // tracks every episode.
           setIntentExtras(intent.extras)
         }
         // Track choices are per video: a previous file's restore must not
         // block the current file's deterministic selection.
         restoredTrackState = false
         autoSubSelectedForThisVideo = false
+        // Without a title of its own, mpv falls back to the raw path, so a
+        // SAF-opened "fd://123" shows up as just "123"; prefer the file name.
         val mediaTitle = MPVLib.getPropertyString("media-title")
         if (mediaTitle.isNullOrBlank() || mediaTitle.isDigitsOnly()) {
-          MPVLib.setPropertyString("media-title", fileName)
+          MPVLib.setPropertyString("force-media-title", fileName)
         }
         lifecycleScope.launch(Dispatchers.IO) {
           loadVideoPlaybackState(fileName)
