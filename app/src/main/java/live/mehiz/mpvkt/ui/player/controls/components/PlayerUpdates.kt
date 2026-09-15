@@ -5,9 +5,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DoubleArrow
@@ -45,6 +48,7 @@ fun PlayerUpdate(
   BoxWithConstraints(
     modifier = modifier
       .fillMaxWidth()
+      .windowInsetsPadding(WindowInsets.displayCutout)
       .padding(horizontal = PLAYER_UPDATE_EDGE_MARGIN),
     contentAlignment = Alignment.Center,
   ) {
