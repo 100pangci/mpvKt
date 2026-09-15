@@ -25,8 +25,10 @@
     <string name="network_port">Porta</string>
     <string name="network_path">Caminho raiz</string>
     <string name="network_path_hint_webdav">Caminho do endpoint WebDAV, ex.: /dav no Alist/OpenList</string>
+    <string name="network_path_hint_smb">Primeiro o nome do compartilhamento, depois as pastas, ex.: /media ou /media/Movies</string>
     <string name="network_secure">Usar HTTPS</string>
     <string name="network_username">Usuário</string>
+    <string name="network_username_hint_smb">Domínio opcional como DOMÍNIO\\usuário; vazio significa convidado</string>
     <string name="network_password">Senha</string>
     <string name="network_password_notice">A senha é armazenada ofuscada (Base64), não criptografada.</string>
     <string name="network_empty">Nenhum servidor ainda. Adicione um para navegar por mídias de rede.</string>

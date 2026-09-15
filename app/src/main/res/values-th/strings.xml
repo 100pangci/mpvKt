@@ -25,8 +25,10 @@
     <string name="network_port">พอร์ต</string>
     <string name="network_path">พาธราก</string>
     <string name="network_path_hint_webdav">พาธปลายทาง WebDAV เช่น /dav บน Alist/OpenList</string>
+    <string name="network_path_hint_smb">ใส่ชื่อแชร์ก่อน ตามด้วยโฟลเดอร์ เช่น /media หรือ /media/Movies</string>
     <string name="network_secure">ใช้ HTTPS</string>
     <string name="network_username">ชื่อผู้ใช้</string>
+    <string name="network_username_hint_smb">ระบุโดเมนได้ในรูปแบบ DOMAIN\\user; เว้นว่างหมายถึงผู้เยี่ยมชม (guest)</string>
     <string name="network_password">รหัสผ่าน</string>
     <string name="network_password_notice">รหัสผ่านถูกจัดเก็บแบบปกปิด (Base64) ไม่ได้เข้ารหัส</string>
     <string name="network_empty">ยังไม่มีเซิร์ฟเวอร์ เพิ่มเซิร์ฟเวอร์เพื่อเรียกดูสื่อในเครือข่าย</string>

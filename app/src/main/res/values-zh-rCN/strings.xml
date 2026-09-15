@@ -24,8 +24,10 @@
     <string name="network_port">端口</string>
     <string name="network_path">根路径</string>
     <string name="network_path_hint_webdav">WebDAV 端点路径，例如 Alist/OpenList 的 /dav</string>
+    <string name="network_path_hint_smb">先填共享名，再填文件夹，例如 /media 或 /media/Movies</string>
     <string name="network_secure">使用 HTTPS</string>
     <string name="network_username">用户名</string>
+    <string name="network_username_hint_smb">可选域，格式为 DOMAIN\\user；留空表示来宾</string>
     <string name="network_password">密码</string>
     <string name="network_password_notice">密码以混淆（Base64）方式存储，并非加密。</string>
     <string name="network_empty">暂无服务器，添加一个以浏览网络媒体。</string>

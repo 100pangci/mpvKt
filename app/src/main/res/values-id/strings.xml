@@ -25,8 +25,10 @@
     <string name="network_port">Port</string>
     <string name="network_path">Jalur akar</string>
     <string name="network_path_hint_webdav">Jalur endpoint WebDAV, mis. /dav pada Alist/OpenList</string>
+    <string name="network_path_hint_smb">Nama share dulu, lalu folder, mis. /media atau /media/Movies</string>
     <string name="network_secure">Gunakan HTTPS</string>
     <string name="network_username">Nama pengguna</string>
+    <string name="network_username_hint_smb">Domain opsional sebagai DOMAIN\\user; kosong berarti guest</string>
     <string name="network_password">Kata sandi</string>
     <string name="network_password_notice">Kata sandi disimpan terobfuskasi (Base64), tidak terenkripsi.</string>
     <string name="network_empty">Belum ada server. Tambahkan satu untuk menelusuri media jaringan.</string>

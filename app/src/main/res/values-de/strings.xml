@@ -25,8 +25,10 @@
     <string name="network_port">Port</string>
     <string name="network_path">Stammpfad</string>
     <string name="network_path_hint_webdav">WebDAV-Endpunktpfad, z. B. /dav bei Alist/OpenList</string>
+    <string name="network_path_hint_smb">Zuerst der Freigabename, dann Ordner, z. B. /media oder /media/Movies</string>
     <string name="network_secure">HTTPS verwenden</string>
     <string name="network_username">Benutzername</string>
+    <string name="network_username_hint_smb">Optionale Domäne als DOMAIN\\user; leer bedeutet Gast</string>
     <string name="network_password">Passwort</string>
     <string name="network_password_notice">Das Passwort wird obfuskiert (Base64), nicht verschlüsselt gespeichert.</string>
     <string name="network_empty">Noch keine Server. Füge einen hinzu, um Netzwerkmedien zu durchsuchen.</string>

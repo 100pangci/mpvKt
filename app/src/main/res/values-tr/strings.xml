@@ -25,8 +25,10 @@
     <string name="network_port">Port</string>
     <string name="network_path">Kök yolu</string>
     <string name="network_path_hint_webdav">WebDAV uç nokta yolu, ör. Alist/OpenList için /dav</string>
+    <string name="network_path_hint_smb">Önce paylaşım adı, sonra klasörler, örn. /media veya /media/Movies</string>
     <string name="network_secure">HTTPS kullan</string>
     <string name="network_username">Kullanıcı adı</string>
+    <string name="network_username_hint_smb">Alan adı isteğe bağlı, ALANADI\\kullanıcı biçiminde; boş bırakılırsa konuk olarak bağlanır</string>
     <string name="network_password">Parola</string>
     <string name="network_password_notice">Parola gizlenerek (Base64) saklanır, şifrelenmez.</string>
     <string name="network_empty">Henüz sunucu yok. Ağ ortamına göz atmak için bir tane ekleyin.</string>

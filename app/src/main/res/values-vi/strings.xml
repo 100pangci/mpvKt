@@ -25,8 +25,10 @@
     <string name="network_port">Cổng</string>
     <string name="network_path">Đường dẫn gốc</string>
     <string name="network_path_hint_webdav">Đường dẫn điểm truy cập WebDAV, vd. /dav trên Alist/OpenList</string>
+    <string name="network_path_hint_smb">Nhập tên chia sẻ trước, rồi đến thư mục, ví dụ /media hoặc /media/Movies</string>
     <string name="network_secure">Dùng HTTPS</string>
     <string name="network_username">Tên đăng nhập</string>
+    <string name="network_username_hint_smb">Miền tùy chọn theo dạng DOMAIN\\user; để trống nghĩa là khách</string>
     <string name="network_password">Mật khẩu</string>
     <string name="network_password_notice">Mật khẩu được lưu che giấu (Base64), không mã hoá.</string>
     <string name="network_empty">Chưa có máy chủ. Thêm một máy chủ để duyệt phương tiện mạng.</string>

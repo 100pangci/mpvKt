@@ -24,8 +24,10 @@
     <string name="network_port">Порт</string>
     <string name="network_path">Корневой путь</string>
     <string name="network_path_hint_webdav">Путь к WebDAV-эндпоинту, напр. /dav в Alist/OpenList</string>
+    <string name="network_path_hint_smb">Сначала имя ресурса, затем папки, например /media или /media/Movies</string>
     <string name="network_secure">Использовать HTTPS</string>
     <string name="network_username">Имя пользователя</string>
+    <string name="network_username_hint_smb">Домен необязателен, формат ДОМЕН\\пользователь; пусто — гость</string>
     <string name="network_password">Пароль</string>
     <string name="network_password_notice">Пароль хранится обфусцированным (Base64), без шифрования.</string>
     <string name="network_empty">Серверов пока нет. Добавьте один для просмотра сетевых медиа.</string>

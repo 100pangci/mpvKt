@@ -25,8 +25,10 @@
     <string name="network_port">पोर्ट</string>
     <string name="network_path">रूट पथ</string>
     <string name="network_path_hint_webdav">WebDAV एंडपॉइंट पथ, जैसे Alist/OpenList पर /dav</string>
+    <string name="network_path_hint_smb">पहले शेयर का नाम, फिर फ़ोल्डर, जैसे /media या /media/Movies</string>
     <string name="network_secure">HTTPS उपयोग करें</string>
     <string name="network_username">उपयोगकर्ता नाम</string>
+    <string name="network_username_hint_smb">वैकल्पिक डोमेन DOMAIN\\user के रूप में; खाली छोड़ने पर guest के रूप में कनेक्ट होगा</string>
     <string name="network_password">पासवर्ड</string>
     <string name="network_password_notice">पासवर्ड अस्पष्ट (Base64) रूप में संग्रहीत है, एन्क्रिप्टेड नहीं।</string>
     <string name="network_empty">अभी कोई सर्वर नहीं है। नेटवर्क मीडिया ब्राउज़ करने के लिए एक जोड़ें।</string>
