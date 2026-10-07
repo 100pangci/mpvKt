@@ -50,11 +50,15 @@ import `is`.xyz.mpv.Utils
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.coroutines.yield
 import kotlinx.serialization.json.Json
 import live.mehiz.mpvkt.R
 import live.mehiz.mpvkt.database.entities.CustomButtonEntity
@@ -125,6 +129,9 @@ class PlayerActivity : AppCompatActivity() {
    */
   private var expectedIntentPath: String? = null
   private var currentPlaybackPath: String? = null
+  private var currentQueuePaths: List<String> = emptyList()
+  private var queueSubtitlePaths: Map<String, List<String>> = emptyMap()
+  private val playbackStartMutex = Mutex()
 
   /**
    * Remote context of the currently playing media, from the launching
@@ -213,11 +220,26 @@ class PlayerActivity : AppCompatActivity() {
    * fix (decoder recreation) once fonts have landed.
    */
   private suspend fun CoroutineScope.startPlaybackFlow(intent: Intent) {
+    // Consecutive intents must not interleave playlist construction.
+    playbackStartMutex.withLock { startPlaybackRequest(intent) }
+  }
+
+  private suspend fun CoroutineScope.startPlaybackRequest(intent: Intent) {
+    val storedRequest = intent.getStringExtra(QUEUE_REQUEST_EXTRA)?.let { token ->
+      PlaybackQueueStore(File(filesDir, PlaybackQueueStore.DIRECTORY)).load(token)
+    }
+    if (storedRequest != null) {
+      startQueuePlaybackFlow(intent, storedRequest, playable = null)
+      return
+    }
     val playable = intentResolver.getPlayableUri(intent)
     Log.i(TAG, "playback flow: playable=$playable")
     val queue = intent.getStringArrayListExtra(QUEUE_EXTRA)
     if (!queue.isNullOrEmpty()) {
-      startQueuePlaybackFlow(intent, queue, playable)
+      val subtitles = intent.getBundleExtra(QUEUE_SUBTITLES_EXTRA)?.let { bundle ->
+        bundle.keySet().associateWith { bundle.getStringArrayList(it).orEmpty().toList() }
+      }.orEmpty()
+      startQueuePlaybackFlow(intent, PlaybackQueueRequest(queue, subtitles), playable)
       return
     }
     if (playable == null) return
@@ -251,9 +273,10 @@ class PlayerActivity : AppCompatActivity() {
    */
   private suspend fun CoroutineScope.startQueuePlaybackFlow(
     intent: Intent,
-    queue: List<String>,
+    request: PlaybackQueueRequest,
     playable: String?,
   ) {
+    val queue = request.paths
     val startEntry = queue.firstOrNull { it == intent.dataString }
       ?: queue.firstOrNull { it == playable }
       ?: queue.first()
@@ -261,18 +284,23 @@ class PlayerActivity : AppCompatActivity() {
     val siblingSubPath = siblingSubtitlePath(videoPath)
     Log.i(TAG, "playback flow: queue=${queue.size} start=$startEntry sibling=$siblingSubPath")
     awaitFontSetup(videoPath, siblingSubPath)
+    val appendToPlaying = !isMpvIdleOrEmpty()
     withContext(Dispatchers.Main) {
       expectedIntentPath = startEntry
-      if (isMpvIdleOrEmpty()) {
-        queue.forEach { MPVLib.command("loadfile", it, "append") }
-        val index = queue.indexOf(startEntry).coerceAtLeast(0)
-        MPVLib.command("playlist-play-index", index.toString())
-        Log.i(TAG, "playback flow: queue loaded, start index=$index")
-      } else {
-        // Playback already running: append the whole queue, don't disturb it.
-        queue.forEach { MPVLib.command("loadfile", it, "append-play") }
-        Log.i(TAG, "playback flow: queue appended while playing")
-      }
+      currentQueuePaths = if (appendToPlaying) currentQueuePaths + queue else queue
+      queueSubtitlePaths = if (appendToPlaying) queueSubtitlePaths + request.subtitles else request.subtitles
+    }
+    // This flow already runs on IO. Never loop through thousands of JNI
+    // commands on Main; yield between batches so cancellation stays responsive.
+    queue.forEachIndexed { index, path ->
+      coroutineContext.ensureActive()
+      MPVLib.command("loadfile", path, if (appendToPlaying) "append-play" else "append")
+      if (index % 32 == 31) yield()
+    }
+    if (!appendToPlaying) {
+      val index = queue.indexOf(startEntry).coerceAtLeast(0)
+      MPVLib.command("playlist-play-index", index.toString())
+      Log.i(TAG, "playback flow: queue loaded, start index=$index")
     }
     Log.i(TAG, "playback flow: queue playFile issued")
   }
@@ -371,6 +399,7 @@ class PlayerActivity : AppCompatActivity() {
   private fun currentPlaylistEntry(): String? {
     val index = MPVLib.getPropertyInt("playlist-pos") ?: return null
     return MPVLib.getPropertyString("playlist/$index/filename")
+      ?: currentQueuePaths.getOrNull(index)
       ?: intent.getStringArrayListExtra(QUEUE_EXTRA)?.getOrNull(index)
   }
 
@@ -382,8 +411,7 @@ class PlayerActivity : AppCompatActivity() {
   private fun loadQueueSubtitles(entry: String?) {
     if (subtitlesPreferences.autoLoadExternal.get()) {
       entry?.let { path ->
-        intent.getBundleExtra(QUEUE_SUBTITLES_EXTRA)
-          ?.getStringArrayList(path)
+        (queueSubtitlePaths[path] ?: intent.getBundleExtra(QUEUE_SUBTITLES_EXTRA)?.getStringArrayList(path))
           ?.let { subtitles ->
             addSubtitlePaths(subtitles, subtitles.firstOrNull()?.let(::setOf) ?: emptySet())
           }
@@ -940,8 +968,10 @@ class PlayerActivity : AppCompatActivity() {
         lifecycleScope.launch(Dispatchers.IO) {
           loadVideoPlaybackState(fileName)
         }
+        if (isQueueAdvance || intent.hasExtra(QUEUE_REQUEST_EXTRA)) {
+          loadQueueSubtitles(queueEntry ?: currentPlaylistEntry())
+        }
         if (isQueueAdvance) {
-          loadQueueSubtitles(queueEntry)
           mpvPath?.let(::prepareFontsForQueueAdvance)
         }
         setOrientation()
@@ -1301,6 +1331,7 @@ class PlayerActivity : AppCompatActivity() {
     // extras of queue playback: the full playlist in playback order (raw
     // paths or URLs), the intent data being the entry to start at
     const val QUEUE_EXTRA = "queue"
+    const val QUEUE_REQUEST_EXTRA = "queue-request-token"
     const val QUEUE_SUBTITLES_EXTRA = "queue-subtitles"
 
     // extras of remote-source playback: the serialized NetworkSource and the

@@ -1,4 +1,5 @@
 <resources>
+    <string name="home_playback_failed">Tidak dapat menyiapkan pemutaran. Pastikan file dapat diakses lalu coba lagi.</string>
     <string name="home_refresh_directory">Segarkan folder</string>
     <string name="home_directory_unavailable">Folder ini tidak dapat diakses lagi. Kembali ke layar utama dan pilih lagi untuk memberikan akses.</string>
     <string name="home_return_home">Kembali ke layar utama</string>

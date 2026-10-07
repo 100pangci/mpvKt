@@ -62,13 +62,14 @@ internal class IntentResolver(private val context: Context) {
   }
 
   fun getFileName(intent: Intent): String {
-    val uri = if (intent.type == "text/plain") {
-      intent.getStringExtra(Intent.EXTRA_TEXT)!!.toUri()
-    } else {
-      @Suppress("DEPRECATION")
-      (intent.data ?: intent.getParcelableExtra(Intent.EXTRA_STREAM))
-    }
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && uri != null) {
+    @Suppress("DEPRECATION")
+    val stream = runCatching { intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM) }.getOrNull()
+    val uri = chooseIntentMediaSource(
+      intent.dataString,
+      stream?.toString(),
+      intent.getStringExtra(Intent.EXTRA_TEXT) ?: intent.getStringExtra("uri"),
+    )?.toUri()
+    if (uri?.scheme == "content") {
       val displayName = runCatching {
         context.contentResolver.query(uri, arrayOf(MediaStore.MediaColumns.DISPLAY_NAME), null, null)?.use { cursor ->
           cursor.takeIf { it.moveToFirst() }?.getString(0)

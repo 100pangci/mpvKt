@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- ar -->
 <resources>
+    <string name="home_playback_failed">تعذر تجهيز التشغيل. تحقق من إمكانية الوصول إلى الملفات وحاول مجددًا.</string>
     <string name="home_refresh_directory">تحديث المجلد</string>
     <string name="home_directory_unavailable">لم يعد بالإمكان الوصول إلى هذا المجلد. ارجع إلى الشاشة الرئيسية وحدده مجددًا لمنح إذن الوصول.</string>
     <string name="home_return_home">العودة إلى الشاشة الرئيسية</string>

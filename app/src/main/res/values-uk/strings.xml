@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- uk -->
 <resources>
+    <string name="home_playback_failed">Не вдалося підготувати відтворення. Перевірте доступ до файлів і спробуйте знову.</string>
     <string name="home_refresh_directory">Оновити папку</string>
     <string name="home_directory_unavailable">Ця папка більше недоступна. Поверніться на головний екран і виберіть її знову, щоб надати доступ.</string>
     <string name="home_return_home">На головний екран</string>

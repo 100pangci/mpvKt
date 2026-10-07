@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- ko -->
 <resources>
+    <string name="home_playback_failed">재생을 준비할 수 없습니다. 파일에 접근할 수 있는지 확인한 후 다시 시도해 주세요.</string>
     <string name="home_refresh_directory">폴더 새로고침</string>
     <string name="home_directory_unavailable">이 폴더에 더 이상 접근할 수 없습니다. 홈 화면으로 돌아가 폴더를 다시 선택하여 접근을 허용해 주세요.</string>
     <string name="home_return_home">홈으로 돌아가기</string>

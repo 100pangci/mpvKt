@@ -1,5 +1,6 @@
 package live.mehiz.mpvkt.ui.player.controls
 
+import android.os.SystemClock
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
@@ -38,6 +39,8 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.update
 import live.mehiz.mpvkt.R
@@ -95,6 +98,7 @@ fun GestureHandler(
   val currentBrightness by viewModel.currentBrightness.collectAsState()
   val volumeBoostingCap = audioPreferences.volumeBoostCap.get()
   val haptics = LocalHapticFeedback.current
+  val lifecycle = LocalLifecycleOwner.current.lifecycle
   Box(
     modifier = modifier
       .fillMaxSize()
@@ -160,50 +164,52 @@ fun GestureHandler(
           },
         )
       }
-      .pointerInput(areControlsLocked) {
+      .pointerInput(areControlsLocked, seekGesture) {
         if (!seekGesture || areControlsLocked) return@pointerInput
         var startingPosition = position ?: 0
         var startingX = 0f
-        var wasPlayerAlreadyPause = false
-        var gestureEndTarget: Int? = null
-        detectHorizontalDragGestures(
-          onDragStart = {
-            startingPosition = position ?: 0
-            startingX = it.x
-            wasPlayerAlreadyPause = paused ?: false
-            viewModel.pause()
-          },
-          onDragEnd = {
-            viewModel.gestureSeekAmount.update { null }
-            viewModel.hideSeekBar()
-            // While dragging we seek by keyframes for fluidity, so mpv stops
-            // at the keyframe before the target; one exact seek on release
-            // snaps playback to the position the user actually let go of.
-            gestureEndTarget?.let { viewModel.seekTo(it, precise = true) }
-            gestureEndTarget = null
-            if (!wasPlayerAlreadyPause) viewModel.unpause()
-          },
-        ) { change, dragAmount ->
-          if ((position ?: 0) <= 0f && dragAmount < 0) return@detectHorizontalDragGestures
-          if ((position ?: 0) >= (duration ?: 0) && dragAmount > 0) return@detectHorizontalDragGestures
-          calculateNewHorizontalGestureValue(
-            startingPosition,
-            startingX,
-            change.position.x,
-            0.15f
-          ).let {
-            gestureEndTarget = it
-            viewModel.gestureSeekAmount.update { _ ->
-              Pair(
-                startingPosition,
-                (it - startingPosition)
-                  .coerceIn(0 - startingPosition, ((duration ?: 0) - startingPosition)),
-              )
+        val session = HorizontalSeekSession()
+        fun completeDrag(cancelled: Boolean) {
+          val completion = session.finish(preciseSeeking, cancelled) ?: return
+          viewModel.gestureSeekAmount.update { null }
+          viewModel.hideSeekBar()
+          completion.target?.let { viewModel.seekTo(it, precise = completion.precise) }
+          // Don't override onPause's policy when disposal is caused by leaving the app.
+          val mayResume = lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED) ||
+            (lifecycle.currentState != Lifecycle.State.DESTROYED && playerPreferences.automaticBackgroundPlayback.get())
+          if (completion.resume && mayResume) viewModel.unpause()
+        }
+        try {
+          detectHorizontalDragGestures(
+            onDragStart = {
+              if ((duration ?: 0) > 0) {
+                startingPosition = position ?: 0
+                startingX = it.x
+                session.start(paused != false)
+                viewModel.pause()
+              }
+            },
+            onDragEnd = { completeDrag(cancelled = false) },
+            onDragCancel = { completeDrag(cancelled = true) },
+          ) { change, _ ->
+            if (!session.isActive) return@detectHorizontalDragGestures
+            val target = calculateNewHorizontalGestureValue(
+              startingPosition,
+              startingX,
+              change.position.x,
+              0.15f,
+            ).coerceIn(0, (duration ?: 0).coerceAtLeast(0))
+            viewModel.gestureSeekAmount.update { startingPosition to (target - startingPosition) }
+            session.update(target, SystemClock.uptimeMillis())?.let {
+              viewModel.seekTo(it, precise = false)
             }
-            viewModel.seekTo(it, preciseSeeking)
-          }
 
-          if (showSeekbarWhenSeeking) viewModel.showSeekBar()
+            if (showSeekbarWhenSeeking) viewModel.showSeekBar()
+          }
+        } finally {
+          // pointerInput can be cancelled without an onDragCancel callback
+          // (locking controls, disabling gestures, navigation or disposal).
+          completeDrag(cancelled = true)
         }
       }
       .pointerInput(areControlsLocked) {

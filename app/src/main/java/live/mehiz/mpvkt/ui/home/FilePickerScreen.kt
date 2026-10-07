@@ -3,7 +3,7 @@ package live.mehiz.mpvkt.ui.home
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.os.Bundle
+import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -47,6 +48,7 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
@@ -64,14 +66,18 @@ import androidx.lifecycle.compose.LifecycleEventEffect
 import com.github.k1rakishou.fsaf.FileManager
 import com.github.k1rakishou.fsaf.file.AbstractFile
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import live.mehiz.mpvkt.R
 import live.mehiz.mpvkt.preferences.SubtitlesPreferences
 import live.mehiz.mpvkt.presentation.Screen
 import live.mehiz.mpvkt.ui.player.PlayerActivity
+import live.mehiz.mpvkt.ui.player.PlaybackQueueRequest
+import live.mehiz.mpvkt.ui.player.PlaybackQueueStore
 import live.mehiz.mpvkt.ui.player.audioExtensions
 import live.mehiz.mpvkt.ui.player.imageExtensions
 import live.mehiz.mpvkt.ui.player.videoExtensions
@@ -80,6 +86,7 @@ import live.mehiz.mpvkt.ui.utils.LocalBackStack
 import live.mehiz.mpvkt.ui.utils.NaturalOrderComparator
 import org.koin.compose.koinInject
 import java.lang.Long.signum
+import java.io.File
 import java.text.StringCharacterIterator
 import java.time.Instant
 import java.time.ZoneId
@@ -113,10 +120,34 @@ data class FilePickerScreen(val uri: String) : Screen {
     // Selected file paths in tap order: the queue must follow the user's
     // pick order, not the directory listing.
     val selectedPaths = remember { mutableStateListOf<String>() }
+    val scope = rememberCoroutineScope()
+    var preparingPlayback by remember { mutableStateOf(false) }
 
     fun exitMultiSelect() {
       multiSelectMode = false
       selectedPaths.clear()
+    }
+
+    fun requestPlayback(prepare: () -> Intent?) {
+      if (preparingPlayback) return
+      preparingPlayback = true
+      scope.launch {
+        try {
+          val playbackIntent = withContext(Dispatchers.IO) { prepare() }
+          if (playbackIntent != null) {
+            exitMultiSelect()
+            context.startActivity(playbackIntent)
+          } else {
+            Toast.makeText(context, R.string.home_playback_failed, Toast.LENGTH_LONG).show()
+          }
+        } catch (error: CancellationException) {
+          throw error
+        } catch (_: Exception) {
+          Toast.makeText(context, R.string.home_playback_failed, Toast.LENGTH_LONG).show()
+        } finally {
+          preparingPlayback = false
+        }
+      }
     }
 
     Scaffold(
@@ -141,7 +172,8 @@ data class FilePickerScreen(val uri: String) : Screen {
             }
           },
           actions = {
-            IconButton(onClick = { refreshRevision++ }) {
+            if (preparingPlayback) CircularProgressIndicator(Modifier.size(24.dp))
+            IconButton(onClick = { refreshRevision++ }, enabled = !preparingPlayback) {
               Icon(Icons.Default.Refresh, stringResource(R.string.home_refresh_directory))
             }
           },
@@ -153,17 +185,16 @@ data class FilePickerScreen(val uri: String) : Screen {
             selectedCount = selectedPaths.size,
             onCancel = ::exitMultiSelect,
             onPlay = {
-              playSelectedFiles(
-                playback = SelectedPlayback(
-                  paths = selectedPaths.toList(),
-                  directory = directory,
-                  fileManager = fileManager,
-                  autoLoadSubtitles = subtitlesPreferences.autoLoadExternal.get(),
-                  context = context,
-                ),
-                onFinished = ::exitMultiSelect,
+              val playback = SelectedPlayback(
+                paths = selectedPaths.toList(),
+                directory = directory,
+                fileManager = fileManager,
+                autoLoadSubtitles = subtitlesPreferences.autoLoadExternal.get(),
+                context = context,
               )
+              requestPlayback { prepareSelectedFiles(playback) }
             },
+            enabled = !preparingPlayback,
           )
         }
       },
@@ -189,24 +220,26 @@ data class FilePickerScreen(val uri: String) : Screen {
       }
       FilePicker(
         directory = directory,
-        onNavigate = { newFile ->
-          when {
-            multiSelectMode -> toggleSelection(newFile, fileManager, selectedPaths)
-            fileManager.isFile(newFile) -> playTappedFile(
-              newFile,
-              directory,
-              fileManager,
-              subtitlesPreferences.autoLoadExternal.get(),
-              context,
-            )
+        onNavigate = { entry ->
+          if (!preparingPlayback) when {
+            multiSelectMode -> if (!entry.info.isDirectory) toggleSelection(entry.info.path, selectedPaths)
+            !entry.info.isDirectory -> requestPlayback {
+              prepareTappedFile(
+                entry.file,
+                directory,
+                fileManager,
+                subtitlesPreferences.autoLoadExternal.get(),
+                context,
+              )
+            }
 
-            else -> backstack.add(FilePickerScreen(newFile.getFullPath()))
+            else -> backstack.add(FilePickerScreen(entry.info.path))
           }
         },
-        onLongPressFile = { file ->
-          if (!multiSelectMode && fileManager.isFile(file) && fileManager.getName(file).isVideoFile()) {
+        onLongPressFile = { entry ->
+          if (!preparingPlayback && !multiSelectMode && !entry.info.isDirectory && entry.info.name.isVideoFile()) {
             multiSelectMode = true
-            selectedPaths.add(file.getFullPath())
+            selectedPaths.add(entry.info.path)
           }
         },
         isSelectedFile = { path ->
@@ -229,61 +262,45 @@ data class FilePickerScreen(val uri: String) : Screen {
   }
 
   private fun toggleSelection(
-    file: AbstractFile,
-    fileManager: FileManager,
+    path: String,
     selectedPaths: SnapshotStateList<String>,
   ) {
-    if (!fileManager.isFile(file)) return
-    val path = file.getFullPath()
     if (path in selectedPaths) selectedPaths.remove(path) else selectedPaths.add(path)
   }
 
-  private fun playTappedFile(
+  private fun prepareTappedFile(
     file: AbstractFile,
     directory: AbstractFile,
     fileManager: FileManager,
     autoLoadSubtitles: Boolean,
     context: Context,
-  ) {
+  ): Intent? {
     val path = file.getFullPath()
-    if (fileManager.getName(file).isVideoFile()) {
+    val directoryFiles = fileManager.listFiles(directory)
+    val actualFile = directoryFiles.firstOrNull { it.getFullPath() == path && fileManager.isFile(it) } ?: return null
+    val subtitleIndex = if (autoLoadSubtitles) buildSubtitleIndex(directoryFiles, fileManager) else null
+    if (fileManager.getName(actualFile).isVideoFile()) {
       // Opening one video queues every video of the directory in natural
       // order and starts at the tapped one.
-      val directoryFiles = fileManager.listFiles(directory)
       val videoFiles = directoryFiles
         .filter { fileManager.isFile(it) && fileManager.getName(it).isVideoFile() }
       val queue = videoFiles.map { it.getFullPath() }
         .sortedWith(NaturalOrderComparator)
-      val subtitlePaths = if (autoLoadSubtitles) {
-        collectSiblingSubtitles(file, directoryFiles, fileManager)
-      } else {
-        emptyList()
-      }
-      val queueSubtitles = if (autoLoadSubtitles) {
-        buildQueueSubtitlePaths(videoFiles, directoryFiles, fileManager)
-      } else {
-        null
-      }
-      playFileFromQueue(path, queue, subtitlePaths, context, queueSubtitles)
-      return
+      val queueSubtitles = videoFiles.associate { video ->
+        video.getFullPath() to subtitleIndex?.forVideoName(fileManager.getName(video)).orEmpty()
+      }.filterValues { it.isNotEmpty() }
+      return prepareQueueIntent(path, queue, context, queueSubtitles)
     }
-    if (autoLoadSubtitles) {
-      playFileWithSubtitles(
-        path,
-        collectSiblingSubtitles(file, fileManager.listFiles(directory), fileManager),
-        context,
-      )
-    } else {
-      HomeScreen.playFile(path, context)
-    }
+    val subtitles = subtitleIndex?.forVideoName(fileManager.getName(actualFile)).orEmpty()
+    return prepareQueueIntent(path, listOf(path), context, if (subtitles.isEmpty()) emptyMap() else mapOf(path to subtitles))
   }
 
   @Composable
   private fun FilePicker(
     directory: AbstractFile,
-    onNavigate: (AbstractFile) -> Unit,
+    onNavigate: (PickerFileEntry) -> Unit,
     modifier: Modifier = Modifier,
-    onLongPressFile: (AbstractFile) -> Unit = {},
+    onLongPressFile: (PickerFileEntry) -> Unit = {},
     isSelectedFile: (String) -> Boolean = { false },
     refreshRevision: Int = 0,
     onListingLoaded: (List<PickerEntryInfo>) -> Unit = {},
@@ -361,8 +378,8 @@ data class FilePickerScreen(val uri: String) : Screen {
             },
           ),
           items = directoryItemCounts[info.path],
-          onClick = { onNavigate(file) },
-          onLongClick = { onLongPressFile(file) },
+          onClick = { onNavigate(entry) },
+          onLongClick = { onLongPressFile(entry) },
           previewSource = info.path,
           loadPreview = loadPreviews,
         )
@@ -482,6 +499,7 @@ private fun MultiSelectBottomBar(
   selectedCount: Int,
   onCancel: () -> Unit,
   onPlay: () -> Unit,
+  enabled: Boolean = true,
 ) {
   Surface(tonalElevation = 3.dp) {
     Row(
@@ -492,12 +510,12 @@ private fun MultiSelectBottomBar(
       horizontalArrangement = Arrangement.End,
       verticalAlignment = Alignment.CenterVertically,
     ) {
-      TextButton(onClick = onCancel) {
+      TextButton(onClick = onCancel, enabled = enabled) {
         Text(stringResource(R.string.generic_cancel))
       }
       Button(
         onClick = onPlay,
-        enabled = selectedCount > 0,
+        enabled = enabled && selectedCount > 0,
       ) {
         Text(stringResource(R.string.home_play_selected, selectedCount))
       }
@@ -513,10 +531,9 @@ private data class SelectedPlayback(
   val context: Context,
 )
 
-private fun playSelectedFiles(
+private fun prepareSelectedFiles(
   playback: SelectedPlayback,
-  onFinished: () -> Unit,
-) {
+): Intent? {
   val directoryFiles = playback.fileManager.listFiles(playback.directory)
   val filesByPath = directoryFiles.associateBy { it.getFullPath() }
   // Revalidate when playing too: a file can disappear after the last refresh.
@@ -524,54 +541,25 @@ private fun playSelectedFiles(
     filesByPath[path]?.let { playback.fileManager.isFile(it) } == true
   }
   if (availablePaths.isEmpty()) {
-    onFinished()
-    return
+    return null
   }
   val selectedFiles = availablePaths.mapNotNull(filesByPath::get)
-  val (subtitlePaths, queueSubtitles) = if (playback.autoLoadSubtitles) {
-    val subtitles = selectedFiles.firstOrNull()?.let {
-      collectSiblingSubtitles(it, directoryFiles, playback.fileManager)
-    }.orEmpty()
-    subtitles to buildQueueSubtitlePaths(selectedFiles, directoryFiles, playback.fileManager)
+  val queueSubtitles = if (playback.autoLoadSubtitles) {
+    val index = buildSubtitleIndex(directoryFiles, playback.fileManager)
+    selectedFiles.associate { file -> file.getFullPath() to index.forVideoName(playback.fileManager.getName(file)) }
+      .filterValues { it.isNotEmpty() }
   } else {
-    emptyList<String>() to null
+    emptyMap()
   }
-  onFinished()
-  playFileFromQueue(availablePaths.first(), availablePaths, subtitlePaths, playback.context, queueSubtitles)
+  return prepareQueueIntent(availablePaths.first(), availablePaths, playback.context, queueSubtitles)
 }
 
-private fun collectSiblingSubtitles(
-  video: AbstractFile,
+private fun buildSubtitleIndex(
   directoryFiles: List<AbstractFile>,
   fileManager: FileManager,
-): List<String> {
-  val videoNameWithoutExt = fileManager.getName(video).substringBeforeLast(".")
-  val subtitleExtensions = setOf("srt", "ass", "ssa", "vtt", "sub")
-  return directoryFiles.filter { potentialSubFile ->
-    if (fileManager.isDirectory(potentialSubFile)) {
-      false
-    } else {
-      val subFileName = fileManager.getName(potentialSubFile)
-      val subFileNameWithoutExt = subFileName.substringBeforeLast('.')
-      val subFileExt = subFileName.substringAfterLast('.').lowercase()
-      // Matching rule: File names have the same prefix and the extension is a subtitle format
-      subFileNameWithoutExt.startsWith(videoNameWithoutExt) && subFileExt in subtitleExtensions
-    }
-  }.map { it.getFullPath() }
-}
-
-private fun buildQueueSubtitlePaths(
-  videoFiles: List<AbstractFile>,
-  directoryFiles: List<AbstractFile>,
-  fileManager: FileManager,
-): Bundle = Bundle().apply {
-  videoFiles.forEach { video ->
-    val subtitles = collectSiblingSubtitles(video, directoryFiles, fileManager)
-    if (subtitles.isNotEmpty()) {
-      putStringArrayList(video.getFullPath(), ArrayList(subtitles))
-    }
-  }
-}
+): SiblingSubtitleIndex = SiblingSubtitleIndex(
+  directoryFiles.filter { fileManager.isFile(it) }.map { fileManager.getName(it) to it.getFullPath() },
+)
 
 @Composable
 private fun fileIcon(
@@ -587,45 +575,22 @@ private fun fileIcon(
   }
 }
 
-private fun playFileWithSubtitles(
-  filepath: String,
-  subtitlePaths: List<String>,
-  context: Context,
-) {
-  val i = Intent(Intent.ACTION_VIEW, filepath.toUri())
-  i.setClass(context, PlayerActivity::class.java)
-  if (subtitlePaths.isNotEmpty()) {
-    val subtitleUris = subtitlePaths.map { it.toUri() }.toTypedArray()
-    i.putExtra("subs", subtitleUris)
-    i.putExtra("subs.enable", arrayOf(subtitleUris.first()))
-  }
-  context.startActivity(i)
-}
-
 /**
  * Launches the player with an explicit queue: [startPath] is the entry to
  * play (also the intent data, so sibling subtitle/font resolution works),
  * [queue] holds every entry in playback order.
  */
-private fun playFileFromQueue(
+private fun prepareQueueIntent(
   startPath: String,
   queue: List<String>,
-  subtitlePaths: List<String>,
   context: Context,
-  queueSubtitles: Bundle? = null,
-) {
+  queueSubtitles: Map<String, List<String>> = emptyMap(),
+): Intent {
   val i = Intent(Intent.ACTION_VIEW, startPath.toUri())
   i.setClass(context, PlayerActivity::class.java)
-  if (queue.size > 1) {
-    i.putExtra(PlayerActivity.QUEUE_EXTRA, ArrayList(queue))
-    queueSubtitles?.let { i.putExtra(PlayerActivity.QUEUE_SUBTITLES_EXTRA, it) }
-  }
-  if (subtitlePaths.isNotEmpty()) {
-    val subtitleUris = subtitlePaths.map { it.toUri() }.toTypedArray()
-    i.putExtra("subs", subtitleUris)
-    i.putExtra("subs.enable", arrayOf(subtitleUris.first()))
-  }
-  context.startActivity(i)
+  val store = PlaybackQueueStore(File(context.filesDir, PlaybackQueueStore.DIRECTORY))
+  i.putExtra(PlayerActivity.QUEUE_REQUEST_EXTRA, store.save(PlaybackQueueRequest(queue, queueSubtitles)))
+  return i
 }
 
 private fun String.isVideoFile(): Boolean = substringAfterLast('.').lowercase() in videoExtensions

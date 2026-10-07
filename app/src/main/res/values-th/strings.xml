@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- th -->
 <resources>
+    <string name="home_playback_failed">ไม่สามารถเตรียมการเล่นได้ โปรดตรวจสอบว่าสามารถเข้าถึงไฟล์ได้แล้วลองอีกครั้ง</string>
     <string name="home_refresh_directory">รีเฟรชโฟลเดอร์</string>
     <string name="home_directory_unavailable">ไม่สามารถเข้าถึงโฟลเดอร์นี้ได้อีกต่อไป โปรดกลับไปที่หน้าหลักแล้วเลือกโฟลเดอร์อีกครั้งเพื่ออนุญาตการเข้าถึง</string>
     <string name="home_return_home">กลับไปที่หน้าหลัก</string>

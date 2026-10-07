@@ -1,4 +1,5 @@
 <resources>
+    <string name="home_playback_failed">Não foi possível preparar a reprodução. Verifique se os arquivos estão acessíveis e tente novamente.</string>
     <string name="home_refresh_directory">Atualizar pasta</string>
     <string name="home_directory_unavailable">Esta pasta não está mais acessível. Volte à tela inicial e selecione-a novamente para conceder acesso.</string>
     <string name="home_return_home">Voltar à tela inicial</string>

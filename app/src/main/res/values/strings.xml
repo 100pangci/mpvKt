@@ -1,4 +1,5 @@
 <resources>
+    <string name="home_playback_failed">Couldn\'t prepare playback. Check that the files are accessible and try again.</string>
     <string name="home_refresh_directory">Refresh folder</string>
     <string name="app_name" translatable="false">mpvKt</string>
 

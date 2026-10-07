@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- vi -->
 <resources>
+    <string name="home_playback_failed">Không thể chuẩn bị phát. Hãy kiểm tra quyền truy cập các tệp rồi thử lại.</string>
     <string name="home_refresh_directory">Làm mới thư mục</string>
     <string name="home_directory_unavailable">Không thể truy cập thư mục này nữa. Hãy quay về màn hình chính và chọn lại thư mục để cấp quyền truy cập.</string>
     <string name="home_return_home">Về màn hình chính</string>

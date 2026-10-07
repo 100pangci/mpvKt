@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- de -->
 <resources>
+    <string name="home_playback_failed">Die Wiedergabe konnte nicht vorbereitet werden. Prüfe den Zugriff auf die Dateien und versuche es erneut.</string>
     <string name="home_refresh_directory">Ordner aktualisieren</string>
     <string name="home_directory_unavailable">Auf diesen Ordner kann nicht mehr zugegriffen werden. Kehre zur Startseite zurück und wähle ihn erneut aus, um den Zugriff zu erlauben.</string>
     <string name="home_return_home">Zur Startseite</string>

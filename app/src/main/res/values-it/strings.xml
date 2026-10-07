@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- it -->
 <resources>
+    <string name="home_playback_failed">Impossibile preparare la riproduzione. Verifica che i file siano accessibili e riprova.</string>
     <string name="home_refresh_directory">Aggiorna cartella</string>
     <string name="home_directory_unavailable">Questa cartella non è più accessibile. Torna alla schermata iniziale e selezionala di nuovo per concedere l\'accesso.</string>
     <string name="home_return_home">Torna alla schermata iniziale</string>

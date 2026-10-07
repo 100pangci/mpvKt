@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- tr -->
 <resources>
+    <string name="home_playback_failed">Oynatma hazırlanamadı. Dosyalara erişilebildiğini kontrol edip yeniden deneyin.</string>
     <string name="home_refresh_directory">Klasörü yenile</string>
     <string name="home_directory_unavailable">Bu klasöre artık erişilemiyor. Erişim izni vermek için ana ekrana dönüp klasörü yeniden seçin.</string>
     <string name="home_return_home">Ana ekrana dön</string>

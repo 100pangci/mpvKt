@@ -3,6 +3,7 @@ package live.mehiz.mpvkt.ui.network
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -41,6 +42,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
@@ -53,6 +55,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
@@ -63,11 +67,14 @@ import live.mehiz.mpvkt.network.RemoteClientFactory
 import live.mehiz.mpvkt.network.RemoteEntry
 import live.mehiz.mpvkt.presentation.Screen
 import live.mehiz.mpvkt.ui.player.PlayerActivity
+import live.mehiz.mpvkt.ui.player.PlaybackQueueRequest
+import live.mehiz.mpvkt.ui.player.PlaybackQueueStore
 import live.mehiz.mpvkt.ui.player.videoExtensions
 import live.mehiz.mpvkt.ui.theme.spacing
 import live.mehiz.mpvkt.ui.utils.LocalBackStack
 import live.mehiz.mpvkt.ui.utils.NaturalOrderComparator
 import org.koin.compose.koinInject
+import java.io.File
 
 @Serializable
 data class NetworkBrowserScreen(
@@ -92,6 +99,8 @@ data class NetworkBrowserScreen(
     // Selected file names in tap order: the queue must follow the user's
     // pick order, not the directory listing.
     val selectedNames = remember { mutableStateListOf<String>() }
+    val scope = rememberCoroutineScope()
+    var preparingPlayback by remember { mutableStateOf(false) }
 
     fun exitMultiSelect() {
       multiSelectMode = false
@@ -157,9 +166,26 @@ data class NetworkBrowserScreen(
             onPlay = {
               // enabled guards the empty case, first() is always valid.
               val names = selectedNames.toList()
-              exitMultiSelect()
-              playSelectedFiles(names, factory, json, context)
+              if (!preparingPlayback) {
+                preparingPlayback = true
+                scope.launch {
+                  try {
+                    val playbackIntent = withContext(Dispatchers.IO) {
+                      prepareSelectedFiles(names, factory, json, context)
+                    }
+                    exitMultiSelect()
+                    context.startActivity(playbackIntent)
+                  } catch (error: CancellationException) {
+                    throw error
+                  } catch (_: Exception) {
+                    Toast.makeText(context, R.string.home_playback_failed, Toast.LENGTH_LONG).show()
+                  } finally {
+                    preparingPlayback = false
+                  }
+                }
+              }
             },
+            enabled = !preparingPlayback,
           )
         }
       },
@@ -273,21 +299,20 @@ data class NetworkBrowserScreen(
    * browsed directory ride along so per-episode fonts/ staging keeps
    * working when mpv advances through the queue by itself.
    */
-  private fun playSelectedFiles(
+  private fun prepareSelectedFiles(
     names: List<String>,
     factory: RemoteClientFactory,
     json: Json,
     context: Context,
-  ) {
+  ): Intent {
     val urls = names.map { fileUrlFor(it, factory) }
     val i = Intent(Intent.ACTION_VIEW, urls.first().toUri())
     i.setClass(context, PlayerActivity::class.java)
-    if (urls.size > 1) {
-      i.putExtra(PlayerActivity.QUEUE_EXTRA, ArrayList(urls))
-    }
+    val store = PlaybackQueueStore(File(context.filesDir, PlaybackQueueStore.DIRECTORY))
+    i.putExtra(PlayerActivity.QUEUE_REQUEST_EXTRA, store.save(PlaybackQueueRequest(urls)))
     i.putExtra(PlayerActivity.REMOTE_SOURCE_EXTRA, json.encodeToString(source))
     i.putExtra(PlayerActivity.REMOTE_PLAY_PATH_EXTRA, path)
-    context.startActivity(i)
+    return i
   }
 
   private fun fileUrlFor(name: String, factory: RemoteClientFactory): String =
@@ -300,6 +325,7 @@ private fun MultiSelectBar(
   onCancel: () -> Unit,
   onPlay: () -> Unit,
   modifier: Modifier = Modifier,
+  enabled: Boolean = true,
 ) {
   Surface(modifier = modifier, tonalElevation = 3.dp) {
     Row(
@@ -310,10 +336,10 @@ private fun MultiSelectBar(
       horizontalArrangement = Arrangement.End,
       verticalAlignment = Alignment.CenterVertically,
     ) {
-      TextButton(onClick = onCancel) {
+      TextButton(onClick = onCancel, enabled = enabled) {
         Text(stringResource(R.string.generic_cancel))
       }
-      Button(onClick = onPlay, enabled = selectedCount > 0) {
+      Button(onClick = onPlay, enabled = enabled && selectedCount > 0) {
         Text(stringResource(R.string.home_play_selected, selectedCount))
       }
     }
