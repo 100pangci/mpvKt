@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- pl -->
 <resources>
+    <string name="home_refresh_directory">Odśwież folder</string>
+    <string name="home_directory_unavailable">Ten folder nie jest już dostępny. Wróć do ekranu głównego i wybierz go ponownie, aby przyznać dostęp.</string>
+    <string name="home_return_home">Wróć do ekranu głównego</string>
     <string name="generic_reset">Resetuj</string>
     <string name="generic_share">Udostępnij</string>
     <string name="generic_confirm">Potwierdź</string>

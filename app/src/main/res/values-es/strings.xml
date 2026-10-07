@@ -1,4 +1,7 @@
 <resources>
+    <string name="home_refresh_directory">Actualizar carpeta</string>
+    <string name="home_directory_unavailable">Ya no se puede acceder a esta carpeta. Vuelve a la pantalla de inicio y selecciónala de nuevo para conceder acceso.</string>
+    <string name="home_return_home">Volver al inicio</string>
     <string name="generic_reset">Restablecer</string>
     <string name="generic_share">Compartir</string>
     <string name="generic_confirm">Confirmar</string>

@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- ko -->
 <resources>
+    <string name="home_refresh_directory">폴더 새로고침</string>
+    <string name="home_directory_unavailable">이 폴더에 더 이상 접근할 수 없습니다. 홈 화면으로 돌아가 폴더를 다시 선택하여 접근을 허용해 주세요.</string>
+    <string name="home_return_home">홈으로 돌아가기</string>
     <string name="generic_reset">초기화</string>
     <string name="generic_share">공유</string>
     <string name="generic_confirm">확인</string>

@@ -8,6 +8,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.InsertDriveFile
@@ -24,7 +26,9 @@ import androidx.compose.material.icons.filled.Audiotrack
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Movie
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -37,10 +41,15 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,9 +59,14 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import com.github.k1rakishou.fsaf.FileManager
 import com.github.k1rakishou.fsaf.file.AbstractFile
-import `is`.xyz.mpv.Utils
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import live.mehiz.mpvkt.R
 import live.mehiz.mpvkt.preferences.SubtitlesPreferences
@@ -62,7 +76,6 @@ import live.mehiz.mpvkt.ui.player.audioExtensions
 import live.mehiz.mpvkt.ui.player.imageExtensions
 import live.mehiz.mpvkt.ui.player.videoExtensions
 import live.mehiz.mpvkt.ui.theme.spacing
-import live.mehiz.mpvkt.ui.utils.FilesComparator
 import live.mehiz.mpvkt.ui.utils.LocalBackStack
 import live.mehiz.mpvkt.ui.utils.NaturalOrderComparator
 import org.koin.compose.koinInject
@@ -83,7 +96,19 @@ data class FilePickerScreen(val uri: String) : Screen {
     val fileManager = koinInject<FileManager>()
     val context = LocalContext.current
     val subtitlesPreferences = koinInject<SubtitlesPreferences>()
-    val directory = fileManager.fromUri(uri.toUri())!!
+    var refreshRevision by remember(uri) { mutableIntStateOf(0) }
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+      // Files can be added/deleted by another app while the picker is in the background.
+      refreshRevision++
+    }
+    // Navigation state can outlive a SAF grant or the directory itself.
+    // A restored screen must not assume its URI is still accessible.
+    var resolvingDirectory by remember(uri) { mutableStateOf(true) }
+    val resolvedDirectory by produceState<AbstractFile?>(null, uri, fileManager, refreshRevision) {
+      value = withContext(Dispatchers.IO) { fileManager.resolvePickerDirectory(uri.toUri()) }
+      resolvingDirectory = false
+    }
+    val directory = resolvedDirectory
     var multiSelectMode by remember { mutableStateOf(false) }
     // Selected file paths in tap order: the queue must follow the user's
     // pick order, not the directory listing.
@@ -115,10 +140,15 @@ data class FilePickerScreen(val uri: String) : Screen {
               Icon(Icons.AutoMirrored.Default.ArrowBack, null)
             }
           },
+          actions = {
+            IconButton(onClick = { refreshRevision++ }) {
+              Icon(Icons.Default.Refresh, stringResource(R.string.home_refresh_directory))
+            }
+          },
         )
       },
       bottomBar = {
-        if (multiSelectMode) {
+        if (multiSelectMode && directory != null) {
           MultiSelectBottomBar(
             selectedCount = selectedPaths.size,
             onCancel = ::exitMultiSelect,
@@ -138,6 +168,25 @@ data class FilePickerScreen(val uri: String) : Screen {
         }
       },
     ) { paddingValues ->
+      if (resolvingDirectory) {
+        Box(Modifier.fillMaxSize().padding(paddingValues), contentAlignment = Alignment.Center) {
+          CircularProgressIndicator()
+        }
+        return@Scaffold
+      }
+      if (directory == null) {
+        Column(
+          modifier = Modifier.fillMaxSize().padding(paddingValues).padding(MaterialTheme.spacing.medium),
+          horizontalAlignment = Alignment.CenterHorizontally,
+          verticalArrangement = Arrangement.Center,
+        ) {
+          Text(stringResource(R.string.home_directory_unavailable))
+          TextButton(onClick = { backstack.removeAll { it is FilePickerScreen } }) {
+            Text(stringResource(R.string.home_return_home))
+          }
+        }
+        return@Scaffold
+      }
       FilePicker(
         directory = directory,
         onNavigate = { newFile ->
@@ -160,8 +209,17 @@ data class FilePickerScreen(val uri: String) : Screen {
             selectedPaths.add(file.getFullPath())
           }
         },
-        isSelectedFile = { file ->
-          multiSelectMode && fileManager.isFile(file) && file.getFullPath() in selectedPaths
+        isSelectedFile = { path ->
+          multiSelectMode && path in selectedPaths
+        },
+        refreshRevision = refreshRevision,
+        onListingLoaded = { entries ->
+          val retained = retainPickerSelection(selectedPaths, entries)
+          if (retained != selectedPaths) {
+            selectedPaths.clear()
+            selectedPaths.addAll(retained)
+          }
+          if (selectedPaths.isEmpty()) multiSelectMode = false
         },
         modifier = Modifier
           .fillMaxSize()
@@ -221,21 +279,49 @@ data class FilePickerScreen(val uri: String) : Screen {
   }
 
   @Composable
-  fun FilePicker(
+  private fun FilePicker(
     directory: AbstractFile,
     onNavigate: (AbstractFile) -> Unit,
     modifier: Modifier = Modifier,
     onLongPressFile: (AbstractFile) -> Unit = {},
-    isSelectedFile: (AbstractFile) -> Boolean = { false },
+    isSelectedFile: (String) -> Boolean = { false },
+    refreshRevision: Int = 0,
+    onListingLoaded: (List<PickerEntryInfo>) -> Unit = {},
   ) {
     val navigator = LocalBackStack.current
     val fileManager = koinInject<FileManager>()
-    val fileList = fileManager.listFiles(directory).filterNot {
-      !Utils.MEDIA_EXTENSIONS.contains(fileManager.getName(it).substringAfterLast('.')) &&
-        fileManager.isFile(it) || fileManager.getName(it).startsWith('.')
-    }.sortedWith(FilesComparator(fileManager))
-
-    LazyColumn(modifier) {
+    val directoryPath = directory.getFullPath()
+    val notifyListingLoaded by rememberUpdatedState(onListingLoaded)
+    val listing by produceState<PickerDirectoryListing?>(null, directoryPath, fileManager, refreshRevision) {
+      value = null // Don't leave deleted rows clickable while the new snapshot loads.
+      val fresh = withContext(Dispatchers.IO) { loadPickerDirectoryListing(fileManager, directory) }
+      notifyListingLoaded(fresh.entries.map { it.info })
+      value = fresh
+    }
+    val listState = rememberLazyListState()
+    var loadPreviews by remember { mutableStateOf(false) }
+    val directoryItemCounts = remember(directoryPath, refreshRevision) { mutableStateMapOf<String, Int>() }
+    LaunchedEffect(listState) {
+      snapshotFlow { listState.isScrollInProgress }.collectLatest { scrolling ->
+        loadPreviews = false
+        if (!scrolling) {
+          delay(180) // Ignore brief gaps between drag/fling and rapidly changing visible rows.
+          loadPreviews = true
+        }
+      }
+    }
+    val loadedListing = listing
+    if (loadedListing == null) {
+      Box(modifier, contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+      return
+    }
+    if (loadedListing.unavailable) {
+      Box(modifier, contentAlignment = Alignment.Center) {
+        Text(stringResource(R.string.home_directory_unavailable))
+      }
+      return
+    }
+    LazyColumn(modifier, state = listState) {
       item {
         FileListing(
           name = "..",
@@ -246,22 +332,39 @@ data class FilePickerScreen(val uri: String) : Screen {
           modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerLow),
         )
       }
-      itemsIndexed(fileList, key = { _, file -> fileManager.getName(file) }) { index, file ->
+      itemsIndexed(
+        loadedListing.entries,
+        key = { _, entry -> entry.info.path },
+        contentType = { _, entry -> entry.info.isDirectory },
+      ) { index, entry ->
+        val info = entry.info
+        val file = entry.file
+        // Child counts are loaded only for visible, settled directory rows, once per screen.
+        LaunchedEffect(info.path, loadPreviews, refreshRevision) {
+          if (info.isDirectory && loadPreviews && info.path !in directoryItemCounts) {
+            val count = withContext(Dispatchers.IO) {
+              runCatching { fileManager.listFiles(file).size }.getOrNull()
+            }
+            count?.let { directoryItemCounts[info.path] = it }
+          }
+        }
         FileListing(
-          name = fileManager.getName(file),
-          isDirectory = fileManager.isDirectory(file),
-          lastModified = fileManager.lastModified(file),
-          length = if (fileManager.isFile(file)) fileManager.getLength(file) else null,
+          name = info.name,
+          isDirectory = info.isDirectory,
+          lastModified = info.lastModified,
+          length = info.length,
           modifier = Modifier.background(
             when {
-              isSelectedFile(file) -> MaterialTheme.colorScheme.primaryContainer
+              isSelectedFile(info.path) -> MaterialTheme.colorScheme.primaryContainer
               index % 2 == 1 -> MaterialTheme.colorScheme.surfaceContainerLow
               else -> MaterialTheme.colorScheme.surfaceContainerHigh
             },
           ),
-          items = if (fileManager.isDirectory(file)) fileManager.listFiles(file).size else null,
+          items = directoryItemCounts[info.path],
           onClick = { onNavigate(file) },
           onLongClick = { onLongPressFile(file) },
+          previewSource = info.path,
+          loadPreview = loadPreviews,
         )
       }
     }
@@ -278,18 +381,19 @@ data class FilePickerScreen(val uri: String) : Screen {
     modifier: Modifier = Modifier,
     items: Int? = null,
     onLongClick: (() -> Unit)? = null,
+    previewSource: String? = null,
+    loadPreview: Boolean = true,
   ) {
-    var size: String? by remember { mutableStateOf(null) }
-    var time: String? by remember { mutableStateOf(null) }
-    LaunchedEffect(Unit) {
+    val size = remember(isDirectory, length) {
+      if (isDirectory) null else length?.asHumanReadableByteCountBin()
+    }
+    val time = remember(lastModified) {
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         lastModified?.let {
-          time = Instant.ofEpochMilli(lastModified).atZone(ZoneId.systemDefault())
+          Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault())
             .format(DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm:ss"))
         }
-      }
-      if (isDirectory) return@LaunchedEffect
-      length?.let { size = it.asHumanReadableByteCountBin() }
+      } else null
     }
     Row(
       modifier = modifier
@@ -303,11 +407,20 @@ data class FilePickerScreen(val uri: String) : Screen {
       horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.smaller),
       verticalAlignment = Alignment.CenterVertically,
     ) {
-      Icon(
-        imageVector = fileIcon(isDirectory = isDirectory, fileExtension = name.substringAfterLast('.')),
-        contentDescription = null,
-      )
-      Column {
+      if (!isDirectory && name.isVideoFile() && previewSource != null) {
+        VideoFilePreview(
+          source = previewSource,
+          lastModified = lastModified,
+          length = length,
+          enabled = loadPreview,
+        )
+      } else {
+        Icon(
+          imageVector = fileIcon(isDirectory = isDirectory, fileExtension = name.substringAfterLast('.')),
+          contentDescription = null,
+        )
+      }
+      Column(Modifier.weight(1f)) {
         Text(
           text = name,
           color = MaterialTheme.colorScheme.onSurface,
@@ -406,7 +519,15 @@ private fun playSelectedFiles(
 ) {
   val directoryFiles = playback.fileManager.listFiles(playback.directory)
   val filesByPath = directoryFiles.associateBy { it.getFullPath() }
-  val selectedFiles = playback.paths.mapNotNull(filesByPath::get)
+  // Revalidate when playing too: a file can disappear after the last refresh.
+  val availablePaths = playback.paths.filter { path ->
+    filesByPath[path]?.let { playback.fileManager.isFile(it) } == true
+  }
+  if (availablePaths.isEmpty()) {
+    onFinished()
+    return
+  }
+  val selectedFiles = availablePaths.mapNotNull(filesByPath::get)
   val (subtitlePaths, queueSubtitles) = if (playback.autoLoadSubtitles) {
     val subtitles = selectedFiles.firstOrNull()?.let {
       collectSiblingSubtitles(it, directoryFiles, playback.fileManager)
@@ -416,7 +537,7 @@ private fun playSelectedFiles(
     emptyList<String>() to null
   }
   onFinished()
-  playFileFromQueue(playback.paths.first(), playback.paths, subtitlePaths, playback.context, queueSubtitles)
+  playFileFromQueue(availablePaths.first(), availablePaths, subtitlePaths, playback.context, queueSubtitles)
 }
 
 private fun collectSiblingSubtitles(

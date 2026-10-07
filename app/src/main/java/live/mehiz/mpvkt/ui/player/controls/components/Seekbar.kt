@@ -43,6 +43,14 @@ fun SeekbarWithTimers(
   modifier: Modifier = Modifier,
 ) {
   val clickEvent = LocalPlayerButtonsClickEvent.current
+  val segments = remember(chapters, duration) {
+    val validChapters = chapters.filter { it.start in 0f..duration }
+    if (validChapters.isNotEmpty() && validChapters.first().start != 0f) {
+      persistentListOf(Segment("", 0f)) + validChapters
+    } else {
+      validChapters
+    }
+  }
   Row(
     modifier = modifier.height(48.dp),
     verticalAlignment = Alignment.CenterVertically,
@@ -63,9 +71,7 @@ fun SeekbarWithTimers(
       onValueChange = onValueChange,
       onValueChangeFinished = onValueChangeFinished,
       readAheadValue = readAheadValue,
-      segments = chapters
-        .filter { it.start in 0f..duration }
-        .let { (if (it.isNotEmpty() && it[0].start != 0f) persistentListOf(Segment("", 0f)) + it else it) + it },
+      segments = segments,
       modifier = Modifier.weight(1f),
       colors = SeekerDefaults.seekerColors(
         progressColor = MaterialTheme.colorScheme.primary,

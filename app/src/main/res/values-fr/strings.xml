@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- fr -->
 <resources>
+    <string name="home_refresh_directory">Actualiser le dossier</string>
+    <string name="home_directory_unavailable">Ce dossier n\'est plus accessible. Revenez à l\'écran d\'accueil et sélectionnez-le à nouveau pour autoriser l\'accès.</string>
+    <string name="home_return_home">Revenir à l\'accueil</string>
     <string name="generic_reset">Réinitialiser</string>
     <string name="generic_share">Partager</string>
     <string name="generic_confirm">Confirmer</string>

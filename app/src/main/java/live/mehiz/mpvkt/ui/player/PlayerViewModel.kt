@@ -256,8 +256,10 @@ class PlayerViewModel(
   }
 
   fun seekTo(position: Int, precise: Boolean = true) {
-    if (position !in 0..(MPVLib.getPropertyInt("duration") ?: 0)) return
-    MPVLib.command("seek", position.toString(), if (precise) "absolute" else "absolute+keyframes")
+    // Duration is already observed: don't perform a synchronous JNI property read
+    // for every scrub update on the UI thread.
+    if (position !in 0..(duration ?: 0)) return
+    MPVLib.command("seek", position.toString(), if (precise) "absolute+exact" else "absolute+keyframes")
   }
 
   fun changeBrightnessBy(change: Float) {

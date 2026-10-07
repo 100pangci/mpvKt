@@ -1,4 +1,7 @@
 <resources>
+    <string name="home_refresh_directory">Обновить папку</string>
+    <string name="home_directory_unavailable">Эта папка больше недоступна. Вернитесь на главный экран и выберите её снова, чтобы предоставить доступ.</string>
+    <string name="home_return_home">На главный экран</string>
     <string name="generic_reset">Сброс</string>
     <string name="generic_share">Поделиться</string>
     <string name="generic_confirm">Подтвердить</string>

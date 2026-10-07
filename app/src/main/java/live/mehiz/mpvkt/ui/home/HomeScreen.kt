@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Environment
 import android.provider.Settings
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -58,6 +59,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import com.github.k1rakishou.fsaf.FileManager
 import `is`.xyz.mpv.Utils.PROTOCOLS
 import kotlinx.serialization.Serializable
@@ -154,12 +157,25 @@ object HomeScreen : Screen {
             Text(text = stringResource(R.string.home_pick_file))
           }
         }
-        val fileManager = FileManager(context)
+        val fileManager = koinInject<FileManager>()
         val directoryPicker = rememberLauncherForActivityResult(
           ActivityResultContracts.OpenDocumentTree(),
         ) {
           if (it == null) return@rememberLauncherForActivityResult
-          backstack.add(FilePickerScreen(fileManager.fromUri(it)!!.getFullPath()))
+          // Keep the tree readable when Android recreates the task/process.
+          // Some providers only offer a temporary grant; browsing should still
+          // work for this session, and restoration handles an expired grant.
+          try {
+            context.contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+          } catch (_: SecurityException) {
+            // The provider did not offer a persistable read grant.
+          }
+          val directory = fileManager.resolvePickerDirectory(it)
+          if (directory == null) {
+            Toast.makeText(context, R.string.home_directory_unavailable, Toast.LENGTH_LONG).show()
+          } else {
+            backstack.add(FilePickerScreen(directory.getFullPath()))
+          }
         }
         OutlinedButton(onClick = { directoryPicker.launch(null) }) {
           Row(
@@ -249,6 +265,12 @@ object HomeScreen : Screen {
       storageGranted = hasAllFilesAccess(context)
       showPrompt = !storageGranted && !dontAsk
     }
+    // Special-access settings do not reliably deliver an activity result on
+    // every device. Refresh on resume as well, without reopening a dismissed prompt.
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+      storageGranted = hasAllFilesAccess(context)
+      if (storageGranted) showPrompt = false
+    }
     val settingsLauncher = rememberLauncherForActivityResult(
       ActivityResultContracts.StartActivityForResult(),
     ) {
@@ -264,7 +286,7 @@ object HomeScreen : Screen {
     fun requestAccess() {
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
         val intent = Intent(
-          Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION,
+          Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,
           "package:${context.packageName}".toUri(),
         )
         runCatching { settingsLauncher.launch(intent) }

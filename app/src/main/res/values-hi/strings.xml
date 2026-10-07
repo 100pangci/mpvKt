@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- hi -->
 <resources>
+    <string name="home_refresh_directory">फ़ोल्डर रीफ़्रेश करें</string>
+    <string name="home_directory_unavailable">इस फ़ोल्डर तक अब पहुँच नहीं है। होम स्क्रीन पर लौटें और पहुँच की अनुमति देने के लिए इसे फिर से चुनें।</string>
+    <string name="home_return_home">होम पर लौटें</string>
     <string name="generic_reset">रीसेट करें</string>
     <string name="generic_share">साझा करें</string>
     <string name="generic_confirm">पुष्टि करें</string>

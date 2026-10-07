@@ -1,4 +1,5 @@
 <resources>
+    <string name="home_refresh_directory">Refresh folder</string>
     <string name="app_name" translatable="false">mpvKt</string>
 
     <string name="generic_reset">Reset</string>
@@ -14,6 +15,8 @@
     <string name="home_open_url">Open url</string>
     <string name="home_url_input_label">URL</string>
     <string name="home_invalid_protocol">Invalid protocol</string>
+    <string name="home_directory_unavailable">This folder is no longer accessible. Return to the home screen and select it again to grant access.</string>
+    <string name="home_return_home">Return to home</string>
 
     <string name="history_title">Watch history</string>
     <string name="history_empty">No watch history yet. Videos you watch will appear here.</string>

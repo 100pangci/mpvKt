@@ -1,5 +1,6 @@
 package live.mehiz.mpvkt.ui.player.controls
 
+import android.os.SystemClock
 import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -423,21 +424,28 @@ fun PlayerControls(
           val readAhead by MPVLib.propFloat["demuxer-cache-time"].collectAsState()
           val remaining by MPVLib.propFloat["playtime-remaining"].collectAsState()
           val preciseSeeking by playerPreferences.preciseSeeking.collectAsState()
-          var seekbarEndTarget by remember { mutableStateOf<Int?>(null) }
+          var seekbarEndTarget by remember { mutableStateOf<Float?>(null) }
+          val seekLimiter = remember { SeekbarSeekLimiter() }
           SeekbarWithTimers(
-            position = position?.toFloat() ?: 0f,
+            // The thumb follows the finger, not mpv's delayed/keyframe-snapped position.
+            position = seekbarEndTarget ?: position?.toFloat() ?: 0f,
             duration = duration?.toFloat() ?: 0f,
-            remaining = remaining?.toFloat() ?: 0f,
+            remaining = seekbarEndTarget?.let { ((duration ?: 0) - it).coerceAtLeast(0f) }
+              ?: remaining?.toFloat() ?: 0f,
             readAheadValue = readAhead ?: 0f,
             onValueChange = {
               isSeeking = true
-              seekbarEndTarget = it.toInt()
-              viewModel.seekTo(it.toInt(), preciseSeeking)
+              seekbarEndTarget = it
+              // Preview by keyframes at a bounded rate; exact decoding on every
+              // pointer event can keep restarting the decoder faster than it settles.
+              seekLimiter.update(it.toInt(), SystemClock.uptimeMillis())?.let { target ->
+                viewModel.seekTo(target, precise = false)
+              }
             },
             onValueChangeFinished = {
-              // Same keyframe drift as the horizontal gesture: dragging
-              // seeks by keyframes, so snap exactly to where the user let go.
-              seekbarEndTarget?.let { viewModel.seekTo(it, precise = true) }
+              seekLimiter.finish(preciseSeeking)?.let { target ->
+                viewModel.seekTo(target, precise = preciseSeeking)
+              }
               seekbarEndTarget = null
               isSeeking = false
             },

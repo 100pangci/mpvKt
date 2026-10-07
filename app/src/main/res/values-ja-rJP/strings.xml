@@ -1,4 +1,7 @@
 <resources>
+    <string name="home_refresh_directory">フォルダーを更新</string>
+    <string name="home_directory_unavailable">このフォルダーにアクセスできなくなりました。ホーム画面に戻り、フォルダーを選び直してアクセスを許可してください。</string>
+    <string name="home_return_home">ホームに戻る</string>
 
     <string name="generic_reset">リセット</string>
     <string name="generic_share">共有</string>
