@@ -12,12 +12,16 @@ internal class SeekbarSeekLimiter(private val intervalMillis: Long = 150L) {
 
   fun update(position: Int, nowMillis: Long): Int? {
     latestPosition = position
-    if (position == lastSentPosition) return null
     val sentAt = lastSentAt
-    if (sentAt != null && nowMillis - sentAt < intervalMillis) return null
-    lastSentAt = nowMillis
-    lastSentPosition = position
-    return position
+    val shouldSend = position != lastSentPosition &&
+      (sentAt == null || nowMillis - sentAt >= intervalMillis)
+    return if (shouldSend) {
+      lastSentAt = nowMillis
+      lastSentPosition = position
+      position
+    } else {
+      null
+    }
   }
 
   fun finish(precise: Boolean): Int? {

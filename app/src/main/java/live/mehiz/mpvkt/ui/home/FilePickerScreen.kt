@@ -65,8 +65,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import com.github.k1rakishou.fsaf.FileManager
 import com.github.k1rakishou.fsaf.file.AbstractFile
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -75,9 +75,9 @@ import kotlinx.serialization.Serializable
 import live.mehiz.mpvkt.R
 import live.mehiz.mpvkt.preferences.SubtitlesPreferences
 import live.mehiz.mpvkt.presentation.Screen
-import live.mehiz.mpvkt.ui.player.PlayerActivity
 import live.mehiz.mpvkt.ui.player.PlaybackQueueRequest
 import live.mehiz.mpvkt.ui.player.PlaybackQueueStore
+import live.mehiz.mpvkt.ui.player.PlayerActivity
 import live.mehiz.mpvkt.ui.player.audioExtensions
 import live.mehiz.mpvkt.ui.player.imageExtensions
 import live.mehiz.mpvkt.ui.player.videoExtensions
@@ -85,8 +85,8 @@ import live.mehiz.mpvkt.ui.theme.spacing
 import live.mehiz.mpvkt.ui.utils.LocalBackStack
 import live.mehiz.mpvkt.ui.utils.NaturalOrderComparator
 import org.koin.compose.koinInject
-import java.lang.Long.signum
 import java.io.File
+import java.lang.Long.signum
 import java.text.StringCharacterIterator
 import java.time.Instant
 import java.time.ZoneId
@@ -98,6 +98,7 @@ data class FilePickerScreen(val uri: String) : Screen {
 
   @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
   @Composable
+  @Suppress("CyclomaticComplexMethod")
   override fun Content() {
     val backstack = LocalBackStack.current
     val fileManager = koinInject<FileManager>()
@@ -221,23 +222,27 @@ data class FilePickerScreen(val uri: String) : Screen {
       FilePicker(
         directory = directory,
         onNavigate = { entry ->
-          if (!preparingPlayback) when {
-            multiSelectMode -> if (!entry.info.isDirectory) toggleSelection(entry.info.path, selectedPaths)
-            !entry.info.isDirectory -> requestPlayback {
-              prepareTappedFile(
-                entry.file,
-                directory,
-                fileManager,
-                subtitlesPreferences.autoLoadExternal.get(),
-                context,
-              )
-            }
+          if (!preparingPlayback) {
+            when {
+              multiSelectMode -> if (!entry.info.isDirectory) toggleSelection(entry.info.path, selectedPaths)
+              !entry.info.isDirectory -> requestPlayback {
+                prepareTappedFile(
+                  entry.file,
+                  directory,
+                  fileManager,
+                  subtitlesPreferences.autoLoadExternal.get(),
+                  context,
+                )
+              }
 
-            else -> backstack.add(FilePickerScreen(entry.info.path))
+              else -> backstack.add(FilePickerScreen(entry.info.path))
+            }
           }
         },
         onLongPressFile = { entry ->
-          if (!preparingPlayback && !multiSelectMode && !entry.info.isDirectory && entry.info.name.isVideoFile()) {
+          val canStartMultiSelect = !preparingPlayback && !multiSelectMode &&
+            !entry.info.isDirectory && entry.info.name.isVideoFile()
+          if (canStartMultiSelect) {
             multiSelectMode = true
             selectedPaths.add(entry.info.path)
           }
@@ -246,7 +251,7 @@ data class FilePickerScreen(val uri: String) : Screen {
           multiSelectMode && path in selectedPaths
         },
         refreshRevision = refreshRevision,
-        onListingLoaded = { entries ->
+        onListingUpdate = { entries ->
           val retained = retainPickerSelection(selectedPaths, entries)
           if (retained != selectedPaths) {
             selectedPaths.clear()
@@ -277,22 +282,30 @@ data class FilePickerScreen(val uri: String) : Screen {
   ): Intent? {
     val path = file.getFullPath()
     val directoryFiles = fileManager.listFiles(directory)
-    val actualFile = directoryFiles.firstOrNull { it.getFullPath() == path && fileManager.isFile(it) } ?: return null
-    val subtitleIndex = if (autoLoadSubtitles) buildSubtitleIndex(directoryFiles, fileManager) else null
-    if (fileManager.getName(actualFile).isVideoFile()) {
-      // Opening one video queues every video of the directory in natural
-      // order and starts at the tapped one.
-      val videoFiles = directoryFiles
-        .filter { fileManager.isFile(it) && fileManager.getName(it).isVideoFile() }
-      val queue = videoFiles.map { it.getFullPath() }
-        .sortedWith(NaturalOrderComparator)
-      val queueSubtitles = videoFiles.associate { video ->
-        video.getFullPath() to subtitleIndex?.forVideoName(fileManager.getName(video)).orEmpty()
-      }.filterValues { it.isNotEmpty() }
-      return prepareQueueIntent(path, queue, context, queueSubtitles)
+    val actualFile = directoryFiles.firstOrNull { it.getFullPath() == path && fileManager.isFile(it) }
+    return actualFile?.let { selectedFile ->
+      val subtitleIndex = if (autoLoadSubtitles) buildSubtitleIndex(directoryFiles, fileManager) else null
+      if (fileManager.getName(selectedFile).isVideoFile()) {
+        // Opening one video queues every video of the directory in natural
+        // order and starts at the tapped one.
+        val videoFiles = directoryFiles
+          .filter { fileManager.isFile(it) && fileManager.getName(it).isVideoFile() }
+        val queue = videoFiles.map { it.getFullPath() }
+          .sortedWith(NaturalOrderComparator)
+        val queueSubtitles = videoFiles.associate { video ->
+          video.getFullPath() to subtitleIndex?.forVideoName(fileManager.getName(video)).orEmpty()
+        }.filterValues { it.isNotEmpty() }
+        prepareQueueIntent(path, queue, context, queueSubtitles)
+      } else {
+        val subtitles = subtitleIndex?.forVideoName(fileManager.getName(selectedFile)).orEmpty()
+        prepareQueueIntent(
+          path,
+          listOf(path),
+          context,
+          if (subtitles.isEmpty()) emptyMap() else mapOf(path to subtitles),
+        )
+      }
     }
-    val subtitles = subtitleIndex?.forVideoName(fileManager.getName(actualFile)).orEmpty()
-    return prepareQueueIntent(path, listOf(path), context, if (subtitles.isEmpty()) emptyMap() else mapOf(path to subtitles))
   }
 
   @Composable
@@ -303,16 +316,16 @@ data class FilePickerScreen(val uri: String) : Screen {
     onLongPressFile: (PickerFileEntry) -> Unit = {},
     isSelectedFile: (String) -> Boolean = { false },
     refreshRevision: Int = 0,
-    onListingLoaded: (List<PickerEntryInfo>) -> Unit = {},
+    onListingUpdate: (List<PickerEntryInfo>) -> Unit = {},
   ) {
     val navigator = LocalBackStack.current
     val fileManager = koinInject<FileManager>()
     val directoryPath = directory.getFullPath()
-    val notifyListingLoaded by rememberUpdatedState(onListingLoaded)
+    val notifyListingUpdate by rememberUpdatedState(onListingUpdate)
     val listing by produceState<PickerDirectoryListing?>(null, directoryPath, fileManager, refreshRevision) {
       value = null // Don't leave deleted rows clickable while the new snapshot loads.
       val fresh = withContext(Dispatchers.IO) { loadPickerDirectoryListing(fileManager, directory) }
-      notifyListingLoaded(fresh.entries.map { it.info })
+      notifyListingUpdate(fresh.entries.map { it.info })
       value = fresh
     }
     val listState = rememberLazyListState()
@@ -328,61 +341,57 @@ data class FilePickerScreen(val uri: String) : Screen {
       }
     }
     val loadedListing = listing
-    if (loadedListing == null) {
-      Box(modifier, contentAlignment = Alignment.Center) { CircularProgressIndicator() }
-      return
-    }
-    if (loadedListing.unavailable) {
-      Box(modifier, contentAlignment = Alignment.Center) {
-        Text(stringResource(R.string.home_directory_unavailable))
-      }
-      return
-    }
-    LazyColumn(modifier, state = listState) {
-      item {
-        FileListing(
-          name = "..",
-          isDirectory = true,
-          lastModified = null,
-          length = 0L,
-          onClick = { navigator.removeLastOrNull() },
-          modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerLow),
-        )
-      }
-      itemsIndexed(
-        loadedListing.entries,
-        key = { _, entry -> entry.info.path },
-        contentType = { _, entry -> entry.info.isDirectory },
-      ) { index, entry ->
-        val info = entry.info
-        val file = entry.file
-        // Child counts are loaded only for visible, settled directory rows, once per screen.
-        LaunchedEffect(info.path, loadPreviews, refreshRevision) {
-          if (info.isDirectory && loadPreviews && info.path !in directoryItemCounts) {
-            val count = withContext(Dispatchers.IO) {
-              runCatching { fileManager.listFiles(file).size }.getOrNull()
+    Box(modifier, contentAlignment = Alignment.Center) {
+      when {
+        loadedListing == null -> CircularProgressIndicator()
+        loadedListing.unavailable -> Text(stringResource(R.string.home_directory_unavailable))
+        else -> LazyColumn(Modifier.fillMaxSize(), state = listState) {
+          item {
+            FileListing(
+              name = "..",
+              isDirectory = true,
+              lastModified = null,
+              length = 0L,
+              onClick = { navigator.removeLastOrNull() },
+              modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerLow),
+            )
+          }
+          itemsIndexed(
+            loadedListing.entries,
+            key = { _, entry -> entry.info.path },
+            contentType = { _, entry -> entry.info.isDirectory },
+          ) { index, entry ->
+            val info = entry.info
+            val file = entry.file
+            // Child counts are loaded only for visible, settled directory rows, once per screen.
+            LaunchedEffect(info.path, loadPreviews, refreshRevision) {
+              if (info.isDirectory && loadPreviews && info.path !in directoryItemCounts) {
+                val count = withContext(Dispatchers.IO) {
+                  runCatching { fileManager.listFiles(file).size }.getOrNull()
+                }
+                count?.let { directoryItemCounts[info.path] = it }
+              }
             }
-            count?.let { directoryItemCounts[info.path] = it }
+            FileListing(
+              name = info.name,
+              isDirectory = info.isDirectory,
+              lastModified = info.lastModified,
+              length = info.length,
+              modifier = Modifier.background(
+                when {
+                  isSelectedFile(info.path) -> MaterialTheme.colorScheme.primaryContainer
+                  index % 2 == 1 -> MaterialTheme.colorScheme.surfaceContainerLow
+                  else -> MaterialTheme.colorScheme.surfaceContainerHigh
+                },
+              ),
+              items = directoryItemCounts[info.path],
+              onClick = { onNavigate(entry) },
+              onLongClick = { onLongPressFile(entry) },
+              previewSource = info.path,
+              loadPreview = loadPreviews,
+            )
           }
         }
-        FileListing(
-          name = info.name,
-          isDirectory = info.isDirectory,
-          lastModified = info.lastModified,
-          length = info.length,
-          modifier = Modifier.background(
-            when {
-              isSelectedFile(info.path) -> MaterialTheme.colorScheme.primaryContainer
-              index % 2 == 1 -> MaterialTheme.colorScheme.surfaceContainerLow
-              else -> MaterialTheme.colorScheme.surfaceContainerHigh
-            },
-          ),
-          items = directoryItemCounts[info.path],
-          onClick = { onNavigate(entry) },
-          onLongClick = { onLongPressFile(entry) },
-          previewSource = info.path,
-          loadPreview = loadPreviews,
-        )
       }
     }
   }
@@ -410,7 +419,9 @@ data class FilePickerScreen(val uri: String) : Screen {
           Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault())
             .format(DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm:ss"))
         }
-      } else null
+      } else {
+        null
+      }
     }
     Row(
       modifier = modifier

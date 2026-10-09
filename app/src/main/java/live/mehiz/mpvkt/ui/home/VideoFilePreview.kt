@@ -73,6 +73,7 @@ private object VideoPreviewLoader {
   private val cache = object : LruCache<VideoPreviewKey, Bitmap>(CACHE_BYTES) {
     override fun sizeOf(key: VideoPreviewKey, value: Bitmap): Int = value.allocationByteCount
   }
+
   // Unsupported codecs should not be retried every time a row scrolls into view.
   private val failures = LruCache<VideoPreviewKey, Boolean>(128)
   private val decoders = Semaphore(1)
@@ -100,30 +101,49 @@ private object VideoPreviewLoader {
   private fun extractFrame(context: Context, source: String): Bitmap? {
     val retriever = MediaMetadataRetriever()
     return try {
-      val uri = source.toUri()
-      when (uri.scheme) {
-        null -> retriever.setDataSource(source)
-        "file" -> retriever.setDataSource(uri.path ?: return null)
-        else -> retriever.setDataSource(context, uri) // SAF content:// document URIs.
-      }
-      // Prefer a frame near the beginning; fall back for very short videos.
-      val frame = frameAt(retriever, 1_000_000L) ?: frameAt(retriever, -1L) ?: return null
-      val (width, height) = fitVideoPreviewSize(frame.width, frame.height, WIDTH, HEIGHT)
-      if (width == frame.width && height == frame.height) {
-        frame
-      } else {
-        try {
-          Bitmap.createScaledBitmap(frame, width, height, true)
-        } finally {
-          frame.recycle()
-        }
-      }
+      if (setDataSource(retriever, context, source)) extractAndScaleFrame(retriever) else null
     } catch (_: Exception) {
       // Missing grants, deleted files and unsupported media keep the video icon.
       null
     } finally {
       // Always close the decoder/descriptor, including when setDataSource fails.
       runCatching { retriever.release() }
+    }
+  }
+
+  private fun setDataSource(retriever: MediaMetadataRetriever, context: Context, source: String): Boolean {
+    val uri = source.toUri()
+    return when (uri.scheme) {
+      null -> {
+        retriever.setDataSource(source)
+        true
+      }
+
+      "file" -> uri.path?.let {
+        retriever.setDataSource(it)
+        true
+      } ?: false
+
+      else -> {
+        retriever.setDataSource(context, uri) // SAF content:// document URIs.
+        true
+      }
+    }
+  }
+
+  private fun extractAndScaleFrame(retriever: MediaMetadataRetriever): Bitmap? {
+    // Prefer a frame near the beginning; fall back for very short videos.
+    val frame = frameAt(retriever, 1_000_000L) ?: frameAt(retriever, -1L)
+    return frame?.let(::scaleFrame)
+  }
+
+  private fun scaleFrame(frame: Bitmap): Bitmap {
+    val (width, height) = fitVideoPreviewSize(frame.width, frame.height, WIDTH, HEIGHT)
+    if (width == frame.width && height == frame.height) return frame
+    return try {
+      Bitmap.createScaledBitmap(frame, width, height, true)
+    } finally {
+      frame.recycle()
     }
   }
 

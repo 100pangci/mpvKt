@@ -54,8 +54,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
@@ -66,9 +66,9 @@ import live.mehiz.mpvkt.network.NetworkSource
 import live.mehiz.mpvkt.network.RemoteClientFactory
 import live.mehiz.mpvkt.network.RemoteEntry
 import live.mehiz.mpvkt.presentation.Screen
-import live.mehiz.mpvkt.ui.player.PlayerActivity
 import live.mehiz.mpvkt.ui.player.PlaybackQueueRequest
 import live.mehiz.mpvkt.ui.player.PlaybackQueueStore
+import live.mehiz.mpvkt.ui.player.PlayerActivity
 import live.mehiz.mpvkt.ui.player.videoExtensions
 import live.mehiz.mpvkt.ui.theme.spacing
 import live.mehiz.mpvkt.ui.utils.LocalBackStack

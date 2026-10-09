@@ -9,7 +9,10 @@ class PickerDirectoryListingTest {
   @Test
   fun `directories precede files with case insensitive alphabetical ordering`() {
     val entries = listOf(
-      entry("z.mkv"), entry("B", true), entry("a.mp4"), entry("a", true),
+      entry("z.mkv"),
+      entry("B", true),
+      entry("a.mp4"),
+      entry("a", true),
     ).sortedWith(pickerEntryOrder)
     assertEquals(listOf("a", "B", "a.mp4", "z.mkv"), entries.map { it.name })
   }

@@ -50,8 +50,8 @@ import `is`.xyz.mpv.Utils
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -230,39 +230,42 @@ class PlayerActivity : AppCompatActivity() {
     }
     if (storedRequest != null) {
       startQueuePlaybackFlow(intent, storedRequest, playable = null)
-      return
-    }
-    val playable = intentResolver.getPlayableUri(intent)
-    Log.i(TAG, "playback flow: playable=$playable")
-    val queue = intent.getStringArrayListExtra(QUEUE_EXTRA)
-    if (!queue.isNullOrEmpty()) {
-      val subtitles = intent.getBundleExtra(QUEUE_SUBTITLES_EXTRA)?.let { bundle ->
-        bundle.keySet().associateWith { bundle.getStringArrayList(it).orEmpty().toList() }
-      }.orEmpty()
-      startQueuePlaybackFlow(intent, PlaybackQueueRequest(queue, subtitles), playable)
-      return
-    }
-    if (playable == null) return
-    val videoPath = resolveVideoContextPath(intent, playable)
-    val siblingSubPath = siblingSubtitlePath(videoPath)
-    Log.i(TAG, "playback flow: sibling=$siblingSubPath")
-    awaitFontSetup(videoPath, siblingSubPath)
-    withContext(Dispatchers.Main) {
-      expectedIntentPath = playable
-      if (isMpvIdleOrEmpty()) {
-        // NOT player.playFile(): that only stores the path for the surface
-        // callback to consume ONCE — if the surface already exists the file
-        // would never load (black screen). Issue the command directly, exactly
-        // like onNewIntent does; it is valid in any mpv state.
-        MPVLib.command("loadfile", playable)
-        siblingSubPath?.let { MPVLib.command("sub-add", it, "auto") }
-      } else {
-        // A second intent while playback runs must not tear down the queue:
-        // append the new file instead of replacing the current entry.
-        MPVLib.command("loadfile", playable, "append-play")
+    } else {
+      val playable = intentResolver.getPlayableUri(intent)
+      Log.i(TAG, "playback flow: playable=$playable")
+      val queue = intent.getStringArrayListExtra(QUEUE_EXTRA)
+      when {
+        !queue.isNullOrEmpty() -> {
+          val subtitles = intent.getBundleExtra(QUEUE_SUBTITLES_EXTRA)?.let { bundle ->
+            bundle.keySet().associateWith { bundle.getStringArrayList(it).orEmpty().toList() }
+          }.orEmpty()
+          startQueuePlaybackFlow(intent, PlaybackQueueRequest(queue, subtitles), playable)
+        }
+
+        playable != null -> {
+          val videoPath = resolveVideoContextPath(intent, playable)
+          val siblingSubPath = siblingSubtitlePath(videoPath)
+          Log.i(TAG, "playback flow: sibling=$siblingSubPath")
+          awaitFontSetup(videoPath, siblingSubPath)
+          withContext(Dispatchers.Main) {
+            expectedIntentPath = playable
+            if (isMpvIdleOrEmpty()) {
+              // NOT player.playFile(): that only stores the path for the surface
+              // callback to consume ONCE — if the surface already exists the file
+              // would never load (black screen). Issue the command directly, exactly
+              // like onNewIntent does; it is valid in any mpv state.
+              MPVLib.command("loadfile", playable)
+              siblingSubPath?.let { MPVLib.command("sub-add", it, "auto") }
+            } else {
+              // A second intent while playback runs must not tear down the queue:
+              // append the new file instead of replacing the current entry.
+              MPVLib.command("loadfile", playable, "append-play")
+            }
+          }
+          Log.i(TAG, "playback flow: playFile issued")
+        }
       }
     }
-    Log.i(TAG, "playback flow: playFile issued")
   }
 
   /**
@@ -929,57 +932,59 @@ class PlayerActivity : AppCompatActivity() {
   internal fun event(eventId: Int) {
     if (player.isExiting) return
     when (eventId) {
-      MPVLib.mpvEventId.MPV_EVENT_FILE_LOADED -> {
-        val mpvPath = MPVLib.getPropertyString("path")
-        // mpv advancing to the next queue entry bypasses onNewIntent: when
-        // the loaded path differs from the one the current intent was meant
-        // to play, this is an automatic queue advance.
-        val isQueueAdvance = mpvPath != null && mpvPath != expectedIntentPath
-        val queueEntry = if (isQueueAdvance) currentPlaylistEntry() else null
-        currentPlaybackPath = mpvPath
-        fileName = if (isQueueAdvance) {
-          (queueEntry ?: mpvPath)?.takeUnless { it.startsWith("fd://") }
-            ?.let { PlaylistNode(it).displayName }
-            ?.takeIf { it.isNotBlank() }
-            ?: intentResolver.getFileName(intent)
-        } else {
-          intentResolver.getFileName(intent)
-        }
-        // The previous file's title override must not leak onto this one:
-        // "media-title" itself is read-only in mpv, "force-media-title" is
-        // the writable override.
-        MPVLib.setPropertyString("force-media-title", "")
-        if (!isQueueAdvance) {
-          // The intent's subtitle/position extras belong to the first file;
-          // for a queue advance reapplying them would add stale subtitle
-          // tracks every episode.
-          setIntentExtras(intent.extras)
-        }
-        // Track choices are per video: a previous file's restore must not
-        // block the current file's deterministic selection.
-        restoredTrackState = false
-        autoSubSelectedForThisVideo = false
-        // Without a title of its own, mpv falls back to the raw path, so a
-        // SAF-opened "fd://123" shows up as just "123"; prefer the file name.
-        val mediaTitle = MPVLib.getPropertyString("media-title")
-        if (mediaTitle.isNullOrBlank() || mediaTitle.isDigitsOnly()) {
-          MPVLib.setPropertyString("force-media-title", fileName)
-        }
-        lifecycleScope.launch(Dispatchers.IO) {
-          loadVideoPlaybackState(fileName)
-        }
-        if (isQueueAdvance || intent.hasExtra(QUEUE_REQUEST_EXTRA)) {
-          loadQueueSubtitles(queueEntry ?: currentPlaylistEntry())
-        }
-        if (isQueueAdvance) {
-          mpvPath?.let(::prepareFontsForQueueAdvance)
-        }
-        setOrientation()
-        viewModel.changeVideoAspect(playerPreferences.videoAspect.get())
-      }
+      MPVLib.mpvEventId.MPV_EVENT_FILE_LOADED -> handleFileLoadedEvent()
 
       MPVLib.mpvEventId.MPV_EVENT_PLAYBACK_RESTART -> player.isExiting = false
     }
+  }
+
+  private fun handleFileLoadedEvent() {
+    val mpvPath = MPVLib.getPropertyString("path")
+    // mpv advancing to the next queue entry bypasses onNewIntent: when
+    // the loaded path differs from the one the current intent was meant
+    // to play, this is an automatic queue advance.
+    val isQueueAdvance = mpvPath != null && mpvPath != expectedIntentPath
+    val queueEntry = if (isQueueAdvance) currentPlaylistEntry() else null
+    currentPlaybackPath = mpvPath
+    fileName = if (isQueueAdvance) {
+      (queueEntry ?: mpvPath)?.takeUnless { it.startsWith("fd://") }
+        ?.let { PlaylistNode(it).displayName }
+        ?.takeIf { it.isNotBlank() }
+        ?: intentResolver.getFileName(intent)
+    } else {
+      intentResolver.getFileName(intent)
+    }
+    // The previous file's title override must not leak onto this one:
+    // "media-title" itself is read-only in mpv, "force-media-title" is
+    // the writable override.
+    MPVLib.setPropertyString("force-media-title", "")
+    if (!isQueueAdvance) {
+      // The intent's subtitle/position extras belong to the first file;
+      // for a queue advance reapplying them would add stale subtitle
+      // tracks every episode.
+      setIntentExtras(intent.extras)
+    }
+    // Track choices are per video: a previous file's restore must not
+    // block the current file's deterministic selection.
+    restoredTrackState = false
+    autoSubSelectedForThisVideo = false
+    // Without a title of its own, mpv falls back to the raw path, so a
+    // SAF-opened "fd://123" shows up as just "123"; prefer the file name.
+    val mediaTitle = MPVLib.getPropertyString("media-title")
+    if (mediaTitle.isNullOrBlank() || mediaTitle.isDigitsOnly()) {
+      MPVLib.setPropertyString("force-media-title", fileName)
+    }
+    lifecycleScope.launch(Dispatchers.IO) {
+      loadVideoPlaybackState(fileName)
+    }
+    if (isQueueAdvance || intent.hasExtra(QUEUE_REQUEST_EXTRA)) {
+      loadQueueSubtitles(queueEntry ?: currentPlaylistEntry())
+    }
+    if (isQueueAdvance) {
+      mpvPath?.let(::prepareFontsForQueueAdvance)
+    }
+    setOrientation()
+    viewModel.changeVideoAspect(playerPreferences.videoAspect.get())
   }
 
   private fun delayMillis(current: Double?, fallbackMillis: Int?): Int =

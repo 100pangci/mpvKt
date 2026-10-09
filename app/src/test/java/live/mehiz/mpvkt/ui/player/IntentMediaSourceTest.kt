@@ -23,7 +23,10 @@ class IntentMediaSourceTest {
 
   @Test
   fun `text only shares are trimmed and still supported`() {
-    assertEquals("https://example.org/video.mp4", chooseIntentMediaSource(null, null, "  https://example.org/video.mp4  "))
+    assertEquals(
+      "https://example.org/video.mp4",
+      chooseIntentMediaSource(null, null, "  https://example.org/video.mp4  "),
+    )
   }
 
   @Test

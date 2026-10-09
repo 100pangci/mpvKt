@@ -7,9 +7,13 @@ import org.junit.Test
 class SiblingSubtitleIndexTest {
   @Test
   fun `matching preserves the original prefix rule and directory order`() {
-    val index = SiblingSubtitleIndex(listOf(
-      "EP1.zh.srt" to "chinese", "EP10.ass" to "episode-ten", "EP1.ass" to "default", "EP2.ass" to "other",
-    ))
+    val files = listOf(
+      "EP1.zh.srt" to "chinese",
+      "EP10.ass" to "episode-ten",
+      "EP1.ass" to "default",
+      "EP2.ass" to "other",
+    )
+    val index = SiblingSubtitleIndex(files)
     assertEquals(listOf("chinese", "episode-ten", "default"), index.forVideoName("EP1.mp4"))
   }
 

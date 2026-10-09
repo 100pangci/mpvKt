@@ -87,9 +87,12 @@ class PlaybackQueueStoreTest {
     val executor = Executors.newFixedThreadPool(4)
     try {
       val requests = (1..20).map { PlaybackQueueRequest(listOf("video-$it.mp4")) }
-      val tokens = executor.invokeAll(requests.map { request -> Callable { PlaybackQueueStore(directory).save(request) } })
-        .map { it.get() }
-      tokens.zip(requests).forEach { (token, request) -> assertEquals(request, PlaybackQueueStore(directory).load(token)) }
+      val tokens = executor.invokeAll(
+        requests.map { request -> Callable { PlaybackQueueStore(directory).save(request) } },
+      ).map { it.get() }
+      tokens.zip(requests).forEach { (token, request) ->
+        assertEquals(request, PlaybackQueueStore(directory).load(token))
+      }
     } finally {
       executor.shutdownNow()
     }
