@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import live.mehiz.mpvkt.network.NetworkSource
 import live.mehiz.mpvkt.network.NetworkStore
+import live.mehiz.mpvkt.network.NetworkType
 import live.mehiz.mpvkt.presentation.network.NetworkDraft
 
 class NetworkViewModel(
@@ -62,6 +63,7 @@ private fun NetworkDraft.toNetworkSource(id: Long): NetworkSource = NetworkSourc
   basePath = basePath,
   secure = secure,
   smbDialect = smbDialect,
+  showVideoPreviews = type == NetworkType.SMB && showVideoPreviews,
   username = username,
   encodedPassword = NetworkSource.encodePassword(password),
 )
@@ -79,6 +81,7 @@ private fun NetworkSource.updatedWith(draft: NetworkDraft): NetworkSource = Netw
   basePath = draft.basePath,
   secure = draft.secure,
   smbDialect = draft.smbDialect,
+  showVideoPreviews = draft.type == NetworkType.SMB && draft.showVideoPreviews,
   username = draft.username,
   encodedPassword = draft.password.takeIf { it.isNotEmpty() }
     ?.let(NetworkSource::encodePassword)

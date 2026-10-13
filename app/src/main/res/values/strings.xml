@@ -39,6 +39,8 @@
     <string name="network_username_hint_smb">Optional domain as DOMAIN\\user; empty means guest</string>
     <string name="network_password">Password</string>
     <string name="network_password_notice">The password is stored obfuscated (Base64), not encrypted.</string>
+    <string name="network_video_previews">Show video previews</string>
+    <string name="network_video_previews_summary">Fetch a frame over SMB only for visible videos. Uses network data.</string>
     <string name="network_empty">No servers yet. Add one to browse network media.</string>
     <string name="network_browse_error">Couldn\'t load the directory</string>
     <string name="network_retry">Retry</string>

@@ -35,6 +35,8 @@
     <string name="network_username_hint_smb">النطاق اختياري بصيغة DOMAIN\\user؛ تركه فارغًا يعني الضيف</string>
     <string name="network_password">كلمة المرور</string>
     <string name="network_password_notice">يتم تخزين كلمة المرور مشوَّشة (Base64)، وليست مشفرة.</string>
+    <string name="network_video_previews">عرض معاينات الفيديو</string>
+    <string name="network_video_previews_summary">يجلب إطارًا عبر SMB للفيديوهات الظاهرة فقط. يستخدم بيانات الشبكة.</string>
     <string name="network_empty">لا توجد خوادم بعد. أضف خادماً لتصفح الوسائط الشبكية.</string>
     <string name="network_browse_error">تعذّر تحميل المجلد</string>
     <string name="network_retry">إعادة المحاولة</string>

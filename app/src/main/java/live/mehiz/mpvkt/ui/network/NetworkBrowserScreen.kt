@@ -18,7 +18,8 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.InsertDriveFile
@@ -37,6 +38,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -63,6 +65,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import live.mehiz.mpvkt.R
 import live.mehiz.mpvkt.network.NetworkSource
+import live.mehiz.mpvkt.network.NetworkType
 import live.mehiz.mpvkt.network.RemoteClientFactory
 import live.mehiz.mpvkt.network.RemoteEntry
 import live.mehiz.mpvkt.presentation.Screen
@@ -101,6 +104,10 @@ data class NetworkBrowserScreen(
     val selectedNames = remember { mutableStateListOf<String>() }
     val scope = rememberCoroutineScope()
     var preparingPlayback by remember { mutableStateOf(false) }
+    val browserListState = rememberLazyListState()
+    val visibleItemKeys by remember {
+      derivedStateOf { browserListState.layoutInfo.visibleItemsInfo.map { it.key }.toSet() }
+    }
 
     fun exitMultiSelect() {
       multiSelectMode = false
@@ -236,18 +243,25 @@ data class NetworkBrowserScreen(
             modifier = Modifier
               .fillMaxSize()
               .padding(padding),
+            state = browserListState,
           ) {
             if (path.isNotEmpty()) {
               item {
                 DirectoryRow(name = "..", onClick = { backstack.removeLastOrNull() })
               }
             }
-            items(sorted, key = { "${it.isDirectory}-${it.name}" }) { entry ->
+            itemsIndexed(sorted, key = { _, entry -> "${entry.isDirectory}-${entry.name}" }) { _, entry ->
               val childPath = NetworkSource.joinPath(path, entry.name)
               val selected = entry.name in selectedNames
+              val itemKey = "${entry.isDirectory}-${entry.name}"
+              val previewEnabled = source.type == NetworkType.SMB &&
+                source.showVideoPreviews && itemKey in visibleItemKeys &&
+                !entry.isDirectory && entry.name.isVideoFile()
               RemoteEntryRow(
                 entry = entry,
                 isSelected = multiSelectMode && selected,
+                previewSource = source.takeIf { previewEnabled },
+                previewPath = childPath.takeIf { previewEnabled },
                 onOpen = {
                   when {
                     multiSelectMode && !entry.isDirectory ->
@@ -369,6 +383,8 @@ private fun RemoteEntryRow(
   isSelected: Boolean,
   onOpen: () -> Unit,
   modifier: Modifier = Modifier,
+  previewSource: NetworkSource? = null,
+  previewPath: String? = null,
   onLongClick: (() -> Unit)? = null,
 ) {
   Row(
@@ -386,14 +402,23 @@ private fun RemoteEntryRow(
     horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.smaller),
     verticalAlignment = Alignment.CenterVertically,
   ) {
-    Icon(
-      when {
-        entry.isDirectory -> Icons.Filled.Folder
-        entry.name.isVideoFile() -> Icons.Filled.Movie
-        else -> Icons.AutoMirrored.Filled.InsertDriveFile
-      },
-      contentDescription = null,
-    )
+    if (previewSource != null && previewPath != null) {
+      NetworkVideoPreview(
+        source = previewSource,
+        path = previewPath,
+        size = entry.size,
+        lastModified = entry.lastModified,
+      )
+    } else {
+      Icon(
+        when {
+          entry.isDirectory -> Icons.Filled.Folder
+          entry.name.isVideoFile() -> Icons.Filled.Movie
+          else -> Icons.AutoMirrored.Filled.InsertDriveFile
+        },
+        contentDescription = null,
+      )
+    }
     Text(entry.name, maxLines = 1, overflow = TextOverflow.Ellipsis)
   }
 }

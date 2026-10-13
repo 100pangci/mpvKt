@@ -1,10 +1,33 @@
 package live.mehiz.mpvkt.network
 
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Test
 
 class NetworkSourceTest {
+
+  @Test
+  fun `legacy saved sources leave video previews disabled`() {
+    val source = Json.decodeFromString<NetworkSource>(
+      """
+        {
+          "id": 1,
+          "type": "SMB",
+          "name": "NAS",
+          "host": "nas",
+          "port": 445,
+          "basePath": "/media",
+          "username": "",
+          "encodedPassword": ""
+        }
+      """.trimIndent(),
+    )
+
+    assertFalse(source.showVideoPreviews)
+  }
 
   @Test
   fun `splitHost passes a plain host through untouched`() {

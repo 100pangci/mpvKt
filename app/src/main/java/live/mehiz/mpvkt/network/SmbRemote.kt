@@ -63,7 +63,12 @@ internal class SmbRemote(private val source: NetworkSource) : AutoCloseable {
 
   private fun SmbFile.toRemoteEntry(): RemoteEntry? = runCatching {
     val directory = isDirectory
-    RemoteEntry(name.trimEnd('/'), directory, if (directory) 0L else length())
+    RemoteEntry(
+      name = name.trimEnd('/'),
+      isDirectory = directory,
+      size = if (directory) 0L else length(),
+      lastModified = if (directory) null else runCatching { lastModified() }.getOrNull(),
+    )
   }.getOrNull()
 
   private fun requireTarget(path: String): SmbRemotePath =

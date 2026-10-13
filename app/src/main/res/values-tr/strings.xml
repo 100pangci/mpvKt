@@ -35,6 +35,8 @@
     <string name="network_username_hint_smb">Alan adı isteğe bağlı, ALANADI\\kullanıcı biçiminde; boş bırakılırsa konuk olarak bağlanır</string>
     <string name="network_password">Parola</string>
     <string name="network_password_notice">Parola gizlenerek (Base64) saklanır, şifrelenmez.</string>
+    <string name="network_video_previews">Video önizlemelerini göster</string>
+    <string name="network_video_previews_summary">Yalnızca görünür videolar için SMB üzerinden bir kare alır. Ağ verisi kullanır.</string>
     <string name="network_empty">Henüz sunucu yok. Ağ ortamına göz atmak için bir tane ekleyin.</string>
     <string name="network_browse_error">Dizin yüklenemedi</string>
     <string name="network_retry">Tekrar dene</string>

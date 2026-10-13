@@ -53,6 +53,7 @@ fun NetworkSourceDialog(
   var basePath by rememberSaveable { mutableStateOf(initial?.basePath ?: "") }
   var secure by rememberSaveable { mutableStateOf(initial?.secure ?: false) }
   var smbDialect by rememberSaveable { mutableStateOf(initial?.smbDialect ?: SmbDialect.AUTO) }
+  var showVideoPreviews by rememberSaveable { mutableStateOf(initial?.showVideoPreviews ?: false) }
   var username by rememberSaveable { mutableStateOf(initial?.username ?: "") }
   var password by rememberSaveable { mutableStateOf("") }
 
@@ -78,6 +79,21 @@ fun NetworkSourceDialog(
         TypeSelector(type, onTypeChange = { type = it })
         if (type == NetworkType.SMB) {
           DialectSelector(smbDialect, onSelect = { smbDialect = it })
+          Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+          ) {
+            Column(modifier = Modifier.weight(1f)) {
+              Text(stringResource(R.string.network_video_previews))
+              Text(
+                text = stringResource(R.string.network_video_previews_summary),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+              )
+            }
+            Switch(checked = showVideoPreviews, onCheckedChange = { showVideoPreviews = it })
+          }
         }
         OutlinedTextField(
           value = name,
@@ -169,6 +185,7 @@ fun NetworkSourceDialog(
               basePath = basePath.trim(),
               secure = secure,
               smbDialect = smbDialect,
+              showVideoPreviews = showVideoPreviews,
               username = username.trim(),
               password = password,
             ),
@@ -198,6 +215,7 @@ data class NetworkDraft(
   val smbDialect: SmbDialect,
   val username: String,
   val password: String,
+  val showVideoPreviews: Boolean = false,
 )
 
 @Composable

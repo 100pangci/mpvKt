@@ -35,6 +35,8 @@
     <string name="network_username_hint_smb">ドメインは任意で DOMAIN\\user 形式。空欄の場合はゲストとして接続します</string>
     <string name="network_password">パスワード</string>
     <string name="network_password_notice">パスワードは難読化 (Base64) して保存され、暗号化はされません。</string>
+    <string name="network_video_previews">動画のプレビューを表示</string>
+    <string name="network_video_previews_summary">表示中の動画のみ、SMB 経由でフレームを取得します。ネットワーク通信が発生します。</string>
     <string name="network_empty">サーバーがありません。追加してネットワークメディアを閲覧しましょう。</string>
     <string name="network_browse_error">フォルダを読み込めませんでした</string>
     <string name="network_retry">再試行</string>

@@ -6,6 +6,7 @@ data class RemoteEntry(
   val name: String,
   val isDirectory: Boolean,
   val size: Long,
+  val lastModified: Long? = null,
 )
 
 /**

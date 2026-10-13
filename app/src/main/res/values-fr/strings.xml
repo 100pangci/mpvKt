@@ -35,6 +35,8 @@
     <string name="network_username_hint_smb">Domaine facultatif au format DOMAINE\\utilisateur ; vide = invité</string>
     <string name="network_password">Mot de passe</string>
     <string name="network_password_notice">Le mot de passe est stocké obfusqué (Base64), non chiffré.</string>
+    <string name="network_video_previews">Afficher les aperçus vidéo</string>
+    <string name="network_video_previews_summary">Récupère une image via SMB uniquement pour les vidéos visibles. Utilise le réseau.</string>
     <string name="network_empty">Aucun serveur pour l\'instant. Ajoutez-en un pour parcourir les médias réseau.</string>
     <string name="network_browse_error">Impossible de charger le dossier</string>
     <string name="network_retry">Réessayer</string>

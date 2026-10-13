@@ -35,6 +35,8 @@
     <string name="network_username_hint_smb">Opcjonalna domena w formacie DOMENA\\użytkownik; puste pole oznacza gościa</string>
     <string name="network_password">Hasło</string>
     <string name="network_password_notice">Hasło jest zapisane zaciemnione (Base64), nie zaszyfrowane.</string>
+    <string name="network_video_previews">Pokaż podgląd wideo</string>
+    <string name="network_video_previews_summary">Pobiera klatkę przez SMB tylko dla widocznych filmów. Używa transferu sieciowego.</string>
     <string name="network_empty">Brak serwerów. Dodaj jeden, aby przeglądać media sieciowe.</string>
     <string name="network_browse_error">Nie udało się wczytać katalogu</string>
     <string name="network_retry">Ponów</string>

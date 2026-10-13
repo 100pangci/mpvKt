@@ -35,6 +35,8 @@
     <string name="network_username_hint_smb">Optionale Domäne als DOMAIN\\user; leer bedeutet Gast</string>
     <string name="network_password">Passwort</string>
     <string name="network_password_notice">Das Passwort wird obfuskiert (Base64), nicht verschlüsselt gespeichert.</string>
+    <string name="network_video_previews">Videovorschauen anzeigen</string>
+    <string name="network_video_previews_summary">Lädt nur für sichtbare Videos ein Einzelbild über SMB. Verbraucht Netzwerkdaten.</string>
     <string name="network_empty">Noch keine Server. Füge einen hinzu, um Netzwerkmedien zu durchsuchen.</string>
     <string name="network_browse_error">Ordner konnte nicht geladen werden</string>
     <string name="network_retry">Erneut versuchen</string>

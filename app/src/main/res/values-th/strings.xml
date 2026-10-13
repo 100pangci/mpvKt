@@ -35,6 +35,8 @@
     <string name="network_username_hint_smb">ระบุโดเมนได้ในรูปแบบ DOMAIN\\user; เว้นว่างหมายถึงผู้เยี่ยมชม (guest)</string>
     <string name="network_password">รหัสผ่าน</string>
     <string name="network_password_notice">รหัสผ่านถูกจัดเก็บแบบปกปิด (Base64) ไม่ได้เข้ารหัส</string>
+    <string name="network_video_previews">แสดงภาพตัวอย่างวิดีโอ</string>
+    <string name="network_video_previews_summary">ดึงเฟรมผ่าน SMB เฉพาะวิดีโอที่มองเห็น ใช้ข้อมูลเครือข่าย</string>
     <string name="network_empty">ยังไม่มีเซิร์ฟเวอร์ เพิ่มเซิร์ฟเวอร์เพื่อเรียกดูสื่อในเครือข่าย</string>
     <string name="network_browse_error">โหลดไดเรกทอรีไม่สำเร็จ</string>
     <string name="network_retry">ลองอีกครั้ง</string>

@@ -35,6 +35,8 @@
     <string name="network_username_hint_smb">Домен необов\'язковий у форматі ДОМЕН\\користувач; порожнє поле — гість</string>
     <string name="network_password">Пароль</string>
     <string name="network_password_notice">Пароль зберігається обфускованим (Base64), без шифрування.</string>
+    <string name="network_video_previews">Показувати мініатюри відео</string>
+    <string name="network_video_previews_summary">Завантажувати кадр через SMB лише для видимих відео. Використовує мережевий трафік.</string>
     <string name="network_empty">Серверів ще немає. Додайте один, щоб переглядати мережеві медіа.</string>
     <string name="network_browse_error">Не вдалося завантажити каталог</string>
     <string name="network_retry">Повторити</string>

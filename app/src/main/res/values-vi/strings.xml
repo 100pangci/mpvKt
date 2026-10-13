@@ -35,6 +35,8 @@
     <string name="network_username_hint_smb">Miền tùy chọn theo dạng DOMAIN\\user; để trống nghĩa là khách</string>
     <string name="network_password">Mật khẩu</string>
     <string name="network_password_notice">Mật khẩu được lưu che giấu (Base64), không mã hoá.</string>
+    <string name="network_video_previews">Hiển thị ảnh xem trước video</string>
+    <string name="network_video_previews_summary">Chỉ tải khung hình qua SMB cho video đang hiển thị. Có sử dụng dữ liệu mạng.</string>
     <string name="network_empty">Chưa có máy chủ. Thêm một máy chủ để duyệt phương tiện mạng.</string>
     <string name="network_browse_error">Không thể tải thư mục</string>
     <string name="network_retry">Thử lại</string>

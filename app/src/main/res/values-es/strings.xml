@@ -34,6 +34,8 @@
     <string name="network_username_hint_smb">Dominio opcional como DOMINIO\\usuario; vacío significa invitado</string>
     <string name="network_password">Contraseña</string>
     <string name="network_password_notice">La contraseña se guarda ofuscada (Base64), no cifrada.</string>
+    <string name="network_video_previews">Mostrar vistas previas de vídeo</string>
+    <string name="network_video_previews_summary">Obtiene un fotograma por SMB solo de los vídeos visibles. Usa datos de red.</string>
     <string name="network_empty">Aún no hay servidores. Añade uno para explorar medios de red.</string>
     <string name="network_browse_error">No se pudo cargar la carpeta</string>
     <string name="network_retry">Reintentar</string>

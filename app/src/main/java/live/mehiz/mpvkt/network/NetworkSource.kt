@@ -31,6 +31,7 @@ data class NetworkSource(
   val basePath: String,
   val secure: Boolean = false,
   val smbDialect: SmbDialect = SmbDialect.AUTO,
+  val showVideoPreviews: Boolean = false,
   val username: String = "",
   // Stored as a serialized instance: keep this field's name stable.
   val encodedPassword: String = "",

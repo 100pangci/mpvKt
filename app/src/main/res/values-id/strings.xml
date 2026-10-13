@@ -35,6 +35,8 @@
     <string name="network_username_hint_smb">Domain opsional sebagai DOMAIN\\user; kosong berarti guest</string>
     <string name="network_password">Kata sandi</string>
     <string name="network_password_notice">Kata sandi disimpan terobfuskasi (Base64), tidak terenkripsi.</string>
+    <string name="network_video_previews">Tampilkan pratinjau video</string>
+    <string name="network_video_previews_summary">Ambil satu bingkai melalui SMB hanya untuk video yang terlihat. Menggunakan data jaringan.</string>
     <string name="network_empty">Belum ada server. Tambahkan satu untuk menelusuri media jaringan.</string>
     <string name="network_browse_error">Tidak dapat memuat direktori</string>
     <string name="network_retry">Coba lagi</string>
