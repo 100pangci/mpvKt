@@ -39,7 +39,11 @@ class FontConfigManager(
           android.net.Uri.parse(subtitlesPreferences.fontsFolder.get()),
         )?.let { add(it.absolutePath) }
         addAll(videoDirs(videoPath))
-      }.filter { File(it).isDirectory }.distinct()
+      }
+        // Unreadable directories only make libass's fontconfig log failures;
+        // those sources are served through index-based staging instead.
+        .filter { File(it).let { dir -> dir.isDirectory && dir.canRead() } }
+        .distinct()
       configFile.writeText(render(dirs))
     }
   }

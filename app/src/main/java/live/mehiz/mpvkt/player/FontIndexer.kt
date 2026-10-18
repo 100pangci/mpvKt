@@ -1,5 +1,6 @@
 package live.mehiz.mpvkt.player
 
+import android.util.Log
 import com.github.k1rakishou.fsaf.FileManager
 import com.yubyf.truetypeparser.TTFFile
 import live.mehiz.mpvkt.database.dao.FontDao
@@ -10,12 +11,15 @@ import java.io.InputStream
 
 private typealias FsaFile = com.github.k1rakishou.fsaf.file.AbstractFile
 
+private const val TAG = "mpvKt"
+
 /**
  * Scans font folders, parses family names out of the font files and keeps the
  * [FontDao] index up to date. The index is what makes per-video on-demand font
  * staging possible without copying entire (potentially thousand-file) font
  * libraries on every playback.
  */
+@Suppress("TooManyFunctions")
 class FontIndexer(
   private val fontDao: FontDao,
   private val fileManager: FileManager,
@@ -34,16 +38,48 @@ class FontIndexer(
   }
   suspend fun reindexUserFolder(folderUri: String) = withScanProgress {
     val uri = android.net.Uri.parse(folderUri)
-    // Real-filesystem walk when the tree URI maps to an accessible directory:
-    // one listFiles() per directory yields name/size/mtime in a single call,
-    // vs one binder round-trip per file through the documents provider.
-    val files = fileDirFromTreeUri(uri)?.let { dir -> fastFontFiles(dir) }
-      ?: run {
-        val root = fileManager.fromUri(uri) ?: return@withScanProgress
-        if (!fileManager.exists(root)) return@withScanProgress
-        collectFontFiles(root)
-      }
+    // The fast real-filesystem walk needs "All files access": without it the
+    // tree URI still maps to a path that stats as a directory, but listing
+    // fails or comes back empty and the scan silently finds zero fonts.
+    // Only trust the fast path when the directory is actually readable and
+    // actually yielded files; everything else goes through the tree grant
+    // (SAF), which is the permission the folder selection gave us.
+    val fastWalk = fileDirFromTreeUri(uri)
+      ?.takeIf { it.canRead() }
+      ?.let { dir -> fastFontFiles(dir) }
+      ?.takeIf { it.isNotEmpty() }
+    val files = fastWalk ?: safFontFiles(uri)
+    Log.i(
+      TAG,
+      "reindex user folder: uri=$folderUri " +
+        "path=${if (fastWalk != null) "fast" else "saf"} files=${files.size}",
+    )
     reindexSource(SOURCE_USER, files)
+  }
+
+  /**
+   * Documents-provider walk for tree URIs whose filesystem view is not
+   * readable (no All-files access, secondary volumes): one binder round-trip
+   * per file, but it only depends on the persisted folder grant.
+   */
+  private suspend fun safFontFiles(uri: android.net.Uri): List<FontFileInfo> {
+    val root = runCatching { fileManager.fromUri(uri) }.getOrNull()
+    return when {
+      root == null -> {
+        Log.w(TAG, "reindex user folder: SAF root unavailable for $uri")
+        emptyList()
+      }
+
+      !runCatching { fileManager.exists(root) }.getOrDefault(false) -> {
+        Log.w(TAG, "reindex user folder: SAF root does not exist for $uri")
+        emptyList()
+      }
+
+      else -> runCatching { collectFontFiles(root) }.getOrElse {
+        Log.w(TAG, "reindex user folder: SAF walk failed", it)
+        emptyList()
+      }
+    }
   }
 
   suspend fun reindexSystemFonts() = withScanProgress {
@@ -71,13 +107,13 @@ class FontIndexer(
 
   /**
    * Opens an indexed font file by its stored relative path. Real filesystem
-   * first (cheap, exact), documents-provider walk as the fallback for tree
-   * URIs that do not map to a direct path.
+   * first (cheap, exact, and only when actually readable), documents-provider
+   * walk as the fallback for tree URIs whose direct view is not accessible.
    */
   suspend fun openIndexedFile(folderUri: String, virtualPath: String): (() -> InputStream?)? {
     val uri = android.net.Uri.parse(folderUri)
     val direct = fileDirFromTreeUri(uri)
-      ?.let { dir -> File(dir, virtualPath).takeIf { it.isFile } }
+      ?.let { dir -> File(dir, virtualPath).takeIf { it.isFile && it.canRead() } }
     return direct?.let { file -> { runCatching { file.inputStream() }.getOrNull() } }
       ?: fileManager.fromUri(uri)?.let { root ->
         collectFontFiles(root).firstOrNull { it.path == virtualPath }?.openStream
@@ -106,27 +142,50 @@ class FontIndexer(
     scanDone.value = 0
     // One query for the whole source: per-file lookups would dominate scan time.
     val existing = fontDao.metasForSource(source).associateBy(FontMeta::path)
+    // An empty scan of a previously populated source is far more likely a
+    // listing failure (missing All-files access, provider hiccup) than an
+    // intentionally emptied folder; never let it wipe the whole index.
+    // The folder can still be emptied explicitly via clearSource().
+    if (files.isEmpty() && existing.isNotEmpty()) {
+      Log.w(TAG, "reindex source=$source aborted: empty scan for a populated index")
+      return
+    }
     val seen = mutableSetOf<String>()
     val changed = mutableListOf<String>()
     val inserts = mutableListOf<FontEntity>()
+    var unreadable = 0
     for (file in files) {
       scanDone.value = scanDone.value + 1
       seen.add(file.path)
       val meta = existing[file.path]
       if (meta != null && meta.lastModified == file.lastModified && meta.size == file.size) continue
-      changed.add(file.path)
-      parseFamilies(file).forEach { family ->
-        inserts.add(FontEntity(file.path, family, file.lastModified, file.size, source))
+      val families = parseFamilies(file)
+      if (families.isEmpty()) {
+        // Unreadable or corrupt: keep whatever this path indexed before
+        // rather than dropping rows a transient read failure cannot
+        // disprove. A deleted file still leaves the index via "gone".
+        unreadable++
+      } else {
+        changed.add(file.path)
+        families.forEach { family ->
+          inserts.add(FontEntity(file.path, family, file.lastModified, file.size, source))
+        }
       }
     }
     // files that vanished from the folder lose their rows
     val gone = existing.keys.filterNot { it in seen }
     if (changed.isNotEmpty() || gone.isNotEmpty()) fontDao.deleteByPaths(changed + gone)
     if (inserts.isNotEmpty()) fontDao.insertAll(inserts)
+    Log.i(
+      TAG,
+      "reindex source=$source files=${files.size} inserted=${inserts.size} " +
+        "deleted=${changed.size + gone.size} unreadable=$unreadable",
+    )
   }
 
   private fun parseFamilies(info: FontFileInfo): List<String> {
-    val stream = info.openStream() ?: return emptyList()
+    // A single unreadable or corrupt file must never abort the whole scan.
+    val stream = runCatching { info.openStream() }.getOrNull() ?: return emptyList()
     return stream.use { input ->
       runCatching {
         val font = TTFFile.open(input)
