@@ -342,4 +342,21 @@
     <string name="player_sheets_sub_outline_title">เส้นขอบ</string>
     <string name="player_sheets_sub_shadow_title">เงา</string>
     <string name="player_sheets_subtitles_color_shadow">เงา</string>
+
+    <string name="storage_all_files_title">เข้าถึงไฟล์ทั้งหมด</string>
+    <string name="storage_all_files_message">«เข้าถึงไฟล์ทั้งหมด» ช่วยให้ mpvKt ค้นหาคำบรรยายและฟอนต์ที่อยู่ข้างวิดีโอเมื่อเปิดไฟล์จากแอปอื่น และบันทึกภาพหน้าจอได้ทุกที่ ไม่จำเป็นสำหรับตัวเลือกไฟล์หรือแหล่งเครือข่าย</string>
+    <string name="storage_all_files_grant">อนุญาตการเข้าถึง</string>
+    <string name="storage_all_files_dont_ask">ไม่ต้องถามอีก</string>
+    <string name="storage_all_files_banner">หากไม่มี «เข้าถึงไฟล์ทั้งหมด» วิดีโอที่เปิดจากแอปอื่นจะไม่พบคำบรรยายและฟอนต์ข้างเคียงโดยอัตโนมัติ ส่วนตัวเลือกไฟล์และแหล่งเครือข่ายยังใช้งานได้ตามปกติ</string>
+    <string name="storage_all_files_learn_more">เรียนรู้เพิ่มเติม</string>
+    <string name="player_storage_access_title">โหลดคำบรรยายข้างวิดีโอนี้หรือไม่?</string>
+    <string name="player_storage_access_message">วิดีโอนี้เปิดโดยตรง mpvKt จึงเห็นเพียงไฟล์นี้ ไม่เห็นโฟลเดอร์รอบข้าง และอ่านคำบรรยายกับฟอนต์ข้างวิดีโอไม่ได้ อนุญาต «เข้าถึงไฟล์ทั้งหมด» แล้ว mpvKt จะโหลดวิดีโอใหม่และนำมาใช้โดยอัตโนมัติ</string>
+    <string name="frame_step_backward">เฟรมก่อนหน้า</string>
+    <string name="frame_step_forward">เฟรมถัดไป</string>
+    <string name="font_index_no_source">ยังไม่ได้ตั้งค่าแหล่งฟอนต์ — เลือกโฟลเดอร์หรือเปิดใช้ฟอนต์ระบบ</string>
+    <string name="typography_fonts_empty_hint">ยังไม่มีฟอนต์ที่ถูกจัดทำดัชนี ตั้งค่าโฟลเดอร์ฟอนต์หรือเปิดใช้ฟอนต์ระบบในการตั้งค่า → คำบรรยาย</string>
+    <string name="missing_fonts_open_settings">การตั้งค่าฟอนต์</string>
+    <string name="pref_appearance_language">ภาษา</string>
+    <string name="pref_appearance_language_system">ค่าเริ่มต้นของระบบ</string>
+
 </resources>

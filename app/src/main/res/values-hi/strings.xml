@@ -344,4 +344,21 @@
     <string name="player_sheets_sub_outline_title">रूपरेखा</string>
     <string name="player_sheets_sub_shadow_title">छाया</string>
     <string name="player_sheets_subtitles_color_shadow">छाया</string>
+
+    <string name="storage_all_files_title">सभी फ़ाइलों तक पहुँच</string>
+    <string name="storage_all_files_message">«सभी फ़ाइलों तक पहुँच» से mpvKt अन्य ऐप्स से खोले गए वीडियो के पास रखे सबटाइटल और फ़ॉन्ट खोज सकता है, और स्क्रीनशॉट कहीं भी सहेज सकता है। फ़ाइल चयनकर्ता और नेटवर्क स्रोतों के लिए यह कभी आवश्यक नहीं है।</string>
+    <string name="storage_all_files_grant">पहुँच दें</string>
+    <string name="storage_all_files_dont_ask">दोबारा न पूछें</string>
+    <string name="storage_all_files_banner">«सभी फ़ाइलों तक पहुँच» के बिना अन्य ऐप्स से खोले गए वीडियो अपने पास रखे सबटाइटल और फ़ॉन्ट स्वतः नहीं ढूँढ पाते। फ़ाइल चयनकर्ता और नेटवर्क स्रोत फिर भी काम करते हैं।</string>
+    <string name="storage_all_files_learn_more">और जानें</string>
+    <string name="player_storage_access_title">इस वीडियो के पास रखे सबटाइटल लोड करें?</string>
+    <string name="player_storage_access_message">यह वीडियो सीधे खोला गया था, इसलिए mpvKt को केवल यही फ़ाइल दिखती है — आसपास का फ़ोल्डर नहीं। पास रखे सबटाइटल और फ़ॉन्ट पढ़े नहीं जा सकते। «सभी फ़ाइलों तक पहुँच» दें, mpvKt वीडियो को फिर से लोड करके उन्हें स्वतः उठा लेगा।</string>
+    <string name="frame_step_backward">पिछला फ़्रेम</string>
+    <string name="frame_step_forward">अगला फ़्रेम</string>
+    <string name="font_index_no_source">कोई फ़ॉन्ट स्रोत कॉन्फ़िगर नहीं है — कोई फ़ोल्डर चुनें या सिस्टम फ़ॉन्ट सक्षम करें</string>
+    <string name="typography_fonts_empty_hint">अभी तक कोई फ़ॉन्ट इंडेक्स नहीं हुआ। प्राथमिकताएँ → सबटाइटल में फ़ॉन्ट फ़ोल्डर कॉन्फ़िगर करें या सिस्टम फ़ॉन्ट सक्षम करें।</string>
+    <string name="missing_fonts_open_settings">फ़ॉन्ट सेटिंग्स</string>
+    <string name="pref_appearance_language">भाषा</string>
+    <string name="pref_appearance_language_system">सिस्टम डिफ़ॉल्ट</string>
+
 </resources>

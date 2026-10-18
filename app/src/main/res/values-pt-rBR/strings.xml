@@ -383,4 +383,21 @@
     <string name="player_sheets_sub_outline_title">Contorno</string>
     <string name="player_sheets_sub_shadow_title">Sombra</string>
     <string name="player_sheets_subtitles_color_shadow">Sombra</string>
+
+    <string name="storage_all_files_title">Acesso a todos os arquivos</string>
+    <string name="storage_all_files_message">«Acesso a todos os arquivos» permite que o mpvKt encontre legendas e fontes ao lado dos vídeos quando um arquivo é aberto de outro app, e salve capturas de tela em qualquer lugar. Nunca é necessário para o seletor de arquivos ou fontes de rede.</string>
+    <string name="storage_all_files_grant">Conceder acesso</string>
+    <string name="storage_all_files_dont_ask">Não perguntar novamente</string>
+    <string name="storage_all_files_banner">Sem «Acesso a todos os arquivos», vídeos abertos de outros apps não encontram legendas e fontes ao lado automaticamente. O seletor de arquivos e as fontes de rede funcionam do mesmo jeito.</string>
+    <string name="storage_all_files_learn_more">Saiba mais</string>
+    <string name="player_storage_access_title">Carregar as legendas ao lado deste vídeo?</string>
+    <string name="player_storage_access_message">Este vídeo foi aberto diretamente, então o mpvKt só enxerga este arquivo, não a pasta ao redor. Legendas e fontes ao lado do vídeo não podem ser lidas. Conceda «Acesso a todos os arquivos» e o mpvKt recarregará o vídeo e as aplicará automaticamente.</string>
+    <string name="frame_step_backward">Quadro anterior</string>
+    <string name="frame_step_forward">Próximo quadro</string>
+    <string name="font_index_no_source">Nenhuma pasta de fontes configurada — escolha uma ou ative as fontes do sistema</string>
+    <string name="typography_fonts_empty_hint">Nenhuma fonte foi indexada ainda. Configure uma pasta de fontes ou ative as fontes do sistema em Preferências → Legendas.</string>
+    <string name="missing_fonts_open_settings">Configurações de fontes</string>
+    <string name="pref_appearance_language">Idioma</string>
+    <string name="pref_appearance_language_system">Padrão do sistema</string>
+
 </resources>

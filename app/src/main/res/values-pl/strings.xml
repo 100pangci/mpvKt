@@ -348,4 +348,21 @@
     <string name="player_sheets_sub_outline_title">Kontur</string>
     <string name="player_sheets_sub_shadow_title">Cień</string>
     <string name="player_sheets_subtitles_color_shadow">Cień</string>
+
+    <string name="storage_all_files_title">Dostęp do wszystkich plików</string>
+    <string name="storage_all_files_message">„Dostęp do wszystkich plików“ pozwala mpvKt znajdować napisy i czcionki obok filmów, gdy plik jest otwierany z innej aplikacji, oraz zapisywać zrzuty ekranu w dowolnym miejscu. Nigdy nie jest wymagany przy wyborze plików ani źródłach sieciowych.</string>
+    <string name="storage_all_files_grant">Przyznaj dostęp</string>
+    <string name="storage_all_files_dont_ask">Nie pytaj ponownie</string>
+    <string name="storage_all_files_banner">Bez „Dostępu do wszystkich plików“ filmy otwierane z innych aplikacji nie znajdują automatycznie napisów i czcionek obok siebie. Wybór plików i źródła sieciowe działają tak czy tak.</string>
+    <string name="storage_all_files_learn_more">Dowiedz się więcej</string>
+    <string name="player_storage_access_title">Wczytać napisy obok tego filmu?</string>
+    <string name="player_storage_access_message">Ten film otwarto bezpośrednio, więc mpvKt widzi tylko ten plik — nie folder wokół niego. Napisów i czcionek obok filmu nie można odczytać. Przyznaj „Dostęp do wszystkich plików“, a mpvKt przeładuje film i pobierze je automatycznie.</string>
+    <string name="frame_step_backward">Poprzednia klatka</string>
+    <string name="frame_step_forward">Następna klatka</string>
+    <string name="font_index_no_source">Nie skonfigurowano źródła czcionek — wybierz folder lub włącz czcionki systemowe</string>
+    <string name="typography_fonts_empty_hint">Nie zaindeksowano jeszcze żadnych czcionek. Skonfiguruj folder czcionek lub włącz czcionki systemowe w Preferencje → Napisy.</string>
+    <string name="missing_fonts_open_settings">Ustawienia czcionek</string>
+    <string name="pref_appearance_language">Język</string>
+    <string name="pref_appearance_language_system">Domyślne systemowe</string>
+
 </resources>

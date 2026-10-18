@@ -342,4 +342,21 @@
     <string name="player_sheets_sub_outline_title">외곽선</string>
     <string name="player_sheets_sub_shadow_title">그림자</string>
     <string name="player_sheets_subtitles_color_shadow">그림자</string>
+
+    <string name="storage_all_files_title">모든 파일 접근</string>
+    <string name="storage_all_files_message">「모든 파일 접근」을 허용하면 다른 앱에서 연 파일의 옆에 있는 자막과 폰트를 mpvKt가 찾을 수 있고, 스크린샷을 어디든 저장할 수 있습니다. 파일 선택기와 네트워크 소스에는 필요하지 않습니다.</string>
+    <string name="storage_all_files_grant">접근 허용</string>
+    <string name="storage_all_files_dont_ask">다시 묻지 않기</string>
+    <string name="storage_all_files_banner">「모든 파일 접근」이 없으면 다른 앱에서 연 동영상이 옆에 있는 자막과 폰트를 자동으로 찾지 못합니다. 파일 선택기와 네트워크 소스는 그대로 작동합니다.</string>
+    <string name="storage_all_files_learn_more">자세히 알아보기</string>
+    <string name="player_storage_access_title">이 동영상 옆의 자막을 불러올까요?</string>
+    <string name="player_storage_access_message">이 동영상은 직접 열려서 mpvKt는 이 파일만 볼 수 있고 주변 폴더는 볼 수 없습니다. 옆에 있는 자막과 폰트를 읽을 수 없습니다. 「모든 파일 접근」을 허용하면 동영상을 다시 불러와 자동으로 적용합니다.</string>
+    <string name="frame_step_backward">이전 프레임</string>
+    <string name="frame_step_forward">다음 프레임</string>
+    <string name="font_index_no_source">폰트 소스가 설정되지 않았습니다 — 폴더를 선택하거나 시스템 폰트를 켜세요</string>
+    <string name="typography_fonts_empty_hint">아직 색인된 폰트가 없습니다. 설정 → 자막에서 폰트 폴더를 설정하거나 시스템 폰트를 켜세요.</string>
+    <string name="missing_fonts_open_settings">폰트 설정</string>
+    <string name="pref_appearance_language">언어</string>
+    <string name="pref_appearance_language_system">시스템 기본값</string>
+
 </resources>

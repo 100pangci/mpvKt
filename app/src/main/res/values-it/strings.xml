@@ -344,4 +344,21 @@
     <string name="player_sheets_sub_outline_title">Contorno</string>
     <string name="player_sheets_sub_shadow_title">Ombra</string>
     <string name="player_sheets_subtitles_color_shadow">Ombra</string>
+
+    <string name="storage_all_files_title">Accesso a tutti i file</string>
+    <string name="storage_all_files_message">«Accesso a tutti i file» consente a mpvKt di trovare i sottotitoli e i font accanto ai video quando un file viene aperto da un\'altra app, e di salvare screenshot ovunque. Non è mai necessario per il selettore file o le sorgenti di rete.</string>
+    <string name="storage_all_files_grant">Concedi accesso</string>
+    <string name="storage_all_files_dont_ask">Non chiedere più</string>
+    <string name="storage_all_files_banner">Senza «Accesso a tutti i file», i video aperti da altre app non trovano automaticamente i sottotitoli e i font accanto. Il selettore file e le sorgenti di rete funzionano comunque.</string>
+    <string name="storage_all_files_learn_more">Scopri di più</string>
+    <string name="player_storage_access_title">Caricare i sottotitoli accanto a questo video?</string>
+    <string name="player_storage_access_message">Questo video è stato aperto direttamente, quindi mpvKt vede solo questo file, non la cartella intorno. I sottotitoli e i font accanto al video non possono essere letti. Concedi «Accesso a tutti i file» e mpvKt ricaricherà il video e li prenderà automaticamente.</string>
+    <string name="frame_step_backward">Fotogramma precedente</string>
+    <string name="frame_step_forward">Fotogramma successivo</string>
+    <string name="font_index_no_source">Nessuna sorgente di font configurata — scegli una cartella o attiva i font di sistema</string>
+    <string name="typography_fonts_empty_hint">Nessun font è ancora indicizzato. Configura una cartella di font o attiva i font di sistema in Preferenze → Sottotitoli.</string>
+    <string name="missing_fonts_open_settings">Impostazioni font</string>
+    <string name="pref_appearance_language">Lingua</string>
+    <string name="pref_appearance_language_system">Predefinito di sistema</string>
+
 </resources>

@@ -348,4 +348,21 @@
     <string name="player_sheets_sub_outline_title">Контур</string>
     <string name="player_sheets_sub_shadow_title">Тінь</string>
     <string name="player_sheets_subtitles_color_shadow">Тінь</string>
+
+    <string name="storage_all_files_title">Доступ до всіх файлів</string>
+    <string name="storage_all_files_message">«Доступ до всіх файлів» дозволяє mpvKt знаходити субтитри та шрифти поруч із відео, коли файл відкрито з іншого застосунку, і зберігати знімки екрана будь-де. Для вибору файлів і мережевих джерел він не потрібен.</string>
+    <string name="storage_all_files_grant">Надати доступ</string>
+    <string name="storage_all_files_dont_ask">Більше не питати</string>
+    <string name="storage_all_files_banner">Без «Доступу до всіх файлів» відео, відкриті з інших застосунків, не знаходять автоматично субтитри та шрифти поруч. Вибір файлів і мережеві джерела працюють у будь-якому разі.</string>
+    <string name="storage_all_files_learn_more">Докладніше</string>
+    <string name="player_storage_access_title">Завантажити субтитри поруч із цим відео?</string>
+    <string name="player_storage_access_message">Це відео відкрито напряму, тож mpvKt бачить лише цей файл — не теку навколо нього. Субтитри та шрифти поруч із відео прочитати неможливо. Надайте «Доступ до всіх файлів», і mpvKt перезавантажить відео та підхопить їх автоматично.</string>
+    <string name="frame_step_backward">Попередній кадр</string>
+    <string name="frame_step_forward">Наступний кадр</string>
+    <string name="font_index_no_source">Джерело шрифтів не налаштовано — виберіть папку або увімкніть системні шрифти</string>
+    <string name="typography_fonts_empty_hint">Шрифти ще не проіндексовано. Налаштуйте папку шрифтів або увімкніть системні шрифти в розділі Налаштування → Субтитри.</string>
+    <string name="missing_fonts_open_settings">Налаштування шрифтів</string>
+    <string name="pref_appearance_language">Мова</string>
+    <string name="pref_appearance_language_system">Системний за замовчуванням</string>
+
 </resources>

@@ -344,4 +344,21 @@
     <string name="player_sheets_sub_outline_title">Contour</string>
     <string name="player_sheets_sub_shadow_title">Ombre</string>
     <string name="player_sheets_subtitles_color_shadow">Ombre</string>
+
+    <string name="storage_all_files_title">Accès à tous les fichiers</string>
+    <string name="storage_all_files_message">« Accès à tous les fichiers » permet à mpvKt de découvrir les sous-titres et les polices voisins d\'une vidéo lorsqu\'un fichier est ouvert depuis une autre application, et d\'enregistrer des captures où vous voulez. Il n\'est jamais requis pour le sélecteur de fichiers ni les sources réseau.</string>
+    <string name="storage_all_files_grant">Accorder l\'accès</string>
+    <string name="storage_all_files_dont_ask">Ne plus demander</string>
+    <string name="storage_all_files_banner">Sans « Accès à tous les fichiers », les vidéos ouvertes depuis d\'autres applications ne trouvent pas automatiquement leurs sous-titres et polices voisins. Le sélecteur de fichiers et les sources réseau fonctionnent quand même.</string>
+    <string name="storage_all_files_learn_more">En savoir plus</string>
+    <string name="player_storage_access_title">Charger les sous-titres à côté de cette vidéo ?</string>
+    <string name="player_storage_access_message">Cette vidéo a été ouverte directement : mpvKt ne voit que ce fichier, pas le dossier qui l\'entoure. Les sous-titres et les polices à côté de la vidéo ne peuvent pas être lus. Accordez « Accès à tous les fichiers » et mpvKt rechargera la vidéo et les prendra automatiquement.</string>
+    <string name="frame_step_backward">Image précédente</string>
+    <string name="frame_step_forward">Image suivante</string>
+    <string name="font_index_no_source">Aucune source de polices configurée — choisissez un dossier ou activez les polices système</string>
+    <string name="typography_fonts_empty_hint">Aucune police n\'est encore indexée. Configurez un dossier de polices ou activez les polices système dans Préférences → Sous-titres.</string>
+    <string name="missing_fonts_open_settings">Réglages des polices</string>
+    <string name="pref_appearance_language">Langue</string>
+    <string name="pref_appearance_language_system">Valeur par défaut du système</string>
+
 </resources>

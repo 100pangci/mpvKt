@@ -365,4 +365,21 @@
     <string name="player_sheets_sub_outline_title">Contorno</string>
     <string name="player_sheets_sub_shadow_title">Sombra</string>
     <string name="player_sheets_subtitles_color_shadow">Sombra</string>
+
+    <string name="storage_all_files_title">Acceso a todos los archivos</string>
+    <string name="storage_all_files_message">«Acceso a todos los archivos» permite que mpvKt descubra los subtítulos y las fuentes que acompañan a los vídeos cuando un archivo se abre desde otra aplicación, y guardar capturas donde quieras. Nunca es necesario para el selector de archivos ni las fuentes de red.</string>
+    <string name="storage_all_files_grant">Conceder acceso</string>
+    <string name="storage_all_files_dont_ask">No volver a preguntar</string>
+    <string name="storage_all_files_banner">Sin «Acceso a todos los archivos», los vídeos abiertos desde otras aplicaciones no encuentran automáticamente los subtítulos y fuentes que tienen al lado. El selector de archivos y las fuentes de red funcionan igual.</string>
+    <string name="storage_all_files_learn_more">Más información</string>
+    <string name="player_storage_access_title">¿Cargar los subtítulos junto a este vídeo?</string>
+    <string name="player_storage_access_message">Este vídeo se abrió directamente, así que mpvKt solo ve este archivo, no la carpeta que lo rodea. Los subtítulos y las fuentes que están junto al vídeo no se pueden leer. Concede «Acceso a todos los archivos» y mpvKt recargará el vídeo y los tomará automáticamente.</string>
+    <string name="frame_step_backward">Fotograma anterior</string>
+    <string name="frame_step_forward">Fotograma siguiente</string>
+    <string name="font_index_no_source">No hay ninguna carpeta de fuentes configurada: elige una o activa las fuentes del sistema</string>
+    <string name="typography_fonts_empty_hint">Todavía no se ha indexado ninguna fuente. Configura una carpeta de fuentes o activa las fuentes del sistema en Preferencias → Subtítulos.</string>
+    <string name="missing_fonts_open_settings">Ajustes de fuentes</string>
+    <string name="pref_appearance_language">Idioma</string>
+    <string name="pref_appearance_language_system">Predeterminado del sistema</string>
+
 </resources>

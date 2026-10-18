@@ -342,4 +342,21 @@
     <string name="player_sheets_sub_outline_title">Viền</string>
     <string name="player_sheets_sub_shadow_title">Bóng</string>
     <string name="player_sheets_subtitles_color_shadow">Bóng</string>
+
+    <string name="storage_all_files_title">Quyền truy cập mọi tệp</string>
+    <string name="storage_all_files_message">«Quyền truy cập mọi tệp» cho phép mpvKt tìm phụ đề và phông chữ bên cạnh video khi tệp được mở từ ứng dụng khác, và lưu ảnh chụp màn hình ở bất kỳ đâu. Không bao giờ cần cho trình chọn tệp hay nguồn mạng.</string>
+    <string name="storage_all_files_grant">Cấp quyền</string>
+    <string name="storage_all_files_dont_ask">Không hỏi lại</string>
+    <string name="storage_all_files_banner">Nếu không có «Quyền truy cập mọi tệp», video mở từ ứng dụng khác sẽ không tự động tìm thấy phụ đề và phông chữ bên cạnh. Trình chọn tệp và nguồn mạng vẫn hoạt động bình thường.</string>
+    <string name="storage_all_files_learn_more">Tìm hiểu thêm</string>
+    <string name="player_storage_access_title">Tải phụ đề bên cạnh video này?</string>
+    <string name="player_storage_access_message">Video này được mở trực tiếp nên mpvKt chỉ thấy mỗi tệp này, không thấy thư mục xung quanh. Phụ đề và phông chữ bên cạnh video không thể đọc được. Cấp «Quyền truy cập mọi tệp» và mpvKt sẽ tải lại video rồi tự động nhận chúng.</string>
+    <string name="frame_step_backward">Khung trước</string>
+    <string name="frame_step_forward">Khung tiếp theo</string>
+    <string name="font_index_no_source">Chưa cấu hình nguồn phông chữ — hãy chọn thư mục hoặc bật phông chữ hệ thống</string>
+    <string name="typography_fonts_empty_hint">Chưa có phông chữ nào được lập chỉ mục. Hãy cấu hình thư mục phông chữ hoặc bật phông chữ hệ thống trong Cài đặt → Phụ đề.</string>
+    <string name="missing_fonts_open_settings">Cài đặt phông chữ</string>
+    <string name="pref_appearance_language">Ngôn ngữ</string>
+    <string name="pref_appearance_language_system">Mặc định hệ thống</string>
+
 </resources>

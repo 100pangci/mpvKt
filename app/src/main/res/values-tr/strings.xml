@@ -344,4 +344,21 @@
     <string name="player_sheets_sub_outline_title">Dış çizgi</string>
     <string name="player_sheets_sub_shadow_title">Gölge</string>
     <string name="player_sheets_subtitles_color_shadow">Gölge</string>
+
+    <string name="storage_all_files_title">Tüm dosyalara erişim</string>
+    <string name="storage_all_files_message">«Tüm dosyalara erişim», başka bir uygulamadan açılan dosyalarda videonun yanındaki altyazıların ve yazı tiplerinin mpvKt tarafından bulunmasını ve ekran görüntülerinin her yere kaydedilmesini sağlar. Dosya seçici ve ağ kaynakları için hiçbir zaman gerekmez.</string>
+    <string name="storage_all_files_grant">Erişim izni ver</string>
+    <string name="storage_all_files_dont_ask">Bir daha sorma</string>
+    <string name="storage_all_files_banner">«Tüm dosyalara erişim» olmadan başka uygulamalardan açılan videolar yanlarındaki altyazıları ve yazı tiplerini otomatik bulamaz. Dosya seçici ve ağ kaynakları yine de çalışır.</string>
+    <string name="storage_all_files_learn_more">Daha fazla bilgi</string>
+    <string name="player_storage_access_title">Bu videonun yanındaki altyazılar yüklensin mi?</string>
+    <string name="player_storage_access_message">Bu video doğrudan açıldı; mpvKt yalnızca bu dosyayı görür, çevresindeki klasörü göremez. Yanındaki altyazılar ve yazı tipleri okunamaz. «Tüm dosyalara erişim» iznini verin; mpvKt videoyu yeniden yükleyip bunları otomatik alır.</string>
+    <string name="frame_step_backward">Önceki kare</string>
+    <string name="frame_step_forward">Sonraki kare</string>
+    <string name="font_index_no_source">Yazı tipi kaynağı yapılandırılmadı — bir klasör seçin veya sistem yazı tiplerini etkinleştirin</string>
+    <string name="typography_fonts_empty_hint">Henüz hiçbir yazı tipi dizinlenmedi. Ayarlar → Altyazılar bölümünden bir yazı tipi klasörü yapılandırın veya sistem yazı tiplerini etkinleştirin.</string>
+    <string name="missing_fonts_open_settings">Yazı tipi ayarları</string>
+    <string name="pref_appearance_language">Dil</string>
+    <string name="pref_appearance_language_system">Sistem varsayılanı</string>
+
 </resources>

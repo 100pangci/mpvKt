@@ -373,4 +373,21 @@
     <string name="player_sheets_sub_outline_title">Контур</string>
     <string name="player_sheets_sub_shadow_title">Тень</string>
     <string name="player_sheets_subtitles_color_shadow">Тень</string>
+
+    <string name="storage_all_files_title">Доступ ко всем файлам</string>
+    <string name="storage_all_files_message">«Доступ ко всем файлам» позволяет mpvKt находить субтитры и шрифты рядом с видео при открытии файла из другого приложения и сохранять снимки экрана в любое место. Для выбора файлов и сетевых источников он не требуется.</string>
+    <string name="storage_all_files_grant">Разрешить доступ</string>
+    <string name="storage_all_files_dont_ask">Больше не спрашивать</string>
+    <string name="storage_all_files_banner">Без «Доступа ко всем файлам» видео, открытые из других приложений, не находят автоматически субтитры и шрифты рядом. Выбор файлов и сетевые источники работают в любом случае.</string>
+    <string name="storage_all_files_learn_more">Подробнее</string>
+    <string name="player_storage_access_title">Загрузить субтитры рядом с этим видео?</string>
+    <string name="player_storage_access_message">Это видео открыто напрямую, поэтому mpvKt видит только этот файл — не папку вокруг него. Субтитры и шрифты рядом с видео прочитать нельзя. Разрешите «Доступ ко всем файлам», и mpvKt перезагрузит видео и подхватит их автоматически.</string>
+    <string name="frame_step_backward">Предыдущий кадр</string>
+    <string name="frame_step_forward">Следующий кадр</string>
+    <string name="font_index_no_source">Источник шрифтов не настроен — выберите папку или включите системные шрифты</string>
+    <string name="typography_fonts_empty_hint">Шрифты ещё не проиндексированы. Настройте папку шрифтов или включите системные шрифты в разделе Предпочтения → Субтитры.</string>
+    <string name="missing_fonts_open_settings">Настройки шрифтов</string>
+    <string name="pref_appearance_language">Язык</string>
+    <string name="pref_appearance_language_system">Системный по умолчанию</string>
+
 </resources>

@@ -390,4 +390,21 @@
     <string name="player_sheets_sub_outline_title">Garis luar</string>
     <string name="player_sheets_sub_shadow_title">Bayangan</string>
     <string name="player_sheets_subtitles_color_shadow">Bayangan</string>
+
+    <string name="storage_all_files_title">Akses semua file</string>
+    <string name="storage_all_files_message">«Akses semua file» memungkinkan mpvKt menemukan subtitle dan font di sebelah video saat file dibuka dari aplikasi lain, dan menyimpan tangkapan layar di mana saja. Tidak pernah diperlukan untuk pemilih file atau sumber jaringan.</string>
+    <string name="storage_all_files_grant">Beri akses</string>
+    <string name="storage_all_files_dont_ask">Jangan tanya lagi</string>
+    <string name="storage_all_files_banner">Tanpa «Akses semua file», video yang dibuka dari aplikasi lain tidak dapat menemukan subtitle dan font di sebelahnya secara otomatis. Pemilih file dan sumber jaringan tetap berfungsi.</string>
+    <string name="storage_all_files_learn_more">Pelajari lebih lanjut</string>
+    <string name="player_storage_access_title">Muat subtitle di sebelah video ini?</string>
+    <string name="player_storage_access_message">Video ini dibuka secara langsung, jadi mpvKt hanya melihat file ini — bukan folder di sekitarnya. Subtitle dan font di sebelah video tidak dapat dibaca. Berikan «Akses semua file» dan mpvKt akan memuat ulang video dan mengambilnya secara otomatis.</string>
+    <string name="frame_step_backward">Bingkai sebelumnya</string>
+    <string name="frame_step_forward">Bingkai berikutnya</string>
+    <string name="font_index_no_source">Tidak ada sumber font yang dikonfigurasi — pilih folder atau aktifkan font sistem</string>
+    <string name="typography_fonts_empty_hint">Belum ada font yang diindeks. Konfigurasikan folder font atau aktifkan font sistem di Pengaturan → Subtitle.</string>
+    <string name="missing_fonts_open_settings">Pengaturan font</string>
+    <string name="pref_appearance_language">Bahasa</string>
+    <string name="pref_appearance_language_system">Bawaan sistem</string>
+
 </resources>

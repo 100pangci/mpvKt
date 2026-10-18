@@ -352,4 +352,21 @@
     <string name="player_sheets_sub_outline_title">الحدود</string>
     <string name="player_sheets_sub_shadow_title">الظل</string>
     <string name="player_sheets_subtitles_color_shadow">الظل</string>
+
+    <string name="storage_all_files_title">الوصول إلى جميع الملفات</string>
+    <string name="storage_all_files_message">يتيح «الوصول إلى جميع الملفات» لتطبيق mpvKt اكتشاف الترجمات والخطوط المجاورة للفيديو عند فتح ملف من تطبيق آخر، وحفظ لقطات الشاشة في أي مكان. وهو غير مطلوب أبدًا لمنتقي الملفات أو مصادر الشبكة.</string>
+    <string name="storage_all_files_grant">منح الوصول</string>
+    <string name="storage_all_files_dont_ask">عدم السؤال مجددًا</string>
+    <string name="storage_all_files_banner">بدون «الوصول إلى جميع الملفات»، لا تستطيع الفيديوهات المفتوحة من تطبيقات أخرى العثور تلقائيًا على الترجمات والخطوط المجاورة لها. يعمل منتقي الملفات ومصادر الشبكة في كلتا الحالتين.</string>
+    <string name="storage_all_files_learn_more">معرفة المزيد</string>
+    <string name="player_storage_access_title">هل تريد تحميل الترجمات المجاورة لهذا الفيديو؟</string>
+    <string name="player_storage_access_message">فُتح هذا الفيديو مباشرةً، لذا لا يرى mpvKt سوى هذا الملف — وليس المجلد المحيط به. لا يمكن قراءة الترجمات والخطوط المجاورة للفيديو. امنح «الوصول إلى جميع الملفات» وسيعيد mpvKt تحميل الفيديو ويلتقطها تلقائيًا.</string>
+    <string name="frame_step_backward">الإطار السابق</string>
+    <string name="frame_step_forward">الإطار التالي</string>
+    <string name="font_index_no_source">لم يتم تكوين مصدر للخطوط — اختر مجلدًا أو فعّل خطوط النظام</string>
+    <string name="typography_fonts_empty_hint">لم تتم فهرسة أي خطوط بعد. كوّن مجلد الخطوط أو فعّل خطوط النظام من الإعدادات ← الترجمات.</string>
+    <string name="missing_fonts_open_settings">إعدادات الخطوط</string>
+    <string name="pref_appearance_language">اللغة</string>
+    <string name="pref_appearance_language_system">افتراضي النظام</string>
+
 </resources>

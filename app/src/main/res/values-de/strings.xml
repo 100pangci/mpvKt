@@ -344,4 +344,21 @@
     <string name="player_sheets_sub_outline_title">Kontur</string>
     <string name="player_sheets_sub_shadow_title">Schatten</string>
     <string name="player_sheets_subtitles_color_shadow">Schatten</string>
+
+    <string name="storage_all_files_title">Zugriff auf alle Dateien</string>
+    <string name="storage_all_files_message">„Zugriff auf alle Dateien“ lässt mpvKt Untertitel und Schriftarten neben Videos entdecken, wenn eine Datei aus einer anderen App geöffnet wird, und erlaubt Screenshots an jedem Ort. Für Dateiauswahl und Netzwerkquellen ist die Berechtigung nie nötig.</string>
+    <string name="storage_all_files_grant">Zugriff erlauben</string>
+    <string name="storage_all_files_dont_ask">Nicht mehr fragen</string>
+    <string name="storage_all_files_banner">Ohne „Zugriff auf alle Dateien“ finden aus anderen Apps geöffnete Videos ihre benachbarten Untertitel und Schriftarten nicht automatisch. Dateiauswahl und Netzwerkquellen funktionieren trotzdem.</string>
+    <string name="storage_all_files_learn_more">Mehr erfahren</string>
+    <string name="player_storage_access_title">Untertitel neben diesem Video laden?</string>
+    <string name="player_storage_access_message">Dieses Video wurde direkt geöffnet, daher sieht mpvKt nur diese eine Datei – nicht den umgebenden Ordner. Untertitel und Schriftarten daneben können nicht gelesen werden. Erlaube „Zugriff auf alle Dateien“, und mpvKt lädt das Video neu und übernimmt sie automatisch.</string>
+    <string name="frame_step_backward">Vorheriges Bild</string>
+    <string name="frame_step_forward">Nächstes Bild</string>
+    <string name="font_index_no_source">Keine Schriftartquelle konfiguriert – wähle einen Ordner oder aktiviere Systemschriftarten</string>
+    <string name="typography_fonts_empty_hint">Noch keine Schriftarten indexiert. Konfiguriere einen Schriftarten-Ordner oder aktiviere Systemschriftarten unter Einstellungen → Untertitel.</string>
+    <string name="missing_fonts_open_settings">Schriftarteneinstellungen</string>
+    <string name="pref_appearance_language">Sprache</string>
+    <string name="pref_appearance_language_system">Systemstandard</string>
+
 </resources>

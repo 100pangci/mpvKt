@@ -390,4 +390,21 @@
     <string name="player_sheets_sub_outline_title">縁取り</string>
     <string name="player_sheets_sub_shadow_title">影</string>
     <string name="player_sheets_subtitles_color_shadow">影</string>
+
+    <string name="storage_all_files_title">すべてのファイルへのアクセス</string>
+    <string name="storage_all_files_message">「すべてのファイルへのアクセス」を許可すると、他のアプリから開いたファイルで、動画の隣にある字幕とフォントを mpvKt が見つけられるようになり、スクリーンショットも任意の場所に保存できます。ファイル選択やネットワークソースには必要ありません。</string>
+    <string name="storage_all_files_grant">アクセスを許可</string>
+    <string name="storage_all_files_dont_ask">今後表示しない</string>
+    <string name="storage_all_files_banner">「すべてのファイルへのアクセス」がないと、他のアプリから開いた動画は隣にある字幕とフォントを自動で見つけられません。ファイル選択とネットワークソースはそのまま使えます。</string>
+    <string name="storage_all_files_learn_more">詳細を見る</string>
+    <string name="player_storage_access_title">この動画の隣にある字幕を読み込みますか？</string>
+    <string name="player_storage_access_message">この動画は直接開かれたため、mpvKt にはこのファイルしか見えず、周囲のフォルダーは見えません。隣にある字幕とフォントを読み取れません。「すべてのファイルへのアクセス」を許可すると、動画を再読み込みして自動的に適用します。</string>
+    <string name="frame_step_backward">前のフレーム</string>
+    <string name="frame_step_forward">次のフレーム</string>
+    <string name="font_index_no_source">フォントソースが設定されていません — フォルダーを選択するか、システムフォントを有効にしてください</string>
+    <string name="typography_fonts_empty_hint">まだフォントがインデックスされていません。設定 → 字幕 でフォントフォルダーを設定するか、システムフォントを有効にしてください。</string>
+    <string name="missing_fonts_open_settings">フォント設定</string>
+    <string name="pref_appearance_language">言語</string>
+    <string name="pref_appearance_language_system">システムのデフォルト</string>
+
 </resources>
