@@ -313,4 +313,33 @@
     <string name="font_index_rebuild">สร้างดัชนีฟอนต์ใหม่</string>
     <string name="font_index_count">จัดทำดัชนีฟอนต์แล้ว %1$d ฟอนต์</string>
 
+    <string name="pref_subtitles_style">สไตล์คำบรรยาย</string>
+    <string name="pref_subtitles_style_summary">ฟอนต์ ขนาด เส้นขอบ สี และอื่น ๆ</string>
+    <string name="pref_subtitles_font">ฟอนต์</string>
+    <string name="pref_subtitles_font_size">ขนาดฟอนต์</string>
+    <string name="pref_subtitles_bold">ตัวหนา</string>
+    <string name="pref_subtitles_italic">ตัวเอียง</string>
+    <string name="pref_subtitles_align">การจัดตำแหน่งข้อความ</string>
+    <string name="subtitle_align_auto">อัตโนมัติ</string>
+    <string name="subtitle_align_left">ซ้าย</string>
+    <string name="subtitle_align_center">กลาง</string>
+    <string name="subtitle_align_right">ขวา</string>
+    <string name="subtitle_font_system_default">ค่าเริ่มต้นของระบบ</string>
+    <string name="pref_subtitles_codepage_title">การเข้ารหัสคำบรรยาย</string>
+    <string name="pref_subtitles_codepage_summary">โค้ดเพจที่ใช้เมื่อไฟล์คำบรรยายไม่ใช่ UTF-8 ที่ถูกต้อง เช่น GB18030 สำหรับคำบรรยายภาษาจีน ตั้งเป็น \"auto\" ให้ mpv เดาเอง</string>
+    <string name="pref_subtitles_sub_file_paths_title">โฟลเดอร์ค้นหาคำบรรยาย</string>
+    <string name="pref_subtitles_sub_file_paths_summary">โฟลเดอร์ย่อยเพิ่มเติมข้างวิดีโอสำหรับค้นหาคำบรรยายภายนอก คั่นด้วย \";\"</string>
+    <string name="pref_subtitles_ass_style_overrides_title">แทนที่สไตล์ ASS</string>
+    <string name="pref_subtitles_ass_style_overrides_summary">ใช้เมื่อแทนที่คำบรรยาย ASS/SSA เช่น Fontname=LXGW WenKai Mono Lite</string>
+    <string name="pref_subtitles_hdr_peak_title">ความสว่างคำบรรยาย HDR</string>
+    <string name="pref_subtitles_hdr_peak_summary">sub-hdr-peak (nit) มีผลเฉพาะเอาต์พุต HDR ของ gpu-next</string>
+    <string name="pref_subtitles_fallback_title">ภาษาแทนคำบรรยาย</string>
+    <string name="pref_subtitles_fallback_summary">เลือกแทร็กคำบรรยายแม้ไม่ตรงกับภาษาใดที่ต้องการ</string>
+    <string name="pref_subtitles_scale_signs_title">ปรับขนาดป้ายด้วย</string>
+    <string name="pref_subtitles_scale_signs_summary">ใช้การปรับขนาดคำบรรยายกับป้ายและข้อความประกอบด้วย ไม่ใช่แค่บทสนทนา</string>
+    <string name="pref_subtitles_use_margins_title">ใช้แถบดำ</string>
+    <string name="pref_subtitles_use_margins_summary">วางคำบรรยายแบบข้อความไว้ในแถบดำเมื่อวิดีโอมี</string>
+    <string name="player_sheets_sub_outline_title">เส้นขอบ</string>
+    <string name="player_sheets_sub_shadow_title">เงา</string>
+    <string name="player_sheets_subtitles_color_shadow">เงา</string>
 </resources>

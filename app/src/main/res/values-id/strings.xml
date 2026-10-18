@@ -361,4 +361,33 @@
     <string name="font_index_rebuild">Bangun ulang indeks font</string>
     <string name="font_index_count">%1$d font terindeks</string>
 
+    <string name="pref_subtitles_style">Gaya subtitle</string>
+    <string name="pref_subtitles_style_summary">Font, ukuran, garis luar, warna, dan lainnya</string>
+    <string name="pref_subtitles_font">Font</string>
+    <string name="pref_subtitles_font_size">Ukuran font</string>
+    <string name="pref_subtitles_bold">Tebal</string>
+    <string name="pref_subtitles_italic">Miring</string>
+    <string name="pref_subtitles_align">Perataan teks</string>
+    <string name="subtitle_align_auto">Otomatis</string>
+    <string name="subtitle_align_left">Kiri</string>
+    <string name="subtitle_align_center">Tengah</string>
+    <string name="subtitle_align_right">Kanan</string>
+    <string name="subtitle_font_system_default">Bawaan sistem</string>
+    <string name="pref_subtitles_codepage_title">Pengodean subtitle</string>
+    <string name="pref_subtitles_codepage_summary">Codepage yang dipakai saat berkas subtitle bukan UTF-8 yang valid, mis. GB18030 untuk subtitle Mandarin. Setel \"auto\" agar mpv menebak.</string>
+    <string name="pref_subtitles_sub_file_paths_title">Folder pencarian subtitle</string>
+    <string name="pref_subtitles_sub_file_paths_summary">Subfolder tambahan di sekitar video untuk mencari subtitle eksternal, dipisahkan \";\".</string>
+    <string name="pref_subtitles_ass_style_overrides_title">Penggantian gaya ASS</string>
+    <string name="pref_subtitles_ass_style_overrides_summary">Diterapkan saat menimpa subtitle ASS/SSA, mis. Fontname=LXGW WenKai Mono Lite</string>
+    <string name="pref_subtitles_hdr_peak_title">Kecerahan subtitle HDR</string>
+    <string name="pref_subtitles_hdr_peak_summary">sub-hdr-peak dalam nit; hanya memengaruhi keluaran HDR gpu-next.</string>
+    <string name="pref_subtitles_fallback_title">Bahasa cadangan subtitle</string>
+    <string name="pref_subtitles_fallback_summary">Pilih jalur subtitle meski tidak cocok dengan bahasa favorit mana pun.</string>
+    <string name="pref_subtitles_scale_signs_title">Ikut skalakan tulisan efek</string>
+    <string name="pref_subtitles_scale_signs_summary">Terapkan skala subtitle juga ke tulisan efek dan latar, bukan hanya dialog.</string>
+    <string name="pref_subtitles_use_margins_title">Gunakan bilah hitam</string>
+    <string name="pref_subtitles_use_margins_summary">Tempatkan subtitle teks di dalam bilah hitam jika video memilikinya.</string>
+    <string name="player_sheets_sub_outline_title">Garis luar</string>
+    <string name="player_sheets_sub_shadow_title">Bayangan</string>
+    <string name="player_sheets_subtitles_color_shadow">Bayangan</string>
 </resources>

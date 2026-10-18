@@ -108,6 +108,11 @@ object SubtitlesPreferencesScreen : Screen {
             .verticalScroll(rememberScrollState())
             .padding(padding),
         ) {
+          Preference(
+            title = { Text(stringResource(R.string.pref_subtitles_style)) },
+            summary = { Text(stringResource(R.string.pref_subtitles_style_summary)) },
+            onClick = { backstack.add(SubtitleStylePreferencesScreen) },
+          )
           val preferredLanguages by preferences.preferredLanguages.collectAsState()
           TextFieldPreference(
             value = preferredLanguages,

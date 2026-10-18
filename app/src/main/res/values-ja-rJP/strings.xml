@@ -361,4 +361,33 @@
     <string name="font_index_rebuild">フォントインデックスを再構築</string>
     <string name="font_index_count">%1$d 個のフォントを索引化済み</string>
 
+    <string name="pref_subtitles_style">字幕スタイル</string>
+    <string name="pref_subtitles_style_summary">フォント、サイズ、縁取り、色など</string>
+    <string name="pref_subtitles_font">フォント</string>
+    <string name="pref_subtitles_font_size">フォントサイズ</string>
+    <string name="pref_subtitles_bold">太字</string>
+    <string name="pref_subtitles_italic">斜体</string>
+    <string name="pref_subtitles_align">テキストの配置</string>
+    <string name="subtitle_align_auto">自動</string>
+    <string name="subtitle_align_left">左</string>
+    <string name="subtitle_align_center">中央</string>
+    <string name="subtitle_align_right">右</string>
+    <string name="subtitle_font_system_default">システム既定</string>
+    <string name="pref_subtitles_codepage_title">字幕の文字コード</string>
+    <string name="pref_subtitles_codepage_summary">字幕ファイルが有効な UTF-8 でない場合に使う文字コード（例: 中国語字幕なら GB18030）。\"auto\" にすると mpv が自動判定します。</string>
+    <string name="pref_subtitles_sub_file_paths_title">字幕の検索フォルダー</string>
+    <string name="pref_subtitles_sub_file_paths_summary">動画の隣で外部字幕を探す追加のサブフォルダー。\";\" で区切ります。</string>
+    <string name="pref_subtitles_ass_style_overrides_title">ASS スタイルの上書き</string>
+    <string name="pref_subtitles_ass_style_overrides_summary">ASS/SSA 字幕を上書きするときに適用されます。例: Fontname=LXGW WenKai Mono Lite</string>
+    <string name="pref_subtitles_hdr_peak_title">HDR 字幕の明るさ</string>
+    <string name="pref_subtitles_hdr_peak_summary">sub-hdr-peak（ニト）。gpu-next の HDR 出力にのみ影響します。</string>
+    <string name="pref_subtitles_fallback_title">字幕言語のフォールバック</string>
+    <string name="pref_subtitles_fallback_summary">優先言語に一致しなくても字幕トラックを選択します。</string>
+    <string name="pref_subtitles_scale_signs_title">看板も拡大</string>
+    <string name="pref_subtitles_scale_signs_summary">字幕の拡大を台詞だけでなく看板や装飾文字にも適用します。</string>
+    <string name="pref_subtitles_use_margins_title">黒帯を使う</string>
+    <string name="pref_subtitles_use_margins_summary">動画に黒帯がある場合、テキスト字幕を黒帯の中に配置します。</string>
+    <string name="player_sheets_sub_outline_title">縁取り</string>
+    <string name="player_sheets_sub_shadow_title">影</string>
+    <string name="player_sheets_subtitles_color_shadow">影</string>
 </resources>

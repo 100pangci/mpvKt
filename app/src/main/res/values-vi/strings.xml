@@ -313,4 +313,33 @@
     <string name="font_index_rebuild">Xây dựng lại chỉ mục font</string>
     <string name="font_index_count">Đã lập chỉ mục %1$d font</string>
 
+    <string name="pref_subtitles_style">Kiểu phụ đề</string>
+    <string name="pref_subtitles_style_summary">Phông chữ, cỡ chữ, viền, màu sắc và hơn thế</string>
+    <string name="pref_subtitles_font">Phông chữ</string>
+    <string name="pref_subtitles_font_size">Cỡ chữ</string>
+    <string name="pref_subtitles_bold">Đậm</string>
+    <string name="pref_subtitles_italic">Nghiêng</string>
+    <string name="pref_subtitles_align">Căn chỉnh văn bản</string>
+    <string name="subtitle_align_auto">Tự động</string>
+    <string name="subtitle_align_left">Trái</string>
+    <string name="subtitle_align_center">Giữa</string>
+    <string name="subtitle_align_right">Phải</string>
+    <string name="subtitle_font_system_default">Mặc định hệ thống</string>
+    <string name="pref_subtitles_codepage_title">Mã hóa phụ đề</string>
+    <string name="pref_subtitles_codepage_summary">Bảng mã dùng khi tệp phụ đề không phải UTF-8 hợp lệ, ví dụ GB18030 cho phụ đề tiếng Trung. Đặt \"auto\" để mpv tự đoán.</string>
+    <string name="pref_subtitles_sub_file_paths_title">Thư mục tìm phụ đề</string>
+    <string name="pref_subtitles_sub_file_paths_summary">Các thư mục con bổ sung cạnh video để tìm phụ đề ngoài, phân tách bằng \";\".</string>
+    <string name="pref_subtitles_ass_style_overrides_title">Ghi đè kiểu ASS</string>
+    <string name="pref_subtitles_ass_style_overrides_summary">Áp dụng khi ghi đè phụ đề ASS/SSA, ví dụ Fontname=LXGW WenKai Mono Lite</string>
+    <string name="pref_subtitles_hdr_peak_title">Độ sáng phụ đề HDR</string>
+    <string name="pref_subtitles_hdr_peak_summary">sub-hdr-peak (nit); chỉ ảnh hưởng đầu ra HDR của gpu-next.</string>
+    <string name="pref_subtitles_fallback_title">Ngôn ngữ phụ đề dự phòng</string>
+    <string name="pref_subtitles_fallback_summary">Chọn một phụ đề ngay cả khi không khớp ngôn ngữ ưu tiên nào.</string>
+    <string name="pref_subtitles_scale_signs_title">Phóng to cả bảng hiệu</string>
+    <string name="pref_subtitles_scale_signs_summary">Áp dụng tỉ lệ phụ đề cho cả bảng hiệu và chữ trang trí, không chỉ lời thoại.</string>
+    <string name="pref_subtitles_use_margins_title">Dùng thanh đen</string>
+    <string name="pref_subtitles_use_margins_summary">Đặt phụ đề văn bản vào thanh đen khi video có.</string>
+    <string name="player_sheets_sub_outline_title">Viền</string>
+    <string name="player_sheets_sub_shadow_title">Bóng</string>
+    <string name="player_sheets_subtitles_color_shadow">Bóng</string>
 </resources>

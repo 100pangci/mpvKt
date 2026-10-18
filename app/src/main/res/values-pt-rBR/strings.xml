@@ -354,4 +354,33 @@
     <string name="font_index_rebuild">Reconstruir índice de fontes</string>
     <string name="font_index_count">%1$d fontes indexadas</string>
 
+    <string name="pref_subtitles_style">Estilo das legendas</string>
+    <string name="pref_subtitles_style_summary">Fonte, tamanho, contorno, cores e mais</string>
+    <string name="pref_subtitles_font">Fonte</string>
+    <string name="pref_subtitles_font_size">Tamanho da fonte</string>
+    <string name="pref_subtitles_bold">Negrito</string>
+    <string name="pref_subtitles_italic">Itálico</string>
+    <string name="pref_subtitles_align">Alinhamento do texto</string>
+    <string name="subtitle_align_auto">Automático</string>
+    <string name="subtitle_align_left">Esquerda</string>
+    <string name="subtitle_align_center">Centro</string>
+    <string name="subtitle_align_right">Direita</string>
+    <string name="subtitle_font_system_default">Padrão do sistema</string>
+    <string name="pref_subtitles_codepage_title">Codificação das legendas</string>
+    <string name="pref_subtitles_codepage_summary">Codificação usada quando o arquivo de legendas não é um UTF-8 válido, por exemplo GB18030 para legendas em chinês. Defina como \"auto\" para o mpv detectar.</string>
+    <string name="pref_subtitles_sub_file_paths_title">Pastas de busca de legendas</string>
+    <string name="pref_subtitles_sub_file_paths_summary">Subpastas extras ao lado do vídeo onde legendas externas são procuradas, separadas por \";\".</string>
+    <string name="pref_subtitles_ass_style_overrides_title">Substituições de estilo ASS</string>
+    <string name="pref_subtitles_ass_style_overrides_summary">Aplicado ao substituir legendas ASS/SSA, por exemplo Fontname=LXGW WenKai Mono Lite</string>
+    <string name="pref_subtitles_hdr_peak_title">Brilho das legendas HDR</string>
+    <string name="pref_subtitles_hdr_peak_summary">sub-hdr-peak em nits; afeta apenas a saída HDR do gpu-next.</string>
+    <string name="pref_subtitles_fallback_title">Idioma de fallback das legendas</string>
+    <string name="pref_subtitles_fallback_summary">Seleciona uma faixa de legendas mesmo que não corresponda a nenhum dos idiomas preferidos.</string>
+    <string name="pref_subtitles_scale_signs_title">Escalar também os letreiros</string>
+    <string name="pref_subtitles_scale_signs_summary">Aplica a escala das legendas também a letreiros e textos de cena, não só aos diálogos.</string>
+    <string name="pref_subtitles_use_margins_title">Usar barras pretas</string>
+    <string name="pref_subtitles_use_margins_summary">Posiciona legendas de texto dentro das barras pretas quando o vídeo tiver.</string>
+    <string name="player_sheets_sub_outline_title">Contorno</string>
+    <string name="player_sheets_sub_shadow_title">Sombra</string>
+    <string name="player_sheets_subtitles_color_shadow">Sombra</string>
 </resources>

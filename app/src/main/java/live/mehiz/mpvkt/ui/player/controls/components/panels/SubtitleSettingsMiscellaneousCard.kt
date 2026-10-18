@@ -26,6 +26,7 @@ import androidx.compose.ui.res.stringResource
 import live.mehiz.mpvkt.R
 import live.mehiz.mpvkt.player.MPVLib
 import live.mehiz.mpvkt.preferences.SubtitlesPreferences
+import live.mehiz.mpvkt.preferences.preference.collectAsState
 import live.mehiz.mpvkt.preferences.preference.deleteAndGet
 import live.mehiz.mpvkt.presentation.components.ExpandableCard
 import live.mehiz.mpvkt.presentation.components.SliderItem
@@ -56,7 +57,7 @@ fun SubtitlesMiscellaneousCard(modifier: Modifier = Modifier) {
     ProvidePreferenceLocals {
       Column {
         var overrideAssSubs by remember {
-          mutableStateOf(MPVLib.getPropertyString("sub-ass-override").also { println(it) } == "force")
+          mutableStateOf(MPVLib.getPropertyString("sub-ass-override") == "force")
         }
         SwitchPreference(
           overrideAssSubs,
@@ -78,42 +79,41 @@ fun SubtitlesMiscellaneousCard(modifier: Modifier = Modifier) {
           },
           { Text(stringResource(R.string.player_sheets_sub_match_fonts)) },
         )
-        if (overrideAssSubs) {
-          val subScale by MPVLib.propFloat["sub-scale"].collectAsState()
-          val subPos by MPVLib.propInt["sub-pos"].collectAsState()
-          SliderItem(
-            label = stringResource(R.string.player_sheets_sub_scale),
-            value = subScale!!,
-            valueText = subScale!!.toFixed(2).toString(),
-            onChange = {
-              preferences.subScale.set(it)
-              MPVLib.setPropertyFloat("sub-scale", it)
-            },
-            max = 5f,
-            icon = {
-              Icon(
-                Icons.Default.FormatSize,
-                null,
-              )
-            },
-          )
-          SliderItem(
-            label = stringResource(R.string.player_sheets_sub_position),
-            value = subPos ?: preferences.subPos.get(),
-            valueText = subPos.toString(),
-            onChange = {
-              preferences.subPos.set(it)
-              MPVLib.setPropertyInt("sub-pos", it)
-            },
-            max = 150,
-            icon = {
-              Icon(
-                Icons.Default.AlignVerticalCenter,
-                null,
-              )
-            },
-          )
-        }
+        SubtitleLoadingSwitches(preferences)
+        val subScale by MPVLib.propFloat["sub-scale"].collectAsState()
+        val subPos by MPVLib.propInt["sub-pos"].collectAsState()
+        SliderItem(
+          label = stringResource(R.string.player_sheets_sub_scale),
+          value = subScale!!,
+          valueText = subScale!!.toFixed(2).toString(),
+          onChange = {
+            preferences.subScale.set(it)
+            MPVLib.setPropertyFloat("sub-scale", it)
+          },
+          max = 5f,
+          icon = {
+            Icon(
+              Icons.Default.FormatSize,
+              null,
+            )
+          },
+        )
+        SliderItem(
+          label = stringResource(R.string.player_sheets_sub_position),
+          value = subPos ?: preferences.subPos.get(),
+          valueText = subPos.toString(),
+          onChange = {
+            preferences.subPos.set(it)
+            MPVLib.setPropertyInt("sub-pos", it)
+          },
+          max = 150,
+          icon = {
+            Icon(
+              Icons.Default.AlignVerticalCenter,
+              null,
+            )
+          },
+        )
         Row(
           modifier = Modifier
             .fillMaxWidth()
@@ -121,19 +121,7 @@ fun SubtitlesMiscellaneousCard(modifier: Modifier = Modifier) {
           horizontalArrangement = Arrangement.End,
         ) {
           TextButton(
-            onClick = {
-              preferences.subPos.deleteAndGet().let {
-                MPVLib.setPropertyInt("sub-pos", it)
-              }
-              preferences.subScale.deleteAndGet().let {
-                MPVLib.setPropertyFloat("sub-scale", it)
-              }
-              preferences.overrideAssSubs.deleteAndGet().let { overrideAssSubs = it }
-              MPVLib.setPropertyString(
-                "sub-ass-override",
-                if (overrideAssSubs) "force" else "no",
-              )
-            },
+            onClick = { resetMiscellaneous(preferences) { overrideAssSubs = it } },
           ) {
             Row {
               Icon(Icons.Default.EditOff, null)
@@ -143,5 +131,61 @@ fun SubtitlesMiscellaneousCard(modifier: Modifier = Modifier) {
         }
       }
     }
+  }
+}
+
+@Composable
+private fun SubtitleLoadingSwitches(preferences: SubtitlesPreferences) {
+  val fallback by preferences.fallback.collectAsState()
+  SwitchPreference(
+    fallback,
+    onValueChange = {
+      preferences.fallback.set(it)
+      MPVLib.setPropertyString("subs-fallback", if (it) "yes" else "default")
+    },
+    { Text(stringResource(R.string.pref_subtitles_fallback_title)) },
+  )
+  val scaleSigns by preferences.scaleSigns.collectAsState()
+  SwitchPreference(
+    scaleSigns,
+    onValueChange = {
+      preferences.scaleSigns.set(it)
+      MPVLib.setPropertyString("sub-scale-signs", if (it) "yes" else "no")
+    },
+    { Text(stringResource(R.string.pref_subtitles_scale_signs_title)) },
+  )
+  val useMargins by preferences.useMargins.collectAsState()
+  SwitchPreference(
+    useMargins,
+    onValueChange = {
+      preferences.useMargins.set(it)
+      MPVLib.setPropertyString("sub-use-margins", if (it) "yes" else "no")
+    },
+    { Text(stringResource(R.string.pref_subtitles_use_margins_title)) },
+  )
+}
+
+private fun resetMiscellaneous(
+  preferences: SubtitlesPreferences,
+  onOverrideAssSubs: (Boolean) -> Unit,
+) {
+  preferences.subPos.deleteAndGet().let {
+    MPVLib.setPropertyInt("sub-pos", it)
+  }
+  preferences.subScale.deleteAndGet().let {
+    MPVLib.setPropertyFloat("sub-scale", it)
+  }
+  preferences.overrideAssSubs.deleteAndGet().let {
+    onOverrideAssSubs(it)
+    MPVLib.setPropertyString("sub-ass-override", if (it) "force" else "no")
+  }
+  preferences.fallback.deleteAndGet().let {
+    MPVLib.setPropertyString("subs-fallback", if (it) "yes" else "default")
+  }
+  preferences.scaleSigns.deleteAndGet().let {
+    MPVLib.setPropertyString("sub-scale-signs", if (it) "yes" else "no")
+  }
+  preferences.useMargins.deleteAndGet().let {
+    MPVLib.setPropertyString("sub-use-margins", if (it) "yes" else "no")
   }
 }

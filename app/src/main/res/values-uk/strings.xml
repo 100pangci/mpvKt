@@ -319,4 +319,33 @@
     <string name="font_index_rebuild">Перебудувати індекс шрифтів</string>
     <string name="font_index_count">Проіндексовано шрифтів: %1$d</string>
 
+    <string name="pref_subtitles_style">Стиль субтитрів</string>
+    <string name="pref_subtitles_style_summary">Шрифт, розмір, контур, кольори тощо</string>
+    <string name="pref_subtitles_font">Шрифт</string>
+    <string name="pref_subtitles_font_size">Розмір шрифту</string>
+    <string name="pref_subtitles_bold">Напівжирний</string>
+    <string name="pref_subtitles_italic">Курсив</string>
+    <string name="pref_subtitles_align">Вирівнювання тексту</string>
+    <string name="subtitle_align_auto">Авто</string>
+    <string name="subtitle_align_left">Ліворуч</string>
+    <string name="subtitle_align_center">По центру</string>
+    <string name="subtitle_align_right">Праворуч</string>
+    <string name="subtitle_font_system_default">Системний шрифт</string>
+    <string name="pref_subtitles_codepage_title">Кодування субтитрів</string>
+    <string name="pref_subtitles_codepage_summary">Кодування, яке використовується, коли файл субтитрів не є коректним UTF-8, наприклад GB18030 для китайських субтитрів. Вкажіть \"auto\", щоб mpv визначив сам.</string>
+    <string name="pref_subtitles_sub_file_paths_title">Теки пошуку субтитрів</string>
+    <string name="pref_subtitles_sub_file_paths_summary">Додаткові підтеки поруч із відео для пошуку зовнішніх субтитрів, розділені \";\".</string>
+    <string name="pref_subtitles_ass_style_overrides_title">Перевизначення стилів ASS</string>
+    <string name="pref_subtitles_ass_style_overrides_summary">Застосовується під час перевизначення субтитрів ASS/SSA, наприклад Fontname=LXGW WenKai Mono Lite</string>
+    <string name="pref_subtitles_hdr_peak_title">Яскравість субтитрів HDR</string>
+    <string name="pref_subtitles_hdr_peak_summary">sub-hdr-peak у нитах; впливає лише на HDR-вивід gpu-next.</string>
+    <string name="pref_subtitles_fallback_title">Резервна мова субтитрів</string>
+    <string name="pref_subtitles_fallback_summary">Вибирає доріжку субтитрів, навіть якщо вона не збігається з жодною з бажаних мов.</string>
+    <string name="pref_subtitles_scale_signs_title">Масштабувати й написи</string>
+    <string name="pref_subtitles_scale_signs_summary">Застосовувати масштабування субтитрів також до написів і оформлення, а не лише до діалогів.</string>
+    <string name="pref_subtitles_use_margins_title">Використовувати чорні смуги</string>
+    <string name="pref_subtitles_use_margins_summary">Розміщує текстові субтитри в чорних смугах, якщо вони є у відео.</string>
+    <string name="player_sheets_sub_outline_title">Контур</string>
+    <string name="player_sheets_sub_shadow_title">Тінь</string>
+    <string name="player_sheets_subtitles_color_shadow">Тінь</string>
 </resources>

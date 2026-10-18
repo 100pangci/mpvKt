@@ -315,4 +315,33 @@
     <string name="font_index_rebuild">Ricostruisci indice dei font</string>
     <string name="font_index_count">%1$d font indicizzati</string>
 
+    <string name="pref_subtitles_style">Stile dei sottotitoli</string>
+    <string name="pref_subtitles_style_summary">Carattere, dimensione, contorno, colori e altro</string>
+    <string name="pref_subtitles_font">Carattere</string>
+    <string name="pref_subtitles_font_size">Dimensione carattere</string>
+    <string name="pref_subtitles_bold">Grassetto</string>
+    <string name="pref_subtitles_italic">Corsivo</string>
+    <string name="pref_subtitles_align">Allineamento del testo</string>
+    <string name="subtitle_align_auto">Automatico</string>
+    <string name="subtitle_align_left">Sinistra</string>
+    <string name="subtitle_align_center">Centro</string>
+    <string name="subtitle_align_right">Destra</string>
+    <string name="subtitle_font_system_default">Predefinito di sistema</string>
+    <string name="pref_subtitles_codepage_title">Codifica dei sottotitoli</string>
+    <string name="pref_subtitles_codepage_summary">Codifica usata quando il file dei sottotitoli non è un UTF-8 valido, ad es. GB18030 per i sottotitoli cinesi. Imposta \"auto\" per far indovinare a mpv.</string>
+    <string name="pref_subtitles_sub_file_paths_title">Cartelle di ricerca dei sottotitoli</string>
+    <string name="pref_subtitles_sub_file_paths_summary">Sottocartelle aggiuntive cercate accanto al video per i sottotitoli esterni, separate da \";\".</string>
+    <string name="pref_subtitles_ass_style_overrides_title">Sostituzioni di stile ASS</string>
+    <string name="pref_subtitles_ass_style_overrides_summary">Applicato quando si sovrascrivono i sottotitoli ASS/SSA, ad es. Fontname=LXGW WenKai Mono Lite</string>
+    <string name="pref_subtitles_hdr_peak_title">Luminosità dei sottotitoli HDR</string>
+    <string name="pref_subtitles_hdr_peak_summary">sub-hdr-peak in nit; influisce solo sull\'output HDR di gpu-next.</string>
+    <string name="pref_subtitles_fallback_title">Lingua di riserva dei sottotitoli</string>
+    <string name="pref_subtitles_fallback_summary">Seleziona una traccia di sottotitoli anche se non corrisponde a nessuna delle lingue preferite.</string>
+    <string name="pref_subtitles_scale_signs_title">Scala anche i cartelli</string>
+    <string name="pref_subtitles_scale_signs_summary">Applica la scalatura dei sottotitoli anche a cartelli e scritte, non solo ai dialoghi.</string>
+    <string name="pref_subtitles_use_margins_title">Usa le barre nere</string>
+    <string name="pref_subtitles_use_margins_summary">Posiziona i sottotitoli di solo testo dentro le barre nere quando il video ne ha.</string>
+    <string name="player_sheets_sub_outline_title">Contorno</string>
+    <string name="player_sheets_sub_shadow_title">Ombra</string>
+    <string name="player_sheets_subtitles_color_shadow">Ombra</string>
 </resources>

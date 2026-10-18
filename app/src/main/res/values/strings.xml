@@ -142,6 +142,32 @@
 
     <string name="pref_subtitles">Subtitles</string>
     <string name="pref_subtitles_summary">Preferred languages, fonts</string>
+    <string name="pref_subtitles_style">Subtitle style</string>
+    <string name="pref_subtitles_style_summary">Font, size, outline, colors and more</string>
+    <string name="pref_subtitles_font">Font</string>
+    <string name="pref_subtitles_font_size">Font size</string>
+    <string name="pref_subtitles_bold">Bold</string>
+    <string name="pref_subtitles_italic">Italic</string>
+    <string name="pref_subtitles_align">Text alignment</string>
+    <string name="subtitle_align_auto">Auto</string>
+    <string name="subtitle_align_left">Left</string>
+    <string name="subtitle_align_center">Center</string>
+    <string name="subtitle_align_right">Right</string>
+    <string name="subtitle_font_system_default">System default</string>
+    <string name="pref_subtitles_codepage_title">Subtitle encoding</string>
+    <string name="pref_subtitles_codepage_summary">Codepage assumed when a subtitle file is not valid UTF-8, e.g. GB18030 for Chinese subtitles. Set to \"auto\" to let mpv guess.</string>
+    <string name="pref_subtitles_sub_file_paths_title">Subtitle search directories</string>
+    <string name="pref_subtitles_sub_file_paths_summary">Extra subdirectories searched next to the video for external subtitles, separated by \";\".</string>
+    <string name="pref_subtitles_ass_style_overrides_title">ASS style overrides</string>
+    <string name="pref_subtitles_ass_style_overrides_summary">Applied when overriding ASS/SSA subtitles, e.g. Fontname=LXGW WenKai Mono Lite</string>
+    <string name="pref_subtitles_hdr_peak_title">HDR subtitle brightness</string>
+    <string name="pref_subtitles_hdr_peak_summary">sub-hdr-peak in nits; only affects gpu-next HDR output.</string>
+    <string name="pref_subtitles_fallback_title">Subtitle language fallback</string>
+    <string name="pref_subtitles_fallback_summary">Select a subtitle track even when it matches none of the preferred languages.</string>
+    <string name="pref_subtitles_scale_signs_title">Scale signs with text</string>
+    <string name="pref_subtitles_scale_signs_summary">Apply subtitle scaling to typesetting and signs too, not only dialogue.</string>
+    <string name="pref_subtitles_use_margins_title">Use black bars</string>
+    <string name="pref_subtitles_use_margins_summary">Place plain-text subtitles inside the black borders when the video has any.</string>
     <string name="pref_preferred_languages">Preferred languages</string>
     <string name="pref_subtitles_use_system_fonts_title">Include system fonts</string>
     <string name="pref_subtitles_use_system_fonts_summary">Let subtitle rendering also resolve fonts from the device system fonts. Adds a one-time index scan.</string>
@@ -226,6 +252,9 @@
     <string name="player_sheets_subtitles_border_style_opaque_box">Opaque box</string>
     <string name="player_sheets_subtitles_border_style_background_box">Background box</string>
     <string name="player_sheets_subtitles_shadow_offset">Shadow offset</string>
+    <string name="player_sheets_sub_outline_title">Outline</string>
+    <string name="player_sheets_sub_shadow_title">Shadow</string>
+    <string name="player_sheets_subtitles_color_shadow">Shadow</string>
     <string name="player_sheets_sub_color_red">Red</string>
     <string name="player_sheets_sub_color_green">Green</string>
     <string name="player_sheets_sub_color_blue">Blue</string>

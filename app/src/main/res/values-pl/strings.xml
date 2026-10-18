@@ -319,4 +319,33 @@
     <string name="font_index_rebuild">Odbuduj indeks czcionek</string>
     <string name="font_index_count">Zaindeksowano czcionki: %1$d</string>
 
+    <string name="pref_subtitles_style">Styl napisów</string>
+    <string name="pref_subtitles_style_summary">Czcionka, rozmiar, kontur, kolory i więcej</string>
+    <string name="pref_subtitles_font">Czcionka</string>
+    <string name="pref_subtitles_font_size">Rozmiar czcionki</string>
+    <string name="pref_subtitles_bold">Pogrubienie</string>
+    <string name="pref_subtitles_italic">Kursywa</string>
+    <string name="pref_subtitles_align">Wyrównanie tekstu</string>
+    <string name="subtitle_align_auto">Automatyczne</string>
+    <string name="subtitle_align_left">Do lewej</string>
+    <string name="subtitle_align_center">Do środka</string>
+    <string name="subtitle_align_right">Do prawej</string>
+    <string name="subtitle_font_system_default">Domyślna systemowa</string>
+    <string name="pref_subtitles_codepage_title">Kodowanie napisów</string>
+    <string name="pref_subtitles_codepage_summary">Kodowanie używane, gdy plik napisów nie jest prawidłowym UTF-8, np. GB18030 dla chińskich napisów. Ustaw \"auto\", aby mpv sam wykrył.</string>
+    <string name="pref_subtitles_sub_file_paths_title">Foldery wyszukiwania napisów</string>
+    <string name="pref_subtitles_sub_file_paths_summary">Dodatkowe podfoldery przeszukiwane obok wideo w poszukiwaniu napisów zewnętrznych, oddzielone \";\".</string>
+    <string name="pref_subtitles_ass_style_overrides_title">Nadpisywanie stylów ASS</string>
+    <string name="pref_subtitles_ass_style_overrides_summary">Stosowane przy nadpisywaniu napisów ASS/SSA, np. Fontname=LXGW WenKai Mono Lite</string>
+    <string name="pref_subtitles_hdr_peak_title">Jasność napisów HDR</string>
+    <string name="pref_subtitles_hdr_peak_summary">sub-hdr-peak w nitach; działa tylko na wyjście HDR gpu-next.</string>
+    <string name="pref_subtitles_fallback_title">Język zapasowy napisów</string>
+    <string name="pref_subtitles_fallback_summary">Wybiera ścieżkę napisów, nawet jeśli nie pasuje do żadnego z preferowanych języków.</string>
+    <string name="pref_subtitles_scale_signs_title">Skaluj również tabliczki</string>
+    <string name="pref_subtitles_scale_signs_summary">Stosuje skalowanie napisów także do tabliczek i tekstów, nie tylko dialogów.</string>
+    <string name="pref_subtitles_use_margins_title">Używaj czarnych pasów</string>
+    <string name="pref_subtitles_use_margins_summary">Umieszcza napisy tekstowe na czarnych pasach, jeśli wideo je ma.</string>
+    <string name="player_sheets_sub_outline_title">Kontur</string>
+    <string name="player_sheets_sub_shadow_title">Cień</string>
+    <string name="player_sheets_subtitles_color_shadow">Cień</string>
 </resources>

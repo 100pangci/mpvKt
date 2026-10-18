@@ -315,4 +315,33 @@
     <string name="font_index_rebuild">Schriftarten-Index neu erstellen</string>
     <string name="font_index_count">%1$d Schriftarten indexiert</string>
 
+    <string name="pref_subtitles_style">Untertitelstil</string>
+    <string name="pref_subtitles_style_summary">Schriftart, Größe, Kontur, Farben und mehr</string>
+    <string name="pref_subtitles_font">Schriftart</string>
+    <string name="pref_subtitles_font_size">Schriftgröße</string>
+    <string name="pref_subtitles_bold">Fett</string>
+    <string name="pref_subtitles_italic">Kursiv</string>
+    <string name="pref_subtitles_align">Textausrichtung</string>
+    <string name="subtitle_align_auto">Automatisch</string>
+    <string name="subtitle_align_left">Links</string>
+    <string name="subtitle_align_center">Mitte</string>
+    <string name="subtitle_align_right">Rechts</string>
+    <string name="subtitle_font_system_default">Systemschriftart</string>
+    <string name="pref_subtitles_codepage_title">Untertitelkodierung</string>
+    <string name="pref_subtitles_codepage_summary">Codepage, die verwendet wird, wenn eine Untertiteldatei kein gültiges UTF-8 ist, z. B. GB18030 für chinesische Untertitel. Auf \"auto\" setzen, damit mpv selbst rät.</string>
+    <string name="pref_subtitles_sub_file_paths_title">Untertitel-Suchordner</string>
+    <string name="pref_subtitles_sub_file_paths_summary">Zusätzliche Unterordner neben dem Video, die nach externen Untertiteln durchsucht werden, getrennt durch \";\".</string>
+    <string name="pref_subtitles_ass_style_overrides_title">ASS-Stilüberschreibungen</string>
+    <string name="pref_subtitles_ass_style_overrides_summary">Wird beim Überschreiben von ASS/SSA-Untertiteln angewendet, z. B. Fontname=LXGW WenKai Mono Lite</string>
+    <string name="pref_subtitles_hdr_peak_title">HDR-Untertitelhelligkeit</string>
+    <string name="pref_subtitles_hdr_peak_summary">sub-hdr-peak in Nits; wirkt nur bei gpu-next-HDR-Ausgabe.</string>
+    <string name="pref_subtitles_fallback_title">Untertitel-Sprachfallback</string>
+    <string name="pref_subtitles_fallback_summary">Wählt eine Untertitelspur, auch wenn sie keiner der bevorzugten Sprachen entspricht.</string>
+    <string name="pref_subtitles_scale_signs_title">Schilder mitskalieren</string>
+    <string name="pref_subtitles_scale_signs_summary">Untertitel-Skalierung auch auf Schilder und Texte anwenden, nicht nur auf Dialoge.</string>
+    <string name="pref_subtitles_use_margins_title">Schwarze Balken nutzen</string>
+    <string name="pref_subtitles_use_margins_summary">Platziert reine Textuntertitel in den schwarzen Balken, falls das Video welche hat.</string>
+    <string name="player_sheets_sub_outline_title">Kontur</string>
+    <string name="player_sheets_sub_shadow_title">Schatten</string>
+    <string name="player_sheets_subtitles_color_shadow">Schatten</string>
 </resources>

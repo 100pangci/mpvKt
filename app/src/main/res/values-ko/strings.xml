@@ -313,4 +313,33 @@
     <string name="font_index_rebuild">폰트 인덱스 재구성</string>
     <string name="font_index_count">폰트 %1$d개 인덱스 완료</string>
 
+    <string name="pref_subtitles_style">자막 스타일</string>
+    <string name="pref_subtitles_style_summary">글꼴, 크기, 외곽선, 색상 등</string>
+    <string name="pref_subtitles_font">글꼴</string>
+    <string name="pref_subtitles_font_size">글꼴 크기</string>
+    <string name="pref_subtitles_bold">굵게</string>
+    <string name="pref_subtitles_italic">기울임꼴</string>
+    <string name="pref_subtitles_align">텍스트 정렬</string>
+    <string name="subtitle_align_auto">자동</string>
+    <string name="subtitle_align_left">왼쪽</string>
+    <string name="subtitle_align_center">가운데</string>
+    <string name="subtitle_align_right">오른쪽</string>
+    <string name="subtitle_font_system_default">시스템 기본</string>
+    <string name="pref_subtitles_codepage_title">자막 인코딩</string>
+    <string name="pref_subtitles_codepage_summary">자막 파일이 올바른 UTF-8이 아닐 때 사용할 코드페이지입니다(예: 중국어 자막의 GB18030). \"auto\"로 두면 mpv가 자동으로 판별합니다.</string>
+    <string name="pref_subtitles_sub_file_paths_title">자막 검색 폴더</string>
+    <string name="pref_subtitles_sub_file_paths_summary">동영상 옆에서 외부 자막을 찾을 추가 하위 폴더이며 \";\"로 구분합니다.</string>
+    <string name="pref_subtitles_ass_style_overrides_title">ASS 스타일 덮어쓰기</string>
+    <string name="pref_subtitles_ass_style_overrides_summary">ASS/SSA 자막을 덮어쓸 때 적용됩니다. 예: Fontname=LXGW WenKai Mono Lite</string>
+    <string name="pref_subtitles_hdr_peak_title">HDR 자막 밝기</string>
+    <string name="pref_subtitles_hdr_peak_summary">sub-hdr-peak(nit) 값이며 gpu-next의 HDR 출력에만 영향을 줍니다.</string>
+    <string name="pref_subtitles_fallback_title">자막 언어 대체</string>
+    <string name="pref_subtitles_fallback_summary">선호 언어와 일치하지 않아도 자막 트랙을 선택합니다.</string>
+    <string name="pref_subtitles_scale_signs_title">자막 효과도 확대</string>
+    <string name="pref_subtitles_scale_signs_summary">자막 확대를 대사뿐 아니라 간판과 장식 텍스트에도 적용합니다.</string>
+    <string name="pref_subtitles_use_margins_title">검은 여백 사용</string>
+    <string name="pref_subtitles_use_margins_summary">동영상에 검은 여백이 있으면 텍스트 자막을 그 안에 배치합니다.</string>
+    <string name="player_sheets_sub_outline_title">외곽선</string>
+    <string name="player_sheets_sub_shadow_title">그림자</string>
+    <string name="player_sheets_subtitles_color_shadow">그림자</string>
 </resources>

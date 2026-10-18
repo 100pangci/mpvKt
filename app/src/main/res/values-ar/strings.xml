@@ -323,4 +323,33 @@
     <string name="font_index_rebuild">إعادة بناء فهرس الخطوط</string>
     <string name="font_index_count">تمت فهرسة %1$d خطًا</string>
 
+    <string name="pref_subtitles_style">نمط الترجمة</string>
+    <string name="pref_subtitles_style_summary">الخط والحجم والحدود والألوان والمزيد</string>
+    <string name="pref_subtitles_font">الخط</string>
+    <string name="pref_subtitles_font_size">حجم الخط</string>
+    <string name="pref_subtitles_bold">عريض</string>
+    <string name="pref_subtitles_italic">مائل</string>
+    <string name="pref_subtitles_align">محاذاة النص</string>
+    <string name="subtitle_align_auto">تلقائي</string>
+    <string name="subtitle_align_left">يسار</string>
+    <string name="subtitle_align_center">وسط</string>
+    <string name="subtitle_align_right">يمين</string>
+    <string name="subtitle_font_system_default">الافتراضي للنظام</string>
+    <string name="pref_subtitles_codepage_title">ترميز الترجمات</string>
+    <string name="pref_subtitles_codepage_summary">الترميز المستخدم عندما لا يكون ملف الترجمة UTF-8 صالحًا، مثل GB18030 للترجمات الصينية. اضبطه على \"auto\" ليتعرف عليه mpv.</string>
+    <string name="pref_subtitles_sub_file_paths_title">مجلدات البحث عن الترجمات</string>
+    <string name="pref_subtitles_sub_file_paths_summary">مجلدات فرعية إضافية بجوار الفيديو للبحث عن الترجمات الخارجية، مفصولة بـ \";\".</string>
+    <string name="pref_subtitles_ass_style_overrides_title">تجاوز أنماط ASS</string>
+    <string name="pref_subtitles_ass_style_overrides_summary">يُطبَّق عند تجاوز ترجمات ASS/SSA، مثل Fontname=LXGW WenKai Mono Lite</string>
+    <string name="pref_subtitles_hdr_peak_title">سطوع ترجمات HDR</string>
+    <string name="pref_subtitles_hdr_peak_summary">sub-hdr-peak بوحدة nits؛ يؤثر فقط على خرج HDR في gpu-next.</string>
+    <string name="pref_subtitles_fallback_title">اللغة الاحتياطية للترجمة</string>
+    <string name="pref_subtitles_fallback_summary">يحدد مسار ترجمة حتى إذا لم يطابق أي لغة مفضلة.</string>
+    <string name="pref_subtitles_scale_signs_title">تكبير اللافتات مع النص</string>
+    <string name="pref_subtitles_scale_signs_summary">تطبيق تكبير الترجمات على اللافتات والنصوص أيضًا، وليس الحوار فقط.</string>
+    <string name="pref_subtitles_use_margins_title">استخدام الأشرطة السوداء</string>
+    <string name="pref_subtitles_use_margins_summary">وضع الترجمات النصية داخل الأشرطة السوداء إن وُجدت.</string>
+    <string name="player_sheets_sub_outline_title">الحدود</string>
+    <string name="player_sheets_sub_shadow_title">الظل</string>
+    <string name="player_sheets_subtitles_color_shadow">الظل</string>
 </resources>

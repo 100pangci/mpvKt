@@ -315,4 +315,33 @@
     <string name="font_index_rebuild">Yazı tipi dizinini yeniden oluştur</string>
     <string name="font_index_count">%1$d yazı tipi indekslendi</string>
 
+    <string name="pref_subtitles_style">Altyazı stili</string>
+    <string name="pref_subtitles_style_summary">Yazı tipi, boyut, dış çizgi, renkler ve daha fazlası</string>
+    <string name="pref_subtitles_font">Yazı tipi</string>
+    <string name="pref_subtitles_font_size">Yazı boyutu</string>
+    <string name="pref_subtitles_bold">Kalın</string>
+    <string name="pref_subtitles_italic">İtalik</string>
+    <string name="pref_subtitles_align">Metin hizalaması</string>
+    <string name="subtitle_align_auto">Otomatik</string>
+    <string name="subtitle_align_left">Sol</string>
+    <string name="subtitle_align_center">Orta</string>
+    <string name="subtitle_align_right">Sağ</string>
+    <string name="subtitle_font_system_default">Sistem varsayılanı</string>
+    <string name="pref_subtitles_codepage_title">Altyazı kodlaması</string>
+    <string name="pref_subtitles_codepage_summary">Altyazı dosyası geçerli UTF-8 değilse kullanılacak kod sayfası; örn. Çince altyazılar için GB18030. mpv tahmin etsin diye \"auto\" yapın.</string>
+    <string name="pref_subtitles_sub_file_paths_title">Altyazı arama klasörleri</string>
+    <string name="pref_subtitles_sub_file_paths_summary">Video yanında harici altyazılar için taranacak ek alt klasörler; \";\" ile ayrılır.</string>
+    <string name="pref_subtitles_ass_style_overrides_title">ASS stil geçersiz kılmaları</string>
+    <string name="pref_subtitles_ass_style_overrides_summary">ASS/SSA altyazıları geçersiz kılınırken uygulanır, örn. Fontname=LXGW WenKai Mono Lite</string>
+    <string name="pref_subtitles_hdr_peak_title">HDR altyazı parlaklığı</string>
+    <string name="pref_subtitles_hdr_peak_summary">sub-hdr-peak (nit); yalnızca gpu-next HDR çıkışını etkiler.</string>
+    <string name="pref_subtitles_fallback_title">Yedek altyazı dili</string>
+    <string name="pref_subtitles_fallback_summary">Tercih edilen dillerden hiçbiriyle eşleşmese bile bir altyazı parçası seçer.</string>
+    <string name="pref_subtitles_scale_signs_title">Tabelaları da ölçekle</string>
+    <string name="pref_subtitles_scale_signs_summary">Altyazı ölçeklemesini yalnızca diyaloglara değil, tabela ve yazılara da uygular.</string>
+    <string name="pref_subtitles_use_margins_title">Siyah bantları kullan</string>
+    <string name="pref_subtitles_use_margins_summary">Video siyah bant içeriyorsa düz metin altyazıları bu bantların içine yerleştirir.</string>
+    <string name="player_sheets_sub_outline_title">Dış çizgi</string>
+    <string name="player_sheets_sub_shadow_title">Gölge</string>
+    <string name="player_sheets_subtitles_color_shadow">Gölge</string>
 </resources>

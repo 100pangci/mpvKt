@@ -214,6 +214,7 @@ class MPVView(context: Context, attributes: AttributeSet) : BaseMPVView(context,
   // Setup
   private fun setupSubtitlesOptions() {
     MPVLib.setOptionString("slang", subtitlesPreferences.preferredLanguages.get())
+    setupSubtitleLoadingOptions()
 
     MPVLib.setOptionString("sub-fonts-dir", context.cacheDir.path + "/fonts/")
     MPVLib.setOptionString("sub-delay", (subtitlesPreferences.defaultSubDelay.get() / 1000.0).toString())
@@ -239,10 +240,51 @@ class MPVView(context: Context, attributes: AttributeSet) : BaseMPVView(context,
     MPVLib.setOptionString("sub-color", subtitlesPreferences.textColor.get().toColorHexString())
     MPVLib.setOptionString("sub-back-color", subtitlesPreferences.backgroundColor.get().toColorHexString())
     MPVLib.setOptionString("sub-border-color", subtitlesPreferences.borderColor.get().toColorHexString())
-    MPVLib.setOptionString("sub-border-size", subtitlesPreferences.borderSize.get().toString())
     MPVLib.setOptionString("sub-border-style", subtitlesPreferences.borderStyle.get().value)
-    MPVLib.setOptionString("sub-shadow-offset", subtitlesPreferences.shadowOffset.get().toString())
+    MPVLib.setOptionString(
+      "sub-outline-size",
+      if (subtitlesPreferences.outlineEnabled.get()) subtitlesPreferences.borderSize.get().toString() else "0"
+    )
+    MPVLib.setOptionString(
+      "sub-shadow-offset",
+      if (subtitlesPreferences.shadowEnabled.get()) subtitlesPreferences.shadowOffset.get().toString() else "0"
+    )
+    MPVLib.setOptionString("sub-shadow-color", subtitlesPreferences.shadowColor.get().toColorHexString())
     MPVLib.setOptionString("sub-pos", subtitlesPreferences.subPos.get().toString())
     MPVLib.setOptionString("sub-scale", subtitlesPreferences.subScale.get().toString())
+  }
+
+  /**
+   * External subtitle loading behavior copied from the mpv-lazy
+   * portable_config (its "字幕" section): search subtitle subdirectories,
+   * decode GBK-era files, fall back to any full track, scale signs together
+   * with dialogue and keep plain-text subtitles out of the black bars.
+   * These options are only read while subtitle files are discovered and
+   * decoded, i.e. they apply from the next playback on.
+   */
+  private fun setupSubtitleLoadingOptions() {
+    MPVLib.setOptionString("sub-file-paths", subtitlesPreferences.filePaths.get())
+    MPVLib.setOptionString(
+      "sub-codepage",
+      subtitlesPreferences.codepage.get().ifBlank { "auto" }
+    )
+    MPVLib.setOptionString(
+      "subs-fallback",
+      if (subtitlesPreferences.fallback.get()) "yes" else "default"
+    )
+    MPVLib.setOptionString(
+      "sub-scale-signs",
+      if (subtitlesPreferences.scaleSigns.get()) "yes" else "no"
+    )
+    MPVLib.setOptionString(
+      "sub-use-margins",
+      if (subtitlesPreferences.useMargins.get()) "yes" else "no"
+    )
+    subtitlesPreferences.hdrPeak.get().takeIf { it.isNotBlank() }?.let {
+      MPVLib.setOptionString("sub-hdr-peak", it)
+    }
+    subtitlesPreferences.assStyleOverrides.get().takeIf { it.isNotBlank() }?.let {
+      MPVLib.setOptionString("sub-ass-style-overrides", it)
+    }
   }
 }

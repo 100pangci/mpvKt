@@ -315,4 +315,33 @@
     <string name="font_index_rebuild">फ़ॉन्ट इंडेक्स फिर से बनाएँ</string>
     <string name="font_index_count">%1$d फ़ॉन्ट अनुक्रमित</string>
 
+    <string name="pref_subtitles_style">सबटाइटल शैली</string>
+    <string name="pref_subtitles_style_summary">फ़ॉन्ट, आकार, रूपरेखा, रंग और बहुत कुछ</string>
+    <string name="pref_subtitles_font">फ़ॉन्ट</string>
+    <string name="pref_subtitles_font_size">फ़ॉन्ट आकार</string>
+    <string name="pref_subtitles_bold">बोल्ड</string>
+    <string name="pref_subtitles_italic">इटैलिक</string>
+    <string name="pref_subtitles_align">पाठ संरेखण</string>
+    <string name="subtitle_align_auto">स्वतः</string>
+    <string name="subtitle_align_left">बाएँ</string>
+    <string name="subtitle_align_center">मध्य</string>
+    <string name="subtitle_align_right">दाएँ</string>
+    <string name="subtitle_font_system_default">सिस्टम डिफ़ॉल्ट</string>
+    <string name="pref_subtitles_codepage_title">सबटाइटल एन्कोडिंग</string>
+    <string name="pref_subtitles_codepage_summary">वह कोडपेज जो तब इस्तेमाल होता है जब सबटाइटल फ़ाइल मान्य UTF-8 न हो, जैसे चीनी सबटाइटल के लिए GB18030। mpv के अनुमान के लिए \"auto\" रखें।</string>
+    <string name="pref_subtitles_sub_file_paths_title">सबटाइटल खोज फ़ोल्डर</string>
+    <string name="pref_subtitles_sub_file_paths_summary">वीडियो के पास बाहरी सबटाइटल खोजने के लिए अतिरिक्त सबफ़ोल्डर, \";\" से अलग किए गए।</string>
+    <string name="pref_subtitles_ass_style_overrides_title">ASS शैली ओवरराइड</string>
+    <string name="pref_subtitles_ass_style_overrides_summary">ASS/SSA सबटाइटल ओवरराइड करते समय लागू होता है, जैसे Fontname=LXGW WenKai Mono Lite</string>
+    <string name="pref_subtitles_hdr_peak_title">HDR सबटाइटल चमक</string>
+    <string name="pref_subtitles_hdr_peak_summary">sub-hdr-peak (निट्स में); केवल gpu-next HDR आउटपुट पर असर डालता है।</string>
+    <string name="pref_subtitles_fallback_title">सबटाइटल भाषा फ़ॉलबैक</string>
+    <string name="pref_subtitles_fallback_summary">पसंदीदा भाषाओं से मेल न खाने पर भी एक सबटाइटल ट्रैक चुनता है।</string>
+    <string name="pref_subtitles_scale_signs_title">साइन को भी स्केल करें</string>
+    <string name="pref_subtitles_scale_signs_summary">सबटाइटल स्केलिंग को केवल संवाद पर नहीं, साइन और टाइपसेटिंग पर भी लागू करें।</string>
+    <string name="pref_subtitles_use_margins_title">काली पट्टियाँ इस्तेमाल करें</string>
+    <string name="pref_subtitles_use_margins_summary">वीडियो में काली पट्टियाँ हों तो टेक्स्ट सबटाइटल उनके अंदर रखता है।</string>
+    <string name="player_sheets_sub_outline_title">रूपरेखा</string>
+    <string name="player_sheets_sub_shadow_title">छाया</string>
+    <string name="player_sheets_subtitles_color_shadow">छाया</string>
 </resources>

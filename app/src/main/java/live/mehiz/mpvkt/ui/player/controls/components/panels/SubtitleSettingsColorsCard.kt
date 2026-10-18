@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BlurOn
 import androidx.compose.material.icons.filled.BorderColor
 import androidx.compose.material.icons.filled.FormatColorFill
 import androidx.compose.material.icons.filled.FormatColorReset
@@ -31,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.core.graphics.alpha
 import androidx.core.graphics.blue
@@ -88,14 +90,7 @@ fun SubtitleSettingsColorsCard(
             checked = currentColorType == type,
             onCheckedChange = { currentColorType = type },
           ) {
-            Icon(
-              when (type) {
-                SubColorType.Text -> Icons.Default.FormatColorText
-                SubColorType.Border -> Icons.Default.BorderColor
-                SubColorType.Background -> Icons.Default.FormatColorFill
-              },
-              null,
-            )
+            Icon(type.icon, null)
           }
         }
         Text(stringResource(currentColorType.titleRes))
@@ -156,8 +151,21 @@ enum class SubColorType(
     R.string.player_sheets_subtitles_color_background,
     "sub-back-color",
     preference = SubtitlesPreferences::backgroundColor,
+  ),
+  Shadow(
+    R.string.player_sheets_subtitles_color_shadow,
+    "sub-shadow-color",
+    preference = SubtitlesPreferences::shadowColor,
   )
 }
+
+val SubColorType.icon: ImageVector
+  get() = when (this) {
+    SubColorType.Text -> Icons.Default.FormatColorText
+    SubColorType.Border -> Icons.Default.BorderColor
+    SubColorType.Background -> Icons.Default.FormatColorFill
+    SubColorType.Shadow -> Icons.Default.BlurOn
+  }
 
 fun resetColors(preferences: SubtitlesPreferences, type: SubColorType) {
   when (type) {
@@ -171,6 +179,10 @@ fun resetColors(preferences: SubtitlesPreferences, type: SubColorType) {
 
     SubColorType.Background -> {
       MPVLib.setPropertyString("sub-back-color", preferences.backgroundColor.deleteAndGet().toColorHexString())
+    }
+
+    SubColorType.Shadow -> {
+      MPVLib.setPropertyString("sub-shadow-color", preferences.shadowColor.deleteAndGet().toColorHexString())
     }
   }
 }

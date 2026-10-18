@@ -315,4 +315,33 @@
     <string name="font_index_rebuild">Reconstruire l\'index des polices</string>
     <string name="font_index_count">%1$d polices indexées</string>
 
+    <string name="pref_subtitles_style">Style des sous-titres</string>
+    <string name="pref_subtitles_style_summary">Police, taille, contour, couleurs et plus</string>
+    <string name="pref_subtitles_font">Police</string>
+    <string name="pref_subtitles_font_size">Taille de police</string>
+    <string name="pref_subtitles_bold">Gras</string>
+    <string name="pref_subtitles_italic">Italique</string>
+    <string name="pref_subtitles_align">Alignement du texte</string>
+    <string name="subtitle_align_auto">Automatique</string>
+    <string name="subtitle_align_left">Gauche</string>
+    <string name="subtitle_align_center">Centre</string>
+    <string name="subtitle_align_right">Droite</string>
+    <string name="subtitle_font_system_default">Police du système</string>
+    <string name="pref_subtitles_codepage_title">Encodage des sous-titres</string>
+    <string name="pref_subtitles_codepage_summary">Codage utilisé lorsqu\'un fichier de sous-titres n\'est pas un UTF-8 valide, par ex. GB18030 pour les sous-titres chinois. Mettre \"auto\" pour laisser mpv deviner.</string>
+    <string name="pref_subtitles_sub_file_paths_title">Dossiers de recherche des sous-titres</string>
+    <string name="pref_subtitles_sub_file_paths_summary">Sous-dossiers supplémentaires recherchés à côté de la vidéo pour les sous-titres externes, séparés par \";\".</string>
+    <string name="pref_subtitles_ass_style_overrides_title">Remplacements de style ASS</string>
+    <string name="pref_subtitles_ass_style_overrides_summary">Appliqué lors du remplacement des sous-titres ASS/SSA, par ex. Fontname=LXGW WenKai Mono Lite</string>
+    <string name="pref_subtitles_hdr_peak_title">Luminosité des sous-titres HDR</string>
+    <string name="pref_subtitles_hdr_peak_summary">sub-hdr-peak en nits ; n\'affecte que la sortie HDR de gpu-next.</string>
+    <string name="pref_subtitles_fallback_title">Langue de repli des sous-titres</string>
+    <string name="pref_subtitles_fallback_summary">Sélectionne une piste de sous-titres même si elle ne correspond à aucune des langues préférées.</string>
+    <string name="pref_subtitles_scale_signs_title">Mettre à l\'échelle les panneaux</string>
+    <string name="pref_subtitles_scale_signs_summary">Appliquer la mise à l\'échelle des sous-titres aussi aux panneaux et aux textes, pas seulement aux dialogues.</string>
+    <string name="pref_subtitles_use_margins_title">Utiliser les barres noires</string>
+    <string name="pref_subtitles_use_margins_summary">Place les sous-titres textuels dans les barres noires lorsque la vidéo en a.</string>
+    <string name="player_sheets_sub_outline_title">Contour</string>
+    <string name="player_sheets_sub_shadow_title">Ombre</string>
+    <string name="player_sheets_subtitles_color_shadow">Ombre</string>
 </resources>

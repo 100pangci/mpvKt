@@ -47,19 +47,23 @@ import kotlinx.coroutines.withContext
 import live.mehiz.mpvkt.R
 import live.mehiz.mpvkt.database.dao.FontDao
 import live.mehiz.mpvkt.player.MPVLib
+import live.mehiz.mpvkt.preferences.SYSTEM_SUBTITLE_FONT
 import live.mehiz.mpvkt.preferences.SubtitleJustification
 import live.mehiz.mpvkt.preferences.SubtitlesPreferences
+import live.mehiz.mpvkt.preferences.preference.collectAsState
 import live.mehiz.mpvkt.preferences.preference.deleteAndGet
 import live.mehiz.mpvkt.presentation.components.ExpandableCard
 import live.mehiz.mpvkt.presentation.components.ExposedTextDropDownMenu
 import live.mehiz.mpvkt.presentation.components.SliderItem
 import live.mehiz.mpvkt.ui.player.PlayerActivity
 import live.mehiz.mpvkt.ui.player.controls.CARDS_MAX_WIDTH
+import live.mehiz.mpvkt.ui.player.controls.components.sheets.toFixed
 import live.mehiz.mpvkt.ui.player.controls.panelCardsColors
 import live.mehiz.mpvkt.ui.theme.spacing
 import me.zhanghai.compose.preference.ListPreference
 import me.zhanghai.compose.preference.ListPreferenceType
 import me.zhanghai.compose.preference.ProvidePreferenceLocals
+import me.zhanghai.compose.preference.SwitchPreference
 import me.zhanghai.compose.preference.preferenceTheme
 import org.koin.compose.koinInject
 
@@ -72,7 +76,7 @@ fun SubtitleSettingsTypographyCard(
   val preferences = koinInject<SubtitlesPreferences>()
   val fontDao = koinInject<FontDao>()
   var isExpanded by remember { mutableStateOf(true) }
-  val fonts by remember { mutableStateOf(mutableListOf(preferences.font.defaultValue())) }
+  val fonts by remember { mutableStateOf(mutableListOf<String>()) }
   var indexEmpty by remember { mutableStateOf(false) }
   var fontsLoadingIndicator: (@Composable () -> Unit)? by remember {
     val indicator: (@Composable () -> Unit) = {
@@ -119,8 +123,10 @@ fun SubtitleSettingsTypographyCard(
       val borderStyle by remember {
         derivedStateOf { SubtitlesBorderStyle.entries.first { it.value == mpvBorderStyle } }
       }
-      val borderSize by MPVLib.propInt["sub-outline-size"].collectAsState()
-      val shadowOffset by MPVLib.propInt["sub-shadow-offset"].collectAsState()
+      val outlineEnabled by preferences.outlineEnabled.collectAsState()
+      val borderSize by preferences.borderSize.collectAsState()
+      val shadowEnabled by preferences.shadowEnabled.collectAsState()
+      val shadowOffset by preferences.shadowOffset.collectAsState()
       Row(
         Modifier
           .fillMaxWidth()
@@ -194,13 +200,20 @@ fun SubtitleSettingsTypographyCard(
           null,
           modifier = Modifier.size(32.dp),
         )
+        val selectedFont = font!!
+        val systemDefaultFont = stringResource(R.string.subtitle_font_system_default)
         ExposedTextDropDownMenu(
-          selectedValue = font!!,
-          options = fonts.toImmutableList(),
+          selectedValue = if (selectedFont == SYSTEM_SUBTITLE_FONT) systemDefaultFont else selectedFont,
+          options = (
+            listOf(systemDefaultFont) +
+              listOf(selectedFont).filter { it != SYSTEM_SUBTITLE_FONT } +
+              fonts
+            ).distinct().toImmutableList(),
           label = stringResource(R.string.player_sheets_sub_typography_font),
           onValueChangedEvent = {
-            preferences.font.set(it)
-            (context as? PlayerActivity)?.stageSubFont(it)
+            val family = if (it == systemDefaultFont) SYSTEM_SUBTITLE_FONT else it
+            preferences.font.set(family)
+            (context as? PlayerActivity)?.stageSubFont(family)
           },
           leadingIcon = fontsLoadingIndicator,
         )
@@ -228,6 +241,14 @@ fun SubtitleSettingsTypographyCard(
       ProvidePreferenceLocals(
         theme = preferenceTheme(iconContainerMinWidth = 64.dp),
       ) {
+        SwitchPreference(
+          value = outlineEnabled,
+          onValueChange = {
+            preferences.outlineEnabled.set(it)
+            MPVLib.setPropertyInt("sub-outline-size", if (it) borderSize else 0)
+          },
+          title = { Text(stringResource(R.string.player_sheets_sub_outline_title)) },
+        )
         ListPreference(
           borderStyle,
           onValueChange = {
@@ -241,27 +262,35 @@ fun SubtitleSettingsTypographyCard(
           summary = { Text(stringResource(borderStyle.titleRes)) },
           icon = { Icon(Icons.Default.BorderStyle, null) },
         )
+        SwitchPreference(
+          value = shadowEnabled,
+          onValueChange = {
+            preferences.shadowEnabled.set(it)
+            MPVLib.setPropertyFloat("sub-shadow-offset", if (it) shadowOffset else 0f)
+          },
+          title = { Text(stringResource(R.string.player_sheets_sub_shadow_title)) },
+        )
       }
       SliderItem(
         stringResource(R.string.player_sheets_sub_typography_border_size),
-        value = borderSize!!,
+        value = borderSize,
         valueText = borderSize.toString(),
         onChange = {
           preferences.borderSize.set(it)
-          MPVLib.setPropertyInt("sub-outline-size", it)
+          if (outlineEnabled) MPVLib.setPropertyInt("sub-outline-size", it)
         },
         max = 100,
         icon = { Icon(Icons.Default.BorderColor, null) },
       )
       SliderItem(
         stringResource(R.string.player_sheets_subtitles_shadow_offset),
-        value = shadowOffset!!,
-        valueText = shadowOffset.toString(),
+        value = shadowOffset,
+        valueText = shadowOffset.toFixed(1).toString(),
         onChange = {
           preferences.shadowOffset.set(it)
-          MPVLib.setPropertyInt("sub-shadow-offset", it)
+          if (shadowEnabled) MPVLib.setPropertyFloat("sub-shadow-offset", it)
         },
-        max = 100,
+        max = 10f,
         icon = { Icon(painterResource(R.drawable.sharp_shadow_24), null) },
       )
     }
@@ -271,13 +300,19 @@ fun SubtitleSettingsTypographyCard(
 fun resetTypography(preferences: SubtitlesPreferences) {
   MPVLib.setPropertyBoolean("sub-bold", preferences.bold.deleteAndGet())
   MPVLib.setPropertyBoolean("sub-italic", preferences.italic.deleteAndGet())
-  MPVLib.setPropertyBoolean("sub-ass-justify", preferences.overrideAssSubs.deleteAndGet())
+  // ASS justification is only a side effect of the alignment buttons; it
+  // must not be tied to (or cleared through) the ASS override preference.
+  MPVLib.setPropertyBoolean("sub-ass-justify", false)
   MPVLib.setPropertyString("sub-justify", preferences.justification.deleteAndGet().value)
   MPVLib.setPropertyString("sub-font", preferences.font.deleteAndGet())
   MPVLib.setPropertyInt("sub-font-size", preferences.fontSize.deleteAndGet())
-  MPVLib.setPropertyInt("sub-border-size", preferences.borderSize.deleteAndGet())
-  MPVLib.setPropertyInt("sub-shadow-offset", preferences.shadowOffset.deleteAndGet())
   MPVLib.setPropertyString("sub-border-style", preferences.borderStyle.deleteAndGet().value)
+  val outlineEnabled = preferences.outlineEnabled.deleteAndGet()
+  val borderSize = preferences.borderSize.deleteAndGet()
+  MPVLib.setPropertyInt("sub-outline-size", if (outlineEnabled) borderSize else 0)
+  val shadowEnabled = preferences.shadowEnabled.deleteAndGet()
+  val shadowOffset = preferences.shadowOffset.deleteAndGet()
+  MPVLib.setPropertyFloat("sub-shadow-offset", if (shadowEnabled) shadowOffset else 0f)
 }
 
 enum class SubtitlesBorderStyle(
