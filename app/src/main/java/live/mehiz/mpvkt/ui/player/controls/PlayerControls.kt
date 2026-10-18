@@ -84,6 +84,7 @@ import live.mehiz.mpvkt.ui.player.controls.components.ControlsButton
 import live.mehiz.mpvkt.ui.player.controls.components.MissingFontsDialog
 import live.mehiz.mpvkt.ui.player.controls.components.MultipleSpeedPlayerUpdate
 import live.mehiz.mpvkt.ui.player.controls.components.SeekbarWithTimers
+import live.mehiz.mpvkt.ui.player.controls.components.StorageAccessDialog
 import live.mehiz.mpvkt.ui.player.controls.components.TextPlayerUpdate
 import live.mehiz.mpvkt.ui.player.controls.components.VolumeSlider
 import live.mehiz.mpvkt.ui.player.controls.components.sheets.toFixed
@@ -332,6 +333,15 @@ fun PlayerControls(
               viewModel.dismissMissingFontsDialog()
             },
             onDismiss = viewModel::dismissMissingFontsDialog,
+          )
+        }
+
+        val storageAccessPrompt by viewModel.storageAccessPrompt.collectAsState()
+        if (storageAccessPrompt == true) {
+          StorageAccessDialog(
+            onConfirm = viewModel::openStorageAccessSettings,
+            onDismiss = viewModel::dismissStorageAccessPrompt,
+            onDontAskAgain = viewModel::dismissStorageAccessPromptForever,
           )
         }
 

@@ -1,6 +1,7 @@
 package live.mehiz.mpvkt.ui.player
 
 import android.content.Context
+import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.media.AudioManager
 import android.media.MediaScannerConnection
@@ -32,16 +33,19 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.serialization.json.Json
 import live.mehiz.mpvkt.R
 import live.mehiz.mpvkt.database.MpvKtDatabase
 import live.mehiz.mpvkt.database.entities.CustomButtonEntity
 import live.mehiz.mpvkt.player.MPVLib
+import live.mehiz.mpvkt.preferences.AppPreferences
 import live.mehiz.mpvkt.preferences.AudioPreferences
 import live.mehiz.mpvkt.preferences.GesturePreferences
 import live.mehiz.mpvkt.preferences.PlayerPreferences
 import live.mehiz.mpvkt.ui.custombuttons.CustomButtonsUiState
 import live.mehiz.mpvkt.ui.custombuttons.getButtons
+import live.mehiz.mpvkt.ui.utils.createStorageAccessIntent
 import org.koin.java.KoinJavaComponent.inject
 import java.io.File
 import java.util.Locale
@@ -65,6 +69,7 @@ class PlayerViewModel(
   private val playerPreferences: PlayerPreferences by inject(PlayerPreferences::class.java)
   private val gesturePreferences: GesturePreferences by inject(GesturePreferences::class.java)
   private val audioPreferences: AudioPreferences by inject(AudioPreferences::class.java)
+  private val appPreferences: AppPreferences by inject(AppPreferences::class.java)
   private val mpvKtDatabase: MpvKtDatabase by inject(MpvKtDatabase::class.java)
   private val json: Json by inject(Json::class.java)
 
@@ -141,6 +146,69 @@ class PlayerViewModel(
   fun dismissMissingFontsDialog() {
     missingFontsDialogDismissed.value = true
   }
+
+  /**
+   * "All files access" prompt, owned by the player: a video opened from
+   * another app arrives as a single-file SAF grant, which cannot cover its
+   * directory — sibling subtitles/fonts stay invisible and automatic
+   * matching silently fails. The prompt offers the grant in that exact
+   * situation instead of blocking the first launch. Dismissing is
+   * remembered for the session; "don't ask again" is persisted.
+   */
+  val storageAccessPrompt = MutableStateFlow<Boolean?>(null)
+
+  fun hasStorageAccessDontAsk(): Boolean = appPreferences.storageAccessDontAsk.get()
+
+  fun showStorageAccessPrompt() {
+    storageAccessPrompt.value = true
+  }
+
+  fun dismissStorageAccessPrompt() {
+    storageAccessPrompt.value = null
+  }
+
+  fun dismissStorageAccessPromptForever() {
+    appPreferences.storageAccessDontAsk.set(true)
+    storageAccessPrompt.value = null
+  }
+
+  fun openStorageAccessSettings() {
+    runCatching { activity.startActivity(activity.createStorageAccessIntent()) }
+      .onFailure {
+        runCatching {
+          activity.startActivity(Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION))
+        }
+      }
+    // The system page is returned from via onResume, which resolves the
+    // prompt and reloads the current file once the grant is detected.
+  }
+
+  /**
+   * Re-opens the video after the grant landed so mpv, which had been handed
+   * a fd:// handle, gets a real path and can finally rescan the directory
+   * for sibling subtitles (sub-file-paths + sub-auto). [preferredPath] is
+   * the freshest path derived from the content URI; mpv's own path is only
+   * a fallback. Called from onResume; the pause state is restored once the
+   * new stream has come up.
+   */
+  fun reloadCurrentFileForStorageAccess(preferredPath: String?) {
+    val path = preferredPath ?: MPVLib.getPropertyString("path") ?: return
+    val wasPaused = paused == true
+    MPVLib.command("loadfile", path, "replace")
+    if (!wasPaused) return
+    viewModelScope.launch {
+      // Let the replace tear the old stream down before sampling, then wait
+      // for the new one to actually come up.
+      delay(300)
+      withTimeoutOrNull(5_000) {
+        MPVLib.propBoolean["paused-for-cache"].first { it != true }
+      }
+      // The user may have resumed during the reload; only a still-paused
+      // player gets its pause state back.
+      if (paused == true) MPVLib.setPropertyBoolean("pause", true)
+    }
+  }
+
   val isBrightnessSliderShown = MutableStateFlow(false)
   val isVolumeSliderShown = MutableStateFlow(false)
   val currentBrightness = MutableStateFlow(

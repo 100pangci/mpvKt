@@ -44,10 +44,13 @@
     <string name="player_sheets_queue_clear">清空</string>
 
     <string name="storage_all_files_title">“所有文件访问”权限</string>
-    <string name="storage_all_files_message">mpvKt 需要“所有文件访问”权限来播放本地视频、自动加载外挂字幕并保存截图。请在下一个页面中授权。</string>
+    <string name="storage_all_files_message">“所有文件访问”让 mpvKt 在从其它应用打开单个文件时，能自动找到视频旁边的字幕和字体，也能把截图保存到任意目录。文件选择器和网络源不需要它。</string>
     <string name="storage_all_files_grant">去授权</string>
     <string name="storage_all_files_dont_ask">不再提示</string>
-    <string name="storage_all_files_banner">授予“所有文件访问”权限后，本地视频、外挂字幕和字幕字体都能被自动找到。</string>
+    <string name="storage_all_files_banner">没有“所有文件访问”权限时，从其它应用打开的视频无法自动匹配旁边的字幕和字体；文件选择器和网络源不受影响。</string>
+    <string name="storage_all_files_learn_more">了解详情</string>
+    <string name="player_storage_access_title">加载视频旁边的字幕？</string>
+    <string name="player_storage_access_message">这个视频是直接打开的，mpvKt 只能看到这一个文件，看不到它所在的文件夹，因此无法读取旁边的字幕和字体。授予“所有文件访问”后，mpvKt 会重新加载视频并自动匹配。</string>
     <string name="pref_preferences">设置</string>
     <string name="pref_appearance_title">外观</string>
     <string name="pref_appearance_summary">深色模式，Material You</string>

@@ -50,10 +50,13 @@
     <string name="player_sheets_queue_clear">Clear</string>
 
     <string name="storage_all_files_title">All files access</string>
-    <string name="storage_all_files_message">mpvKt needs the \"All files access\" permission to play local videos, automatically load external subtitles and save screenshots. Grant it on the next screen.</string>
+    <string name="storage_all_files_message">\"All files access\" lets mpvKt discover videos\' sibling subtitles and fonts when a file is opened from another app, and save screenshots anywhere. It is never required for the file picker or network sources.</string>
     <string name="storage_all_files_grant">Grant access</string>
     <string name="storage_all_files_dont_ask">Don\'t ask again</string>
-    <string name="storage_all_files_banner">Grant \"All files access\" so local videos, external subtitles and subtitle fonts are found automatically.</string>
+    <string name="storage_all_files_banner">Without \"All files access\", videos opened from other apps can\'t find their sibling subtitles and fonts automatically. The file picker and network sources work either way.</string>
+    <string name="storage_all_files_learn_more">Learn more</string>
+    <string name="player_storage_access_title">Load subtitles next to this video?</string>
+    <string name="player_storage_access_message">This video was opened directly, so mpvKt can only see this one file — not the folder around it. Subtitles and fonts sitting next to the video can\'t be read. Grant \"All files access\" and mpvKt will reload the video and pick them up automatically.</string>
 
     <string name="pref_preferences">Preferences</string>
 
