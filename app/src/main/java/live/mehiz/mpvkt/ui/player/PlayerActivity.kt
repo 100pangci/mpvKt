@@ -143,12 +143,12 @@ class PlayerActivity : AppCompatActivity() {
   private var currentRemoteDir: String? = null
 
   /**
-   * Exact video the "All files access" prompt is currently for, or null.
-   * onResume compares against this to resolve the prompt once the user
-   * returns from the system settings page (special access has no activity
-   * result).
+   * Content URI of the single file the "All files access" prompt was shown
+   * for, or null. Guards the per-file session dedupe and lets onResume
+   * resolve the prompt once the user returns from the system settings page
+   * (special access has no activity result).
    */
-  private var storagePromptVideoPath: String? = null
+  private var storagePromptMediaUri: String? = null
 
   /**
    * Set when the grant landed while the player had no file loaded yet; the
@@ -268,7 +268,7 @@ class PlayerActivity : AppCompatActivity() {
           val videoPath = resolveVideoContextPath(intent, playable)
           val siblingSubPath = siblingSubtitlePath(videoPath)
           Log.i(TAG, "playback flow: sibling=$siblingSubPath")
-          maybePromptForStorageAccess(intent, videoPath)
+          maybePromptForStorageAccess(intent, playable)
           awaitFontSetup(videoPath, siblingSubPath)
           withContext(Dispatchers.Main) {
             expectedIntentPath = playable
@@ -343,22 +343,28 @@ class PlayerActivity : AppCompatActivity() {
         intentResolver.getFileName(intent).takeIf { it.isNotBlank() }
           ?.let { name -> File(dir, name).takeIf { f -> f.isFile } }?.absolutePath
       }
-      ?: documentPathProbe(intent)?.absolutePath
+      ?: documentStoragePath(intent.data)?.absolutePath
   }
 
   /**
-   * Last-resort resolution from the document URI itself, for cases the
-   * MediaStore DATA column cannot cover (e.g. files on secondary volumes,
-   * removed from the database). Existence checks are permission-free, so
-   * the probe still works before "All files access" is granted.
+   * Syntax-only mapping of a document URI to its shared-storage path, for
+   * the cases the MediaStore DATA column cannot cover (secondary volumes,
+   * files removed from the database). No existence checks on purpose: the
+   * file is unreadable before "All files access" is granted. Only
+   * volume-scoped external-storage documents qualify — provider ids like
+   * "video:123" or "msf:456" are rejected.
    */
-  private fun documentPathProbe(intent: Intent): File? {
-    val documentPath = intent.data?.path
-      ?.takeIf { it.contains("/document/primary:") }
-      ?.substringAfter("/document/primary:")
-      ?: return null
-    return File("/storage/emulated/0", documentPath).takeIf { it.exists() }
-  }
+  private fun documentStoragePath(uri: Uri?): File? =
+    uri?.path
+      ?.takeIf { it.contains("/document/") }
+      ?.substringAfter("/document/")
+      ?.let { documentPath ->
+        val volume = documentPath.substringBefore(':')
+        val relative = documentPath.substringAfter(':', "")
+        relative
+          .takeIf { it.isNotBlank() && STORAGE_VOLUME_ID.matches(volume) }
+          ?.let { File(if (volume == "primary") "/storage/emulated/0" else "/storage/$volume", it) }
+      }
 
   private fun siblingSubtitlePath(videoPath: String?): String? =
     videoPath?.let(::File)?.takeIf { it.isFile }?.let { guessSiblingSubtitle(it) }?.absolutePath
@@ -367,74 +373,47 @@ class PlayerActivity : AppCompatActivity() {
     (MPVLib.getPropertyBoolean("idle-active") ?: true) || (MPVLib.getPropertyInt("playlist-count") ?: 0) == 0
 
   /**
-   * Contextual "All files access" prompt: for single local files opened
-   * without the permission (file picker over a single document, share
-   * targets, file managers) whose sibling subtitle exists but cannot be
-   * read — a file/document grant covers only the file itself, never its
-   * directory, so automatic matching is blocked. The probe relies on
-   * permission-free existence checks; the video itself does not have to be
-   * readable for it (and is not, before the grant).
+   * Contextual "All files access" prompt for single files opened from other
+   * apps. The single reliable signal is the fd fallback itself: libmpv's
+   * findRealPath only accepts a path it can open and actually read
+   * (canRead + FileInputStream.read), so a fd:// handle for a content://
+   * open proves the app has no direct access to the video's directory right
+   * now — the exact state in which sibling subtitles and fonts cannot be
+   * discovered. Whether a sibling actually exists is unanswerable before
+   * the grant (the directory is invisible), so the prompt offers the grant
+   * as the only way to find out. It is per-file, session-deduplicated and
+   * permanently suppressible.
    */
-  private fun maybePromptForStorageAccess(intent: Intent, videoPath: String?) {
-    val video = videoPath?.takeIf { !it.startsWith("fd://") }?.let(::File)
-      ?: intentResolver.realVideoFileFromContentUri(intent.data)
-    val alreadyOffered = video == null || storagePromptVideoPath == video.absolutePath
-    if (video != null) storagePromptVideoPath = video.absolutePath
-    val worthPrompting = !alreadyOffered &&
-      subtitlesPreferences.autoLoadExternal.get() &&
+  private fun maybePromptForStorageAccess(intent: Intent, playable: String?) {
+    val mediaUri = intentContentUri(intent) ?: return
+    val key = mediaUri.toString()
+    val worthPrompting = subtitlesPreferences.autoLoadExternal.get() &&
       intent.getStringExtra(QUEUE_REQUEST_EXTRA) == null &&
       intent.getStringExtra(REMOTE_SOURCE_EXTRA) == null &&
-      video?.parentFile?.canRead() == false &&
-      hasUnreadableSiblingSubtitles(video) &&
       !canAccessAllFiles() &&
-      !viewModel.hasStorageAccessDontAsk()
+      !viewModel.hasStorageAccessDontAsk() &&
+      playable?.startsWith("fd://") == true &&
+      storagePromptMediaUri != key
     Log.i(
       TAG,
-      "storage prompt check: video=${video?.absolutePath} offered=$alreadyOffered " +
-        "parentReadable=${video?.parentFile?.canRead()} allFiles=${canAccessAllFiles()} worth=$worthPrompting",
+      "storage prompt check: uri=$key playable=$playable " +
+        "path=${documentStoragePath(mediaUri)?.absolutePath} worth=$worthPrompting",
     )
-    if (worthPrompting) viewModel.showStorageAccessPrompt()
+    if (worthPrompting) {
+      storagePromptMediaUri = key
+      viewModel.showStorageAccessPrompt()
+    }
   }
 
   /**
-   * Evidence that automatic subtitle matching is blocked by the missing
-   * permission: a sibling subtitle whose name matches the video actually
-   * exists (existence checks need no permission) but does not read back.
-   * Subtitle subdirectories and a sibling fonts/ folder count too — mpv and
-   * libass pick those up once access is granted.
+   * The content URI a single-file open arrived as: the data URI of a VIEW
+   * intent or the shared stream of a SEND intent.
    */
-  private fun hasUnreadableSiblingSubtitles(video: File): Boolean {
-    val parent = video.parentFile ?: return false
-    val base = video.nameWithoutExtension
-    val exactNameUnreadable = subtitleExtensionNames.any { extension ->
-      File(parent, "$base.$extension").let { f -> f.exists() && !f.canRead() }
-    }
-    val subtitleDirUnreadable = subtitleDirectories().any { dirName ->
-      val dir = File(parent, dirName)
-      hasUnreadableSubtitlesIn(dir, base) || hasUnreadableFonts(dir)
-    }
-    return exactNameUnreadable || hasUnreadableSubtitlesIn(parent, base) || subtitleDirUnreadable
-  }
-
-  private fun subtitleDirectories(): List<String> =
-    subtitlesPreferences.filePaths.get()
-      .split(';', ',')
-      .map { it.trim().trim('/', '\\') }
-      .filter { it.isNotBlank() }
-
-  private fun hasUnreadableSubtitlesIn(dir: File, base: String): Boolean =
-    dir.listFiles { _, name ->
-      name.substringAfterLast('.').lowercase() in subtitleExtensionNames &&
-        name.startsWith(base) &&
-        File(dir, name).let { !it.canRead() }
-    }?.isNotEmpty() == true
-
-  private fun hasUnreadableFonts(dir: File): Boolean {
-    val fonts = File(dir, "fonts")
-    return fontExtensionNames.any { File(fonts, "x.$it").let { f -> f.exists() && !f.canRead() } } ||
-      fonts.listFiles { _, name -> name.substringAfterLast('.').lowercase() in fontExtensionNames }
-        ?.any { !it.canRead() } == true
-  }
+  @Suppress("DEPRECATION")
+  private fun intentContentUri(intent: Intent): Uri? =
+    intent.data?.takeIf { it.scheme == "content" }
+      ?: runCatching { intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM) }.getOrNull()
+        ?.takeIf { it.scheme == "content" }
 
   /**
    * Runs the font setup concurrently and waits a short budget for it, so a
@@ -934,8 +913,8 @@ class PlayerActivity : AppCompatActivity() {
    * so this is the only reliable detector.
    */
   private fun resolveStorageAccessPrompt() {
-    val promptedVideo = storagePromptVideoPath ?: return
-    storagePromptVideoPath = null
+    val promptedMedia = storagePromptMediaUri ?: return
+    storagePromptMediaUri = null
     if (!canAccessAllFiles()) return
     viewModel.dismissStorageAccessPrompt()
     if (currentPlaybackPath != null) {
@@ -946,12 +925,12 @@ class PlayerActivity : AppCompatActivity() {
     } else {
       pendingStorageAccessReload = true
     }
-    Log.i(TAG, "storage access granted, reloading to pick up sibling subtitles: $promptedVideo")
+    Log.i(TAG, "storage access granted, reloading to pick up sibling subtitles: $promptedMedia")
   }
 
   private fun currentVideoRealPath(): String? =
     intentResolver.realVideoFileFromContentUri(intent.data)?.absolutePath
-      ?: documentPathProbe(intent)?.absolutePath
+      ?: documentStoragePath(intent.data)?.absolutePath
 
   /**
    * The grant arrived while the player was still starting up and had no
@@ -1116,9 +1095,6 @@ class PlayerActivity : AppCompatActivity() {
     // block the current file's deterministic selection.
     restoredTrackState = false
     autoSubSelectedForThisVideo = false
-    // The storage prompt tracks the file it was offered for; a new file
-    // gets its own evaluation.
-    storagePromptVideoPath = null
     // Without a title of its own, mpv falls back to the raw path, so a
     // SAF-opened "fd://123" shows up as just "123"; prefer the file name.
     val mediaTitle = MPVLib.getPropertyString("media-title")
@@ -1533,6 +1509,9 @@ class PlayerActivity : AppCompatActivity() {
     // remote directory the video lives in (its fonts/ folder gets staged)
     const val REMOTE_SOURCE_EXTRA = "remote-source"
     const val REMOTE_PLAY_PATH_EXTRA = "remote-play-path"
+
+    /** "primary" or a secondary volume UUID, e.g. "1234-ABCD". */
+    private val STORAGE_VOLUME_ID = Regex("^(primary|[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4})$")
 
     /** Grace period for mpv's own directory scan before the sibling fallback. */
     private const val SIBLING_SUBTITLE_FALLBACK_DELAY_MS = 600L

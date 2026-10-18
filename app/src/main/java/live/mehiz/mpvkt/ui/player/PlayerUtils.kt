@@ -63,9 +63,3 @@ internal const val FONT_INDEX_SCAN_INTERVAL = 6 * 60 * 60 * 1000L
 internal const val FONT_SETUP_BUDGET_MS = 500L
 
 internal val SUBTITLE_EXTENSIONS = Regex(".*\\.(ass|ssa|srt)\\z", RegexOption.IGNORE_CASE)
-
-/** Plain list form of [SUBTITLE_EXTENSIONS] for permission-state probes. */
-internal val subtitleExtensionNames = listOf("ass", "ssa", "srt")
-
-/** Font file extensions, matching what libass/fontconfig can load. */
-internal val fontExtensionNames = listOf("ttf", "otf", "ttc")
