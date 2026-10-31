@@ -25,6 +25,7 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -49,6 +50,7 @@ import live.mehiz.mpvkt.ui.utils.createStorageAccessIntent
 import org.koin.java.KoinJavaComponent.inject
 import java.io.File
 import java.util.Locale
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.roundToInt
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
@@ -88,6 +90,32 @@ class PlayerViewModel(
       } catch (e: Exception) {
         Log.e(TAG, e.message ?: "Unable to fetch buttons")
         _customButtons.update { _ -> CustomButtonsUiState.Error(e.message ?: "Unable to fetch buttons") }
+      }
+    }
+  }
+
+  /**
+   * Drag previews are keyframe seeks that may still be running when the next
+   * pointer event arrives. `mpv_command` is synchronous and waits for the
+   * playback core, so issuing it from the drag handler stalls the UI thread.
+   * The channel runs them on a worker and keeps only the newest target.
+   */
+  private data class PreviewSeek(val position: Int, val generation: Int)
+
+  private val previewSeeks = Channel<PreviewSeek>(Channel.CONFLATED)
+  private val previewGeneration = AtomicInteger()
+  private val seekGate = Any()
+
+  init {
+    viewModelScope.launch(Dispatchers.IO) {
+      for (request in previewSeeks) {
+        synchronized(seekGate) {
+          // A final seek bumps the generation; a preview that lost the race
+          // must not run after it and drag the player back to an older target.
+          if (request.generation == previewGeneration.get()) {
+            MPVLib.command("seek", request.position.toString(), "absolute+keyframes")
+          }
+        }
       }
     }
   }
@@ -320,14 +348,30 @@ class PlayerViewModel(
   }
 
   fun seekBy(offset: Int, precise: Boolean = false) {
-    MPVLib.command("seek", offset.toString(), if (precise) "relative+exact" else "relative")
+    synchronized(seekGate) {
+      previewGeneration.incrementAndGet()
+      previewSeeks.tryReceive()
+      MPVLib.command("seek", offset.toString(), if (precise) "relative+exact" else "relative")
+    }
   }
 
   fun seekTo(position: Int, precise: Boolean = true) {
     // Duration is already observed: don't perform a synchronous JNI property read
     // for every scrub update on the UI thread.
     if (position !in 0..(duration ?: 0)) return
-    MPVLib.command("seek", position.toString(), if (precise) "absolute+exact" else "absolute+keyframes")
+    synchronized(seekGate) {
+      // Supersede previews that have not started yet: they target an older
+      // drag position and must not run after this seek.
+      previewGeneration.incrementAndGet()
+      previewSeeks.tryReceive()
+      MPVLib.command("seek", position.toString(), if (precise) "absolute+exact" else "absolute+keyframes")
+    }
+  }
+
+  /** Keyframe-only drag preview: coalesced and executed off the UI thread. */
+  fun previewSeekTo(position: Int) {
+    if (position !in 0..(duration ?: 0)) return
+    previewSeeks.trySend(PreviewSeek(position, previewGeneration.get()))
   }
 
   fun changeBrightnessBy(change: Float) {

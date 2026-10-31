@@ -70,7 +70,6 @@ fun GestureHandler(
   val allowGesturesInPanels by playerPreferences.allowGesturesInPanels.collectAsState()
   val paused by MPVLib.propBoolean["pause"].collectAsState()
   val duration by MPVLib.propInt["duration"].collectAsState()
-  val position by MPVLib.propInt["time-pos"].collectAsState()
   val playbackSpeed by MPVLib.propFloat["speed"].collectAsState()
   val controlsShown by viewModel.controlsShown.collectAsState()
   val areControlsLocked by viewModel.areControlsLocked.collectAsState()
@@ -166,7 +165,7 @@ fun GestureHandler(
       }
       .pointerInput(areControlsLocked, seekGesture) {
         if (!seekGesture || areControlsLocked) return@pointerInput
-        var startingPosition = position ?: 0
+        var startingPosition = viewModel.pos ?: 0
         var startingX = 0f
         val session = HorizontalSeekSession()
         fun completeDrag(cancelled: Boolean) {
@@ -183,7 +182,7 @@ fun GestureHandler(
           detectHorizontalDragGestures(
             onDragStart = {
               if ((duration ?: 0) > 0) {
-                startingPosition = position ?: 0
+                startingPosition = viewModel.pos ?: 0
                 startingX = it.x
                 session.start(paused != false)
                 viewModel.pause()
@@ -201,7 +200,7 @@ fun GestureHandler(
             ).coerceIn(0, (duration ?: 0).coerceAtLeast(0))
             viewModel.gestureSeekAmount.update { startingPosition to (target - startingPosition) }
             session.update(target, SystemClock.uptimeMillis())?.let {
-              viewModel.seekTo(it, precise = false)
+              viewModel.previewSeekTo(it)
             }
 
             if (showSeekbarWhenSeeking) viewModel.showSeekBar()

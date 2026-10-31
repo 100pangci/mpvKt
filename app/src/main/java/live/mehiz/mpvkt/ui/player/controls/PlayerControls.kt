@@ -1,6 +1,5 @@
 package live.mehiz.mpvkt.ui.player.controls
 
-import android.os.SystemClock
 import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -114,7 +113,6 @@ fun PlayerControls(
   val pausedForCache by MPVLib.propBoolean["paused-for-cache"].collectAsState()
   val paused by MPVLib.propBoolean["pause"].collectAsState()
   val duration by MPVLib.propInt["duration"].collectAsState()
-  val position by MPVLib.propInt["time-pos"].collectAsState()
   val playbackSpeed by MPVLib.propFloat["speed"].collectAsState()
   val gestureSeekAmount by viewModel.gestureSeekAmount.collectAsState()
   val doubleTapSeekAmount by viewModel.doubleTapSeekAmount.collectAsState()
@@ -431,11 +429,20 @@ fun PlayerControls(
           },
         ) {
           val invertDuration by playerPreferences.invertDuration.collectAsState()
+          val position by MPVLib.propInt["time-pos"].collectAsState()
           val readAhead by MPVLib.propFloat["demuxer-cache-time"].collectAsState()
           val remaining by MPVLib.propFloat["playtime-remaining"].collectAsState()
           val preciseSeeking by playerPreferences.preciseSeeking.collectAsState()
           var seekbarEndTarget by remember { mutableStateOf<Float?>(null) }
-          val seekLimiter = remember { SeekbarSeekLimiter() }
+          var lastPreviewTarget by remember { mutableStateOf<Int?>(null) }
+          // Only preview once the finger rests: seeking on every pointer event
+          // blocks the UI thread in mpv_command and keeps restarting the decoder.
+          LaunchedEffect(seekbarEndTarget) {
+            val target = seekbarEndTarget?.toInt() ?: return@LaunchedEffect
+            delay(SEEK_PREVIEW_DELAY_MS)
+            viewModel.previewSeekTo(target)
+            lastPreviewTarget = target
+          }
           SeekbarWithTimers(
             // The thumb follows the finger, not mpv's delayed/keyframe-snapped position.
             position = seekbarEndTarget ?: position?.toFloat() ?: 0f,
@@ -444,19 +451,19 @@ fun PlayerControls(
               ?: remaining?.toFloat() ?: 0f,
             readAheadValue = readAhead ?: 0f,
             onValueChange = {
+              if (seekbarEndTarget == null) lastPreviewTarget = null
               isSeeking = true
               seekbarEndTarget = it
-              // Preview by keyframes at a bounded rate; exact decoding on every
-              // pointer event can keep restarting the decoder faster than it settles.
-              seekLimiter.update(it.toInt(), SystemClock.uptimeMillis())?.let { target ->
-                viewModel.seekTo(target, precise = false)
-              }
             },
             onValueChangeFinished = {
-              seekLimiter.finish(preciseSeeking)?.let { target ->
+              // A preview already at the final target needs no duplicate keyframe
+              // seek; exact mode still refines that preview once, on release.
+              val target = seekbarEndTarget?.toInt()
+              if (target != null && (preciseSeeking || target != lastPreviewTarget)) {
                 viewModel.seekTo(target, precise = preciseSeeking)
               }
               seekbarEndTarget = null
+              lastPreviewTarget = null
               isSeeking = false
             },
             timersInverted = Pair(false, invertDuration),
@@ -663,6 +670,9 @@ fun PlayerControls(
     )
   }
 }
+
+/** How long the finger must rest before a drag preview seek is issued. */
+private const val SEEK_PREVIEW_DELAY_MS = 300L
 
 fun <T> playerControlsExitAnimationSpec(): FiniteAnimationSpec<T> = tween(
   durationMillis = 300,
