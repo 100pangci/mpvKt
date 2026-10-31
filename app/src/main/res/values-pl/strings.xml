@@ -281,6 +281,11 @@
     <string name="screenshot_dir_missing">katalog nie istnieje</string>
     <string name="screenshot_dir_unwritable">katalog niezapisywalny</string>
     <string name="screenshot_error_unknown">nieznany błąd</string>
+    <string name="screenshot_folder_prompt">Wybierz folder na zrzuty ekranu</string>
+    <string name="screenshot_folder_required">Wybierz folder do zapisywania zrzutów ekranu</string>
+    <string name="screenshot_folder_permission_lost">Utracono dostęp do folderu zrzutów ekranu. Wybierz folder ponownie.</string>
+    <string name="screenshot_folder_pip_unavailable">Wyjdź z trybu obrazu w obrazie, aby wybrać folder zrzutów ekranu</string>
+    <string name="pref_player_screenshot_directory_tree">Wybrany folder: %1$s</string>
     <string name="pref_player_screenshots_title">Zrzuty ekranu</string>
     <string name="pref_player_screenshot_directory">Katalog zrzutów</string>
     <string name="pref_player_screenshot_directory_default">Domyślny (Pictures/mpvKt)</string>

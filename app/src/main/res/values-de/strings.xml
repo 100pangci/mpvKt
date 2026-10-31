@@ -281,6 +281,11 @@
     <string name="screenshot_dir_missing">Verzeichnis existiert nicht</string>
     <string name="screenshot_dir_unwritable">Verzeichnis nicht beschreibbar</string>
     <string name="screenshot_error_unknown">unbekannter Fehler</string>
+    <string name="screenshot_folder_prompt">Ordner für Screenshots auswählen</string>
+    <string name="screenshot_folder_required">Wähle einen Ordner zum Speichern von Screenshots</string>
+    <string name="screenshot_folder_permission_lost">Der Zugriff auf den Screenshot-Ordner ist verloren gegangen. Wähle den Ordner erneut aus.</string>
+    <string name="screenshot_folder_pip_unavailable">Beende den Bild-in-Bild-Modus, um einen Screenshot-Ordner auszuwählen</string>
+    <string name="pref_player_screenshot_directory_tree">Gewählter Ordner: %1$s</string>
     <string name="pref_player_screenshots_title">Screenshots</string>
     <string name="pref_player_screenshot_directory">Screenshot-Verzeichnis</string>
     <string name="pref_player_screenshot_directory_default">Standard (Pictures/mpvKt)</string>

@@ -281,6 +281,11 @@
     <string name="screenshot_dir_missing">la cartella non esiste</string>
     <string name="screenshot_dir_unwritable">cartella non scrivibile</string>
     <string name="screenshot_error_unknown">errore sconosciuto</string>
+    <string name="screenshot_folder_prompt">Scegli una cartella per gli screenshot</string>
+    <string name="screenshot_folder_required">Scegli una cartella in cui salvare gli screenshot</string>
+    <string name="screenshot_folder_permission_lost">L\'accesso alla cartella degli screenshot è andato perso. Scegli di nuovo la cartella.</string>
+    <string name="screenshot_folder_pip_unavailable">Esci dalla modalità picture-in-picture per scegliere una cartella per gli screenshot</string>
+    <string name="pref_player_screenshot_directory_tree">Cartella scelta: %1$s</string>
     <string name="pref_player_screenshots_title">Screenshot</string>
     <string name="pref_player_screenshot_directory">Cartella screenshot</string>
     <string name="pref_player_screenshot_directory_default">Predefinita (Pictures/mpvKt)</string>

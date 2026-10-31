@@ -281,6 +281,11 @@
     <string name="screenshot_dir_missing">dizin yok</string>
     <string name="screenshot_dir_unwritable">dizin yazılabilir değil</string>
     <string name="screenshot_error_unknown">bilinmeyen hata</string>
+    <string name="screenshot_folder_prompt">Ekran görüntüleri için klasör seçin</string>
+    <string name="screenshot_folder_required">Ekran görüntülerini kaydetmek için klasör seçin</string>
+    <string name="screenshot_folder_permission_lost">Ekran görüntüsü klasörüne erişim kayboldu. Klasörü yeniden seçin.</string>
+    <string name="screenshot_folder_pip_unavailable">Ekran görüntüsü klasörü seçmek için resim içinde resim modundan çıkın</string>
+    <string name="pref_player_screenshot_directory_tree">Seçilen klasör: %1$s</string>
     <string name="pref_player_screenshots_title">Ekran görüntüleri</string>
     <string name="pref_player_screenshot_directory">Ekran görüntüsü dizini</string>
     <string name="pref_player_screenshot_directory_default">Varsayılan (Pictures/mpvKt)</string>

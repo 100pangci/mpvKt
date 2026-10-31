@@ -1,12 +1,8 @@
 package live.mehiz.mpvkt.ui.preferences
 
-import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
-import android.os.Environment
-import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -25,9 +21,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -37,10 +30,11 @@ import live.mehiz.mpvkt.R
 import live.mehiz.mpvkt.preferences.PlayerPreferences
 import live.mehiz.mpvkt.preferences.preference.collectAsState
 import live.mehiz.mpvkt.presentation.Screen
-import live.mehiz.mpvkt.presentation.components.ConfirmDialog
 import live.mehiz.mpvkt.ui.player.PlayerOrientation
 import live.mehiz.mpvkt.ui.player.controls.components.sheets.toFixed
 import live.mehiz.mpvkt.ui.utils.LocalBackStack
+import live.mehiz.mpvkt.ui.utils.treeUriLabel
+import live.mehiz.mpvkt.ui.utils.treeUriToRealPath
 import me.zhanghai.compose.preference.ListPreference
 import me.zhanghai.compose.preference.Preference
 import me.zhanghai.compose.preference.PreferenceCategory
@@ -249,23 +243,25 @@ object PlayerPreferencesScreen : Screen {
             title = { Text(stringResource(R.string.pref_player_screenshot_sw_title)) },
             summary = { Text(stringResource(R.string.pref_player_screenshot_sw_summary)) },
           )
-          var showAllFilesDialog by remember { mutableStateOf(false) }
+          val screenshotTreeUri by preferences.screenshotTreeUri.collectAsState()
           val directoryPicker = rememberLauncherForActivityResult(
             ActivityResultContracts.OpenDocumentTree(),
           ) { uri ->
             if (uri == null) return@rememberLauncherForActivityResult
-            val path = treeUriToRealPath(uri)
-            if (path == null) {
+            val flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or
+              Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+            val persisted = runCatching {
+              context.contentResolver.takePersistableUriPermission(uri, flags)
+            }.isSuccess
+            if (persisted) {
+              preferences.screenshotTreeUri.set(uri.toString())
+              preferences.screenshotDirectory.set(treeUriToRealPath(uri).orEmpty())
+            } else {
               Toast.makeText(
                 context,
-                R.string.pref_player_screenshot_directory_unsupported,
-                Toast.LENGTH_SHORT,
+                R.string.screenshot_folder_permission_lost,
+                Toast.LENGTH_LONG,
               ).show()
-            } else {
-              preferences.screenshotDirectory.set(path)
-              if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !Environment.isExternalStorageManager()) {
-                showAllFilesDialog = true
-              }
             }
           }
           val screenshotDirectory by preferences.screenshotDirectory.collectAsState()
@@ -273,36 +269,34 @@ object PlayerPreferencesScreen : Screen {
             title = { Text(stringResource(R.string.pref_player_screenshot_directory)) },
             summary = {
               Text(
-                screenshotDirectory.ifBlank {
-                  stringResource(R.string.pref_player_screenshot_directory_default)
+                when {
+                  screenshotDirectory.isNotBlank() -> screenshotDirectory
+                  screenshotTreeUri.isNotBlank() -> stringResource(
+                    R.string.pref_player_screenshot_directory_tree,
+                    treeUriLabel(Uri.parse(screenshotTreeUri)),
+                  )
+                  else -> stringResource(R.string.pref_player_screenshot_directory_default)
                 },
               )
             },
             onClick = { directoryPicker.launch(null) },
           )
-          if (screenshotDirectory.isNotBlank()) {
+          if (screenshotDirectory.isNotBlank() || screenshotTreeUri.isNotBlank()) {
             Preference(
               title = { Text(stringResource(R.string.pref_player_screenshot_directory_reset)) },
-              onClick = { preferences.screenshotDirectory.set("") },
-            )
-          }
-          if (showAllFilesDialog) {
-            ConfirmDialog(
-              title = stringResource(R.string.pref_player_screenshot_all_files_title),
-              subtitle = stringResource(R.string.pref_player_screenshot_all_files_message),
-              onConfirm = {
-                showAllFilesDialog = false
-                val intent = Intent(
-                  Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,
-                  Uri.parse("package:${context.packageName}"),
-                )
-                try {
-                  context.startActivity(intent)
-                } catch (_: ActivityNotFoundException) {
-                  context.startActivity(Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION))
+              onClick = {
+                if (screenshotTreeUri.isNotBlank()) {
+                  runCatching {
+                    context.contentResolver.releasePersistableUriPermission(
+                      Uri.parse(screenshotTreeUri),
+                      Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
+                    )
+                  }
                 }
+                preferences.screenshotTreeUri.set("")
+                preferences.screenshotDirectory.set("")
               },
-              onCancel = { showAllFilesDialog = false },
             )
           }
 
@@ -351,26 +345,5 @@ object PlayerPreferencesScreen : Screen {
         }
       }
     }
-  }
-}
-
-private fun treeUriToRealPath(uri: Uri): String? {
-  val valid = uri.authority == "com.android.externalstorage.documents"
-  if (!valid) return null
-  val treeId = uri.toString()
-    .substringBefore('#')
-    .substringBefore('?')
-    .substringAfter("/tree/", "")
-    .let { Uri.decode(it) }
-  val volume = treeId.substringBefore(':', "")
-  val rest = treeId.substringAfter(':', "")
-  val base = when (volume) {
-    "primary" -> Environment.getExternalStorageDirectory().absolutePath
-    else -> "/storage/$volume"
-  }
-  return when {
-    volume.isBlank() || base.isBlank() -> null
-    rest.isBlank() -> base
-    else -> "$base/$rest"
   }
 }

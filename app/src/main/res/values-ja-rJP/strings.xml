@@ -334,6 +334,11 @@
     <string name="screenshot_dir_missing">ディレクトリが存在しません</string>
     <string name="screenshot_dir_unwritable">ディレクトリに書き込めません</string>
     <string name="screenshot_error_unknown">不明なエラー</string>
+    <string name="screenshot_folder_prompt">スクリーンショットの保存先フォルダを選択</string>
+    <string name="screenshot_folder_required">スクリーンショットを保存するフォルダを選択してください</string>
+    <string name="screenshot_folder_permission_lost">スクリーンショットフォルダへのアクセス権が失われました。もう一度フォルダを選択してください。</string>
+    <string name="screenshot_folder_pip_unavailable">スクリーンショットフォルダを選択するにはピクチャーインピクチャーを終了してください</string>
+    <string name="pref_player_screenshot_directory_tree">選択したフォルダ: %1$s</string>
     <string name="pref_player_screenshots_title">スクリーンショット</string>
     <string name="pref_player_screenshot_directory">スクリーンショットの保存先</string>
     <string name="pref_player_screenshot_directory_default">デフォルト (Pictures/mpvKt)</string>

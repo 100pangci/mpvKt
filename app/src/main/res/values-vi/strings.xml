@@ -281,6 +281,11 @@
     <string name="screenshot_dir_missing">thư mục không tồn tại</string>
     <string name="screenshot_dir_unwritable">không ghi được vào thư mục</string>
     <string name="screenshot_error_unknown">lỗi không rõ</string>
+    <string name="screenshot_folder_prompt">Chọn thư mục cho ảnh chụp màn hình</string>
+    <string name="screenshot_folder_required">Chọn thư mục để lưu ảnh chụp màn hình</string>
+    <string name="screenshot_folder_permission_lost">Quyền truy cập thư mục ảnh chụp màn hình đã mất. Hãy chọn lại thư mục.</string>
+    <string name="screenshot_folder_pip_unavailable">Thoát chế độ hình trong hình để chọn thư mục ảnh chụp màn hình</string>
+    <string name="pref_player_screenshot_directory_tree">Thư mục đã chọn: %1$s</string>
     <string name="pref_player_screenshots_title">Ảnh chụp màn hình</string>
     <string name="pref_player_screenshot_directory">Thư mục ảnh chụp</string>
     <string name="pref_player_screenshot_directory_default">Mặc định (Pictures/mpvKt)</string>

@@ -9,11 +9,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 /**
@@ -144,18 +143,29 @@ object MPVLib {
     val type: Int,
     val getProperty: (String) -> T?,
   ) {
-    internal val flow = MutableSharedFlow<Pair<String, T>>()
-    internal val map = mutableMapOf<String, StateFlow<T?>>()
+    private val flows = mutableMapOf<String, MutableStateFlow<T?>>()
 
-    operator fun get(property: String): StateFlow<T?> = map.getOrPut(property) {
-      observeProperty(property, type)
-      flow.filter { it.first == property }
-        .map { it.second }
-        .stateIn(
-          scope,
-          SharingStarted.Lazily,
-          withMpv { getProperty(property) },
-        )
+    operator fun get(property: String): StateFlow<T?> =
+      synchronized(flows) { flows[property] } ?: createFlow(property)
+
+    /**
+     * A hot StateFlow per property, seeded from mpv's current value and
+     * registered before observing: an event can no longer be lost while
+     * nobody is collecting yet, which used to leave e.g. media-title blank.
+     */
+    private fun createFlow(property: String): StateFlow<T?> {
+      val seed = withMpv { getProperty(property) }
+      val created = MutableStateFlow(seed)
+      val state = synchronized(flows) {
+        flows[property] ?: created.also { flows[property] = it }
+      }
+      if (state === created) {
+        observeProperty(property, type)
+        // Close the gap between reading the seed and registering: unless an
+        // event already superseded it, pick up the current value now.
+        withMpv { getProperty(property) }?.let { created.compareAndSet(seed, it) }
+      }
+      return state
     }
 
     operator fun set(property: String, value: T) {
@@ -173,11 +183,11 @@ object MPVLib {
     }
 
     internal fun emit(property: String, value: T) {
-      scope.launch { flow.emit(Pair(property, value)) }
+      synchronized(flows) { flows[property] }?.value = value
     }
 
     internal fun reobserveAll() {
-      map.keys.forEach { observeProperty(it, type) }
+      synchronized(flows) { flows.keys.toList() }.forEach { observeProperty(it, type) }
     }
   }
 

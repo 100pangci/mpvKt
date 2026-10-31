@@ -42,6 +42,7 @@ class PlayerPreferences(
   val closeAfterReachingEndOfVideo = preferenceStore.getBoolean("close_after_eof")
 
   val screenshotDirectory = preferenceStore.getString("screenshot_directory", "")
+  val screenshotTreeUri = preferenceStore.getString("screenshot_tree_uri", "")
   val screenshotSoftwareRendering = preferenceStore.getBoolean("screenshot_software_rendering", true)
 
   val rememberBrightness = preferenceStore.getBoolean("remember_rightness")

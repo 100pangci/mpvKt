@@ -305,6 +305,11 @@
     <string name="screenshot_dir_missing">el directorio no existe</string>
     <string name="screenshot_dir_unwritable">directorio sin permiso de escritura</string>
     <string name="screenshot_error_unknown">error desconocido</string>
+    <string name="screenshot_folder_prompt">Elige una carpeta para las capturas de pantalla</string>
+    <string name="screenshot_folder_required">Elige una carpeta para guardar las capturas de pantalla</string>
+    <string name="screenshot_folder_permission_lost">Se perdió el acceso a la carpeta de capturas de pantalla. Elige la carpeta de nuevo.</string>
+    <string name="screenshot_folder_pip_unavailable">Sal de la ventana flotante para elegir una carpeta para las capturas</string>
+    <string name="pref_player_screenshot_directory_tree">Carpeta elegida: %1$s</string>
     <string name="pref_player_screenshots_title">Capturas de pantalla</string>
     <string name="pref_player_screenshot_directory">Directorio de capturas</string>
     <string name="pref_player_screenshot_directory_default">Predeterminado (Pictures/mpvKt)</string>

@@ -281,6 +281,11 @@
     <string name="screenshot_dir_missing">le dossier n\'existe pas</string>
     <string name="screenshot_dir_unwritable">dossier non inscriptible</string>
     <string name="screenshot_error_unknown">erreur inconnue</string>
+    <string name="screenshot_folder_prompt">Choisir un dossier pour les captures d\'écran</string>
+    <string name="screenshot_folder_required">Choisissez un dossier pour enregistrer les captures d\'écran</string>
+    <string name="screenshot_folder_permission_lost">L\'accès au dossier des captures d\'écran a été perdu. Choisissez à nouveau le dossier.</string>
+    <string name="screenshot_folder_pip_unavailable">Quittez le mode image dans l\'image pour choisir un dossier de captures d\'écran</string>
+    <string name="pref_player_screenshot_directory_tree">Dossier choisi : %1$s</string>
     <string name="pref_player_screenshots_title">Captures d\'écran</string>
     <string name="pref_player_screenshot_directory">Dossier des captures</string>
     <string name="pref_player_screenshot_directory_default">Par défaut (Pictures/mpvKt)</string>

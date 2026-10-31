@@ -80,6 +80,7 @@ import live.mehiz.mpvkt.preferences.SubtitlesPreferences
 import live.mehiz.mpvkt.ui.player.controls.PlayerControls
 import live.mehiz.mpvkt.ui.theme.MpvKtTheme
 import live.mehiz.mpvkt.ui.utils.canAccessAllFiles
+import live.mehiz.mpvkt.ui.utils.treeUriToRealPath
 import org.koin.android.ext.android.inject
 import java.io.File
 import kotlin.math.roundToInt
@@ -169,6 +170,27 @@ class PlayerActivity : AppCompatActivity() {
   private var pipRect: android.graphics.Rect? = null
   private val storagePermissionLauncher =
     registerForActivityResult(ActivityResultContracts.RequestPermission()) {}
+  private var pendingScreenshotWithSubtitles: Boolean? = null
+  private val screenshotFolderLauncher =
+    registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+      val withSubtitles = pendingScreenshotWithSubtitles
+      pendingScreenshotWithSubtitles = null
+      when {
+        uri == null -> Toast.makeText(
+          this,
+          R.string.screenshot_folder_required,
+          Toast.LENGTH_SHORT,
+        ).show()
+
+        !persistScreenshotTree(uri) -> Toast.makeText(
+          this,
+          R.string.screenshot_folder_permission_lost,
+          Toast.LENGTH_LONG,
+        ).show()
+
+        withSubtitles != null -> viewModel.screenshot(withSubtitles)
+      }
+    }
   val isPipSupported by lazy {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
       false
@@ -191,6 +213,7 @@ class PlayerActivity : AppCompatActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     enableEdgeToEdge()
     super.onCreate(savedInstanceState)
+    storagePromptMediaUri = savedInstanceState?.getString(STATE_STORAGE_PROMPT_MEDIA)
     if (!intentResolver.isSupportedPlayable(intent)) {
       rejectUnsupportedFile()
       finish()
@@ -599,9 +622,11 @@ class PlayerActivity : AppCompatActivity() {
 
   @SuppressLint("NewApi")
   override fun onUserLeaveHint() {
-    if (isPipSupported && viewModel.paused == false && playerPreferences.automaticallyEnterPip.get()) {
-      enterPipMode()
-    }
+    val pickerPending = pendingScreenshotWithSubtitles != null
+    val autoPip = isPipSupported && viewModel.paused == false &&
+      playerPreferences.automaticallyEnterPip.get()
+    // Opening the folder picker must not turn into auto-PiP.
+    if (!pickerPending && autoPip) enterPipMode()
     super.onUserLeaveHint()
   }
 
@@ -717,6 +742,47 @@ class PlayerActivity : AppCompatActivity() {
     }
     storagePermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
   }
+
+  /**
+   * Screenshot entry point for the player controls: save straight away when a
+   * destination is already usable, otherwise ask for a folder once and take
+   * the screenshot as soon as the grant lands.
+   */
+  fun requestScreenshot(withSubtitles: Boolean) {
+    if (viewModel.hasScreenshotDestination()) {
+      viewModel.screenshot(withSubtitles)
+    } else {
+      requestScreenshotFolder(withSubtitles)
+    }
+  }
+
+  fun requestScreenshotFolder(withSubtitles: Boolean) {
+    when {
+      isFinishing || isDestroyed -> Unit
+
+      Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && isInPictureInPictureMode ->
+        Toast.makeText(this, R.string.screenshot_folder_pip_unavailable, Toast.LENGTH_LONG).show()
+
+      else -> {
+        pendingScreenshotWithSubtitles = withSubtitles
+        Toast.makeText(this, R.string.screenshot_folder_prompt, Toast.LENGTH_LONG).show()
+        runCatching { screenshotFolderLauncher.launch(null) }.onFailure {
+          pendingScreenshotWithSubtitles = null
+          Toast.makeText(this, R.string.screenshot_folder_required, Toast.LENGTH_LONG).show()
+        }
+      }
+    }
+  }
+
+  private fun persistScreenshotTree(uri: Uri): Boolean = runCatching {
+    contentResolver.takePersistableUriPermission(
+      uri,
+      Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
+    )
+  }.onSuccess {
+    playerPreferences.screenshotTreeUri.set(uri.toString())
+    playerPreferences.screenshotDirectory.set(treeUriToRealPath(uri).orEmpty())
+  }.isSuccess
 
   private fun setupAudio() {
     audioPreferences.audioChannels.get().let { MPVLib.setPropertyString(it.property, it.value) }
@@ -893,6 +959,21 @@ class PlayerActivity : AppCompatActivity() {
     }
   }
 
+  override fun onSaveInstanceState(outState: Bundle) {
+    super.onSaveInstanceState(outState)
+    // The ViewModel's prompt state survives a recreation; the marker must
+    // survive with it or a grant that lands while the settings page is open
+    // could no longer trigger the reload that picks up sibling subtitles.
+    outState.putString(STATE_STORAGE_PROMPT_MEDIA, storagePromptMediaUri)
+  }
+
+  override fun onWindowFocusChanged(hasFocus: Boolean) {
+    super.onWindowFocusChanged(hasFocus)
+    // Some system settings pages hand focus back without a fresh onResume;
+    // the grant check is cheap and idempotent.
+    if (hasFocus) resolveStorageAccessPrompt()
+  }
+
   override fun onResume() {
     super.onResume()
 
@@ -913,10 +994,15 @@ class PlayerActivity : AppCompatActivity() {
    * so this is the only reliable detector.
    */
   private fun resolveStorageAccessPrompt() {
+    if (!canAccessAllFiles()) return
+    // The prompt may still be visible when the user granted without tapping
+    // the dialog, or when a recreation restored the ViewModel state.
+    // Dismissal is idempotent.
+    viewModel.dismissStorageAccessPrompt()
+    // Only consume the marker once the grant is actually visible: an early
+    // resume without the grant must not make the prompt unresolvable later.
     val promptedMedia = storagePromptMediaUri ?: return
     storagePromptMediaUri = null
-    if (!canAccessAllFiles()) return
-    viewModel.dismissStorageAccessPrompt()
     if (currentPlaybackPath != null) {
       // The video path resolved from the content URI is the freshest source;
       // mpv's own path may still be the old fd:// handle.
@@ -1295,13 +1381,22 @@ class PlayerActivity : AppCompatActivity() {
     }
     builder.setActions(createPipActions(this, viewModel.paused == true))
     builder.setSourceRectHint(pipRect)
-    MPVLib.getPropertyInt("video-params/h")?.let {
-      val height = it
-      val width = it * player.getVideoOutAspect()!!
-      val rational = Rational(height, width.toInt()).toFloat()
-      if (rational in 0.42..2.38) builder.setAspectRatio(Rational(width.toInt(), height))
-    }
+    pipAspectRatio()?.let { builder.setAspectRatio(it) }
     return builder.build()
+  }
+
+  /**
+   * The video aspect for the PiP window, or null while mpv cannot report it
+   * yet (e.g. a network file still opening). Every value is validated because
+   * these properties briefly return garbage or nothing during a load.
+   */
+  @Suppress("ReturnCount")
+  private fun pipAspectRatio(): Rational? {
+    val height = MPVLib.getPropertyInt("video-params/h")?.takeIf { it > 0 } ?: return null
+    val aspect = player.getVideoOutAspect()?.takeIf { it.isFinite() && it > 0.0 } ?: return null
+    val width = (height * aspect).roundToInt().takeIf { it > 0 } ?: return null
+    val rational = Rational(height, width).toFloat()
+    return Rational(width, height).takeIf { rational in 0.42..2.38 }
   }
 
   override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean, newConfig: Configuration) {
@@ -1498,6 +1593,9 @@ class PlayerActivity : AppCompatActivity() {
   companion object {
     // action of result intent
     private const val RESULT_INTENT = "live.ywpc05.mpvkt.ui.player.PlayerActivity.result"
+
+    // pending "All files access" prompt marker, kept across recreation
+    private const val STATE_STORAGE_PROMPT_MEDIA = "storage-prompt-media"
 
     // extras of queue playback: the full playlist in playback order (raw
     // paths or URLs), the intent data being the entry to start at

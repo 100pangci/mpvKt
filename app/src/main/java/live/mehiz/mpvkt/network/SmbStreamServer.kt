@@ -222,7 +222,11 @@ class SmbStreamServer internal constructor(
     const val PARALLEL_READERS = 4
     const val PARALLEL_THRESHOLD_BYTES = 2L * 1024 * 1024
     const val TOKEN_LENGTH = 32
-    const val MAX_TARGETS = 64
+
+    // A single-directory queue registers one target per video up front, and
+    // previews consume targets too. 64 would evict queue tokens before mpv
+    // requests them; 1024 covers realistic folders while staying bounded.
+    const val MAX_TARGETS = 1024
     const val BACKLOG = 8
     const val BUFFER_SIZE = 64 * 1024
     const val REQUEST_TIMEOUT_MILLIS = 15_000

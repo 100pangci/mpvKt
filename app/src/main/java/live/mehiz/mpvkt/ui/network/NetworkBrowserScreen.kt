@@ -114,6 +114,24 @@ data class NetworkBrowserScreen(
       selectedNames.clear()
     }
 
+    fun requestPlayback(onPrepared: () -> Unit = {}, prepare: () -> Intent) {
+      if (preparingPlayback) return
+      preparingPlayback = true
+      scope.launch {
+        try {
+          val playbackIntent = withContext(Dispatchers.IO) { prepare() }
+          onPrepared()
+          context.startActivity(playbackIntent)
+        } catch (error: CancellationException) {
+          throw error
+        } catch (_: Exception) {
+          Toast.makeText(context, R.string.home_playback_failed, Toast.LENGTH_LONG).show()
+        } finally {
+          preparingPlayback = false
+        }
+      }
+    }
+
     LaunchedEffect(source, path, retryKey) {
       loading = true
       error = false
@@ -173,24 +191,10 @@ data class NetworkBrowserScreen(
             onPlay = {
               // enabled guards the empty case, first() is always valid.
               val names = selectedNames.toList()
-              if (!preparingPlayback) {
-                preparingPlayback = true
-                scope.launch {
-                  try {
-                    val playbackIntent = withContext(Dispatchers.IO) {
-                      prepareSelectedFiles(names, factory, json, context)
-                    }
-                    exitMultiSelect()
-                    context.startActivity(playbackIntent)
-                  } catch (error: CancellationException) {
-                    throw error
-                  } catch (_: Exception) {
-                    Toast.makeText(context, R.string.home_playback_failed, Toast.LENGTH_LONG).show()
-                  } finally {
-                    preparingPlayback = false
-                  }
-                }
-              }
+              requestPlayback(
+                prepare = { prepareSelectedFiles(names, factory, json, context) },
+                onPrepared = ::exitMultiSelect,
+              )
             },
             enabled = !preparingPlayback,
           )
@@ -268,7 +272,8 @@ data class NetworkBrowserScreen(
                       toggleSelection(entry, selected, selectedNames)
 
                     entry.isDirectory -> backstack.add(NetworkBrowserScreen(source, childPath))
-                    entry.name.isVideoFile() -> playRemoteFile(entry, factory, json, context)
+                    entry.name.isVideoFile() ->
+                      requestPlayback { prepareRemotePlayback(entry, sorted, factory, json, context) }
                   }
                 },
                 onLongClick = {
@@ -293,18 +298,47 @@ data class NetworkBrowserScreen(
     if (selected) selectedNames.remove(entry.name) else selectedNames.add(entry.name)
   }
 
-  private fun playRemoteFile(
+  /**
+   * Opens a tapped video with the whole browsed folder as mpv's playlist,
+   * exactly like tapping a video in the local file picker: every video in
+   * display order becomes a queue entry and playback starts at [entry]
+   * (PlayerActivity matches the intent URL against the queue). URLs are
+   * resolved once — an SMB URL carries a one-off stream token, so resolving
+   * the same file twice would register a second stream for it.
+   */
+  private fun prepareRemotePlayback(
     entry: RemoteEntry,
+    entries: List<RemoteEntry>,
     factory: RemoteClientFactory,
     json: Json,
     context: Context,
-  ) {
-    val fileUrl = fileUrlFor(entry.name, factory)
-    val i = Intent(Intent.ACTION_VIEW, fileUrl.toUri())
-    i.setClass(context, PlayerActivity::class.java)
-    i.putExtra(PlayerActivity.REMOTE_SOURCE_EXTRA, json.encodeToString(source))
-    i.putExtra(PlayerActivity.REMOTE_PLAY_PATH_EXTRA, path)
-    context.startActivity(i)
+  ): Intent {
+    val videos = entries.filter { !it.isDirectory && it.name.isVideoFile() }
+    val tappedIndex = videos.indexOfFirst { it.name == entry.name }
+    val client = factory.create(source)
+    val i = try {
+      val urls = videos.map { client.fileUrl(NetworkSource.joinPath(path, it.name)) }
+      val tappedUrl = urls.getOrNull(tappedIndex)
+        ?: client.fileUrl(NetworkSource.joinPath(path, entry.name))
+      Intent(Intent.ACTION_VIEW, tappedUrl.toUri()).apply {
+        setClass(context, PlayerActivity::class.java)
+        // Only attach a queue that contains the intent URL: PlayerActivity
+        // starts at that URL, and a queue without it would start at its first
+        // entry and play the wrong video.
+        if (tappedIndex >= 0 && urls.size > 1) {
+          val store = PlaybackQueueStore(File(context.filesDir, PlaybackQueueStore.DIRECTORY))
+          putExtra(
+            PlayerActivity.QUEUE_REQUEST_EXTRA,
+            store.save(PlaybackQueueRequest(urls)),
+          )
+        }
+        putExtra(PlayerActivity.REMOTE_SOURCE_EXTRA, json.encodeToString(source))
+        putExtra(PlayerActivity.REMOTE_PLAY_PATH_EXTRA, path)
+      }
+    } finally {
+      client.close()
+    }
+    return i
   }
 
   /**
@@ -319,7 +353,12 @@ data class NetworkBrowserScreen(
     json: Json,
     context: Context,
   ): Intent {
-    val urls = names.map { fileUrlFor(it, factory) }
+    val client = factory.create(source)
+    val urls = try {
+      names.map { client.fileUrl(NetworkSource.joinPath(path, it)) }
+    } finally {
+      client.close()
+    }
     val i = Intent(Intent.ACTION_VIEW, urls.first().toUri())
     i.setClass(context, PlayerActivity::class.java)
     val store = PlaybackQueueStore(File(context.filesDir, PlaybackQueueStore.DIRECTORY))
@@ -328,9 +367,6 @@ data class NetworkBrowserScreen(
     i.putExtra(PlayerActivity.REMOTE_PLAY_PATH_EXTRA, path)
     return i
   }
-
-  private fun fileUrlFor(name: String, factory: RemoteClientFactory): String =
-    factory.create(source).fileUrl(NetworkSource.joinPath(path, name))
 }
 
 @Composable

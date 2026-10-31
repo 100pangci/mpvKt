@@ -281,6 +281,11 @@
     <string name="screenshot_dir_missing">каталогу не існує</string>
     <string name="screenshot_dir_unwritable">каталог недоступний для запису</string>
     <string name="screenshot_error_unknown">невідома помилка</string>
+    <string name="screenshot_folder_prompt">Виберіть теку для скриншотів</string>
+    <string name="screenshot_folder_required">Виберіть теку для збереження скриншотів</string>
+    <string name="screenshot_folder_permission_lost">Доступ до теки скриншотів втрачено. Виберіть теку ще раз.</string>
+    <string name="screenshot_folder_pip_unavailable">Вийдіть із режиму «картинка в картинці», щоб вибрати теку для скриншотів</string>
+    <string name="pref_player_screenshot_directory_tree">Вибрана тека: %1$s</string>
     <string name="pref_player_screenshots_title">Знімки екрана</string>
     <string name="pref_player_screenshot_directory">Каталог знімків</string>
     <string name="pref_player_screenshot_directory_default">Типовий (Pictures/mpvKt)</string>

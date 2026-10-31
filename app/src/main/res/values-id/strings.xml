@@ -334,6 +334,11 @@
     <string name="screenshot_dir_missing">direktori tidak ada</string>
     <string name="screenshot_dir_unwritable">direktori tidak dapat ditulis</string>
     <string name="screenshot_error_unknown">kesalahan tidak diketahui</string>
+    <string name="screenshot_folder_prompt">Pilih folder untuk tangkapan layar</string>
+    <string name="screenshot_folder_required">Pilih folder untuk menyimpan tangkapan layar</string>
+    <string name="screenshot_folder_permission_lost">Akses ke folder tangkapan layar hilang. Pilih folder lagi.</string>
+    <string name="screenshot_folder_pip_unavailable">Keluar dari mode gambar dalam gambar untuk memilih folder tangkapan layar</string>
+    <string name="pref_player_screenshot_directory_tree">Folder dipilih: %1$s</string>
     <string name="pref_player_screenshots_title">Tangkapan layar</string>
     <string name="pref_player_screenshot_directory">Direktori tangkapan layar</string>
     <string name="pref_player_screenshot_directory_default">Bawaan (Pictures/mpvKt)</string>

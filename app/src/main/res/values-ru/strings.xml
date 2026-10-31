@@ -317,6 +317,11 @@
     <string name="screenshot_dir_missing">каталог не существует</string>
     <string name="screenshot_dir_unwritable">каталог недоступен для записи</string>
     <string name="screenshot_error_unknown">неизвестная ошибка</string>
+    <string name="screenshot_folder_prompt">Выберите папку для скриншотов</string>
+    <string name="screenshot_folder_required">Выберите папку для сохранения скриншотов</string>
+    <string name="screenshot_folder_permission_lost">Доступ к папке скриншотов утерян. Выберите папку снова.</string>
+    <string name="screenshot_folder_pip_unavailable">Выйдите из режима «картинка в картинке», чтобы выбрать папку для скриншотов</string>
+    <string name="pref_player_screenshot_directory_tree">Выбранная папка: %1$s</string>
     <string name="pref_player_screenshots_title">Скриншоты</string>
     <string name="pref_player_screenshot_directory">Каталог скриншотов</string>
     <string name="pref_player_screenshot_directory_default">По умолчанию (Pictures/mpvKt)</string>

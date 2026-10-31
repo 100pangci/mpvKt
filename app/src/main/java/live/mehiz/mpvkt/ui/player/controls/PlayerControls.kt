@@ -473,6 +473,9 @@ fun PlayerControls(
           )
         }
         val mediaTitle by MPVLib.propString["media-title"].collectAsState()
+        // While the file is still opening mpv has no title yet; the file name
+        // is a better placeholder than an empty header.
+        val titleFallback = (LocalActivity.current as? PlayerActivity)?.fileName.orEmpty()
         AnimatedVisibility(
           controlsShown && !areControlsLocked,
           enter = if (!reduceMotion) {
@@ -495,7 +498,7 @@ fun PlayerControls(
           },
         ) {
           TopLeftPlayerControls(
-            mediaTitle = mediaTitle ?: "", // it'll be set when the video loads so no problem keeping it empty for now
+            mediaTitle = mediaTitle?.takeIf { it.isNotBlank() } ?: titleFallback,
             onBackClick = onBackPress,
           )
         }
@@ -562,8 +565,8 @@ fun PlayerControls(
             customButton = customButton,
             customButtonTitle = customButtonTitle,
             isPipAvailable = activity.isPipSupported,
-            onScreenshotSubsTap = { viewModel.screenshot(withSubtitles = true) },
-            onScreenshotRawTap = { viewModel.screenshot(withSubtitles = false) },
+            onScreenshotSubsTap = { activity.requestScreenshot(withSubtitles = true) },
+            onScreenshotRawTap = { activity.requestScreenshot(withSubtitles = false) },
             onFrameStep = viewModel::frameStep,
             onPipClick = activity::enterPipMode,
             onAspectClick = {

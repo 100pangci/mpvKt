@@ -281,6 +281,11 @@
     <string name="screenshot_dir_missing">डायरेक्टरी मौजूद नहीं</string>
     <string name="screenshot_dir_unwritable">डायरेक्टरी में लिखा नहीं जा सकता</string>
     <string name="screenshot_error_unknown">अज्ञात त्रुटि</string>
+    <string name="screenshot_folder_prompt">स्क्रीनशॉट के लिए फ़ोल्डर चुनें</string>
+    <string name="screenshot_folder_required">स्क्रीनशॉट सहेजने के लिए फ़ोल्डर चुनें</string>
+    <string name="screenshot_folder_permission_lost">स्क्रीनशॉट फ़ोल्डर का एक्सेस खो गया है। फ़ोल्डर फिर से चुनें।</string>
+    <string name="screenshot_folder_pip_unavailable">स्क्रीनशॉट फ़ोल्डर चुनने के लिए पिक्चर-इन-पिक्चर से बाहर आएँ</string>
+    <string name="pref_player_screenshot_directory_tree">चुना गया फ़ोल्डर: %1$s</string>
     <string name="pref_player_screenshots_title">स्क्रीनशॉट</string>
     <string name="pref_player_screenshot_directory">स्क्रीनशॉट डायरेक्टरी</string>
     <string name="pref_player_screenshot_directory_default">डिफ़ॉल्ट (Pictures/mpvKt)</string>

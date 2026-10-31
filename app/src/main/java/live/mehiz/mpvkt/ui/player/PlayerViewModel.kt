@@ -4,10 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.media.AudioManager
-import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Build
-import android.os.Environment
 import android.provider.Settings
 import android.util.DisplayMetrics
 import android.util.Log
@@ -48,7 +46,6 @@ import live.mehiz.mpvkt.ui.custombuttons.CustomButtonsUiState
 import live.mehiz.mpvkt.ui.custombuttons.getButtons
 import live.mehiz.mpvkt.ui.utils.createStorageAccessIntent
 import org.koin.java.KoinJavaComponent.inject
-import java.io.File
 import java.util.Locale
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.roundToInt
@@ -74,6 +71,7 @@ class PlayerViewModel(
   private val appPreferences: AppPreferences by inject(AppPreferences::class.java)
   private val mpvKtDatabase: MpvKtDatabase by inject(MpvKtDatabase::class.java)
   private val json: Json by inject(Json::class.java)
+  private val screenshotSaver = ScreenshotSaver(activity, playerPreferences)
 
   init {
     viewModelScope.launch(Dispatchers.IO) {
@@ -201,14 +199,21 @@ class PlayerViewModel(
   }
 
   fun openStorageAccessSettings() {
-    runCatching { activity.startActivity(activity.createStorageAccessIntent()) }
-      .onFailure {
-        runCatching {
-          activity.startActivity(Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION))
-        }
-      }
-    // The system page is returned from via onResume, which resolves the
-    // prompt and reloads the current file once the grant is detected.
+    // Launch first: if neither settings page can be opened, the dialog stays
+    // as the retry path. startActivity returns synchronously, so the dismiss
+    // still happens before the settings page is drawn.
+    val launched = runCatching { activity.startActivity(activity.createStorageAccessIntent()) }
+      .isSuccess ||
+      runCatching {
+        activity.startActivity(Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION))
+      }.isSuccess
+    if (!launched) return
+    // The dialog's action was taken: never leave it on screen behind the
+    // system settings page, and keep it gone if the user backs out.
+    dismissStorageAccessPrompt()
+    // The system page is returned from via onResume/onWindowFocusChanged,
+    // which detect the grant and reload the current file so sibling
+    // subtitles are picked up.
   }
 
   /**
@@ -476,98 +481,14 @@ class PlayerViewModel(
     }
   }
 
-  private var screenshotCounter = 0
+  fun hasScreenshotDestination(): Boolean = screenshotSaver.hasDestination()
 
   fun screenshot(withSubtitles: Boolean) {
-    val dir = resolveScreenshotDir()
-    dir.mkdirs()
-    val file = nextScreenshotFile(dir)
-    PlayerActivity.lastMpvError = null
     viewModelScope.launch(Dispatchers.IO) {
-      MPVLib.command("screenshot-to-file", file.absolutePath, if (withSubtitles) "subtitles" else "video")
-      val message = awaitScreenshotResult(dir, file)
-      playerUpdate.update { PlayerUpdates.ShowText(message) }
+      screenshotSaver.capture(withSubtitles) { message ->
+        playerUpdate.update { PlayerUpdates.ShowText(message) }
+      }
     }
-  }
-
-  private fun resolveScreenshotDir(): File = File(
-    playerPreferences.screenshotDirectory.get().ifBlank {
-      File(
-        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-        "mpvKt",
-      ).path
-    },
-  )
-
-  private fun nextScreenshotFile(dir: File): File {
-    val timeText = MPVLib.getPropertyDouble("time-pos")
-      ?.let { formatScreenshotTimestamp(it) }
-      ?: "unknown"
-    val videoName = activity.fileName.substringBeforeLast('.').ifBlank { "video" }
-    var counter = ++screenshotCounter
-    var file = File(dir, "$videoName-$timeText-N${counter.toString().padStart(4, '0')}.png")
-    while (file.exists()) {
-      counter = ++screenshotCounter
-      file = File(dir, "$videoName-$timeText-N${counter.toString().padStart(4, '0')}.png")
-    }
-    return file
-  }
-
-  private suspend fun awaitScreenshotResult(dir: File, file: File): String {
-    var saved = file.exists() && file.length() > 0L
-    var waited = 0
-    while (!saved && waited < 2000) {
-      delay(200)
-      waited += 200
-      saved = file.exists() && file.length() > 0L
-    }
-    val appCanWrite = if (!saved) isDirectoryWritable(dir) else true
-    Log.d(TAG, screenshotDiagnostic(saved, dir, file, appCanWrite))
-    if (saved) {
-      // direct file writes are not indexed by MediaProvider on its own
-      MediaScannerConnection.scanFile(activity, arrayOf(file.absolutePath), arrayOf("image/png"), null)
-    }
-    val reason = when {
-      saved -> null
-      !dir.exists() -> activity.getString(R.string.screenshot_dir_missing)
-      !appCanWrite -> activity.getString(R.string.screenshot_dir_unwritable)
-      PlayerActivity.lastMpvError != null -> PlayerActivity.lastMpvError
-      else -> activity.getString(R.string.screenshot_error_unknown)
-    }
-    return if (saved) {
-      activity.getString(R.string.screenshot_saved, file.name)
-    } else {
-      activity.getString(R.string.screenshot_failed) + ": " + reason
-    }
-  }
-
-  private fun isDirectoryWritable(dir: File): Boolean = try {
-    val probe = File(dir, ".mpvkt_probe")
-    probe.writeText("t")
-    probe.delete()
-    true
-  } catch (_: Exception) {
-    false
-  }
-
-  private fun screenshotDiagnostic(saved: Boolean, dir: File, file: File, appCanWrite: Boolean): String {
-    val storageManager = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-      Environment.isExternalStorageManager().toString()
-    } else {
-      "n/a"
-    }
-    return "screenshot ${if (saved) "saved" else "FAILED"}: file=${file.absolutePath} " +
-      "dirExists=${dir.exists()} appCanWrite=$appCanWrite " +
-      "storageManager=$storageManager mpvError=${PlayerActivity.lastMpvError}"
-  }
-
-  private fun formatScreenshotTimestamp(seconds: Double): String {
-    val totalMs = (seconds * 1000).roundToInt()
-    val hours = totalMs / 3_600_000
-    val minutes = (totalMs / 60_000) % 60
-    val seconds = (totalMs / 1_000) % 60
-    val millis = totalMs % 1_000
-    return String.format(Locale.US, "%02d-%02d-%02d.%03d", hours, minutes, seconds, millis)
   }
 
   fun frameStep(forward: Boolean) {

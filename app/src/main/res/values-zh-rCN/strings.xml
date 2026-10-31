@@ -310,6 +310,11 @@
     <string name="screenshot_dir_missing">目录不存在</string>
     <string name="screenshot_dir_unwritable">目录不可写</string>
     <string name="screenshot_error_unknown">未知错误</string>
+    <string name="screenshot_folder_prompt">选择截图保存文件夹</string>
+    <string name="screenshot_folder_required">请先选择截图保存文件夹</string>
+    <string name="screenshot_folder_permission_lost">截图文件夹的访问权限已失效，请重新选择文件夹。</string>
+    <string name="screenshot_folder_pip_unavailable">请退出画中画后再选择截图文件夹</string>
+    <string name="pref_player_screenshot_directory_tree">所选文件夹：%1$s</string>
 
     <string name="pref_player_screenshots_title">截图</string>
     <string name="pref_player_screenshot_directory">截图目录</string>
