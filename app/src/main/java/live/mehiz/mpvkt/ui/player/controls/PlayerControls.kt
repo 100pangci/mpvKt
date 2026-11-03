@@ -27,6 +27,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.LockOpen
+import androidx.compose.material.icons.filled.ScreenRotation
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalContentColor
@@ -195,6 +197,8 @@ fun PlayerControls(
         val (topLeftControls, topRightControls) = createRefs()
         val (volumeSlider, brightnessSlider) = createRefs()
         val unlockControlsButton = createRef()
+        val lockControlsButton = createRef()
+        val rotationControlsButton = createRef()
         val (bottomRightControls, bottomLeftControls) = createRefs()
         val playerPauseButton = createRef()
         val seekbar = createRef()
@@ -400,6 +404,7 @@ fun PlayerControls(
               modifier = Modifier
                 .size(96.dp)
                 .clip(CircleShape)
+                .background(Color.Black.copy(alpha = 0.4f), CircleShape)
                 .clickable(
                   interaction,
                   ripple(),
@@ -607,13 +612,63 @@ fun PlayerControls(
             playbackSpeed = playbackSpeed ?: playerPreferences.defaultSpeed.get(),
             showChapterIndicator = showChapterIndicator,
             currentChapter = chapters.getOrNull(currentChapter ?: 0),
-            onLockControls = viewModel::lockControls,
-            onCycleRotation = viewModel::cycleScreenRotations,
             onPlaybackSpeedChange = {
               MPVLib.setPropertyFloat("speed", it)
               playerPreferences.defaultSpeed.set(it)
             },
             onOpenSheet = onOpenSheet,
+          )
+        }
+        AnimatedVisibility(
+          controlsShown && !areControlsLocked && !isBrightnessSliderShown && !isVolumeSliderShown,
+          enter = if (!reduceMotion) {
+            slideInHorizontally(playerControlsEnterAnimationSpec()) { -it } +
+              fadeIn(playerControlsEnterAnimationSpec())
+          } else {
+            fadeIn(playerControlsEnterAnimationSpec())
+          },
+          exit = if (!reduceMotion) {
+            slideOutHorizontally(playerControlsExitAnimationSpec()) { -it } +
+              fadeOut(playerControlsExitAnimationSpec())
+          } else {
+            fadeOut(playerControlsExitAnimationSpec())
+          },
+          modifier = Modifier.constrainAs(lockControlsButton) {
+            start.linkTo(parent.start)
+            top.linkTo(parent.top)
+            bottom.linkTo(parent.bottom)
+          },
+        ) {
+          ControlsButton(
+            icon = Icons.Default.LockOpen,
+            onClick = viewModel::lockControls,
+            modifier = Modifier.background(Color.Black.copy(alpha = 0.4f), CircleShape),
+          )
+        }
+        AnimatedVisibility(
+          controlsShown && !areControlsLocked && !isBrightnessSliderShown && !isVolumeSliderShown,
+          enter = if (!reduceMotion) {
+            slideInHorizontally(playerControlsEnterAnimationSpec()) { it } +
+              fadeIn(playerControlsEnterAnimationSpec())
+          } else {
+            fadeIn(playerControlsEnterAnimationSpec())
+          },
+          exit = if (!reduceMotion) {
+            slideOutHorizontally(playerControlsExitAnimationSpec()) { it } +
+              fadeOut(playerControlsExitAnimationSpec())
+          } else {
+            fadeOut(playerControlsExitAnimationSpec())
+          },
+          modifier = Modifier.constrainAs(rotationControlsButton) {
+            end.linkTo(parent.end)
+            top.linkTo(parent.top)
+            bottom.linkTo(parent.bottom)
+          },
+        ) {
+          ControlsButton(
+            icon = Icons.Default.ScreenRotation,
+            onClick = viewModel::cycleScreenRotations,
+            modifier = Modifier.background(Color.Black.copy(alpha = 0.4f), CircleShape),
           )
         }
       }

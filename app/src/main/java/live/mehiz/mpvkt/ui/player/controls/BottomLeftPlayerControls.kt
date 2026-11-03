@@ -5,9 +5,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.LockOpen
-import androidx.compose.material.icons.filled.ScreenRotation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,8 +20,6 @@ fun BottomLeftPlayerControls(
   playbackSpeed: Float,
   currentChapter: Segment?,
   showChapterIndicator: Boolean,
-  onLockControls: () -> Unit,
-  onCycleRotation: () -> Unit,
   onPlaybackSpeedChange: (Float) -> Unit,
   onOpenSheet: (Sheets) -> Unit,
   modifier: Modifier = Modifier
@@ -33,14 +28,6 @@ fun BottomLeftPlayerControls(
     modifier = modifier.fillMaxWidth(),
     verticalAlignment = Alignment.CenterVertically,
   ) {
-    ControlsButton(
-      Icons.Default.LockOpen,
-      onClick = onLockControls,
-    )
-    ControlsButton(
-      icon = Icons.Default.ScreenRotation,
-      onClick = onCycleRotation
-    )
     ControlsButton(
       text = stringResource(R.string.player_speed, playbackSpeed),
       onClick = { onPlaybackSpeedChange(if (playbackSpeed >= 2) 0.25f else playbackSpeed + 0.25f) },
