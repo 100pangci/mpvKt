@@ -28,15 +28,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import live.mehiz.mpvkt.R
 import live.mehiz.mpvkt.database.entities.CustomButtonEntity
 import live.mehiz.mpvkt.ui.player.controls.components.ControlsButton
-import live.mehiz.mpvkt.ui.player.controls.components.FrameStepButton
 import live.mehiz.mpvkt.ui.player.execute
 import live.mehiz.mpvkt.ui.player.executeLongClick
 import live.mehiz.mpvkt.ui.theme.spacing
@@ -48,9 +45,8 @@ fun BottomRightPlayerControls(
   customButton: CustomButtonEntity?,
   customButtonTitle: String,
   isPipAvailable: Boolean,
-  onScreenshotSubsTap: () -> Unit,
   onScreenshotRawTap: () -> Unit,
-  onFrameStep: (forward: Boolean) -> Unit,
+  onScreenshotSubsTap: () -> Unit,
   onAspectClick: () -> Unit,
   onPipClick: () -> Unit,
   modifier: Modifier = Modifier,
@@ -81,14 +77,18 @@ fun BottomRightPlayerControls(
       )
     }
 
+    ControlsButton(
+      Icons.Default.Screenshot,
+      onClick = onScreenshotRawTap,
+      modifier = Modifier.padding(end = MaterialTheme.spacing.smaller),
+      title = stringResource(R.string.screenshot_without_subtitles),
+    )
     Box(modifier = Modifier.padding(end = MaterialTheme.spacing.smaller)) {
       ControlsButton(
         Icons.Default.Screenshot,
         onClick = onScreenshotSubsTap,
         title = stringResource(R.string.screenshot_with_subtitles),
       )
-      // Subtitle strip burned into the screenshot frame: unmistakable at a
-      // glance, unlike the old tiny corner badge.
       SubtitlesBadge(
         modifier = Modifier
           .align(Alignment.BottomCenter)
@@ -96,25 +96,6 @@ fun BottomRightPlayerControls(
           .zIndex(1f),
       )
     }
-    ControlsButton(
-      Icons.Default.Screenshot,
-      onClick = onScreenshotRawTap,
-      title = stringResource(R.string.screenshot_without_subtitles),
-    )
-
-    FrameStepButton(
-      icon = ImageVector.vectorResource(R.drawable.ic_frame_step_backward_24),
-      contentDescription = stringResource(R.string.frame_step_backward),
-      forward = false,
-      onFrameStep = onFrameStep,
-    )
-    FrameStepButton(
-      icon = ImageVector.vectorResource(R.drawable.ic_frame_step_forward_24),
-      contentDescription = stringResource(R.string.frame_step_forward),
-      forward = true,
-      onFrameStep = onFrameStep,
-    )
-
     ControlsButton(
       Icons.Default.AspectRatio,
       onClick = onAspectClick,

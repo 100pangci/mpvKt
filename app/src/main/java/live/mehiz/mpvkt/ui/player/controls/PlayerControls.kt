@@ -21,6 +21,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -46,13 +48,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
@@ -82,6 +87,7 @@ import live.mehiz.mpvkt.ui.player.Sheets
 import live.mehiz.mpvkt.ui.player.VideoAspect
 import live.mehiz.mpvkt.ui.player.controls.components.BrightnessSlider
 import live.mehiz.mpvkt.ui.player.controls.components.ControlsButton
+import live.mehiz.mpvkt.ui.player.controls.components.FrameStepButton
 import live.mehiz.mpvkt.ui.player.controls.components.MissingFontsDialog
 import live.mehiz.mpvkt.ui.player.controls.components.MultipleSpeedPlayerUpdate
 import live.mehiz.mpvkt.ui.player.controls.components.SeekbarWithTimers
@@ -201,6 +207,7 @@ fun PlayerControls(
         val rotationControlsButton = createRef()
         val (bottomRightControls, bottomLeftControls) = createRefs()
         val playerPauseButton = createRef()
+        val playerStatusIndicator = createRef()
         val seekbar = createRef()
         val (playerUpdates) = createRefs()
 
@@ -361,8 +368,12 @@ fun PlayerControls(
             onClick = { viewModel.unlockControls() },
           )
         }
+        val showLoadingCircle by playerPreferences.showLoadingCircle.collectAsState()
         AnimatedVisibility(
-          visible = (controlsShown && !areControlsLocked || gestureSeekAmount != null) || pausedForCache == true,
+          visible = controlsShown &&
+            !areControlsLocked &&
+            gestureSeekAmount == null &&
+            !(pausedForCache == true && showLoadingCircle),
           enter = fadeIn(playerControlsEnterAnimationSpec()),
           exit = fadeOut(playerControlsExitAnimationSpec()),
           modifier = Modifier.constrainAs(playerPauseButton) {
@@ -372,9 +383,54 @@ fun PlayerControls(
             bottom.linkTo(parent.bottom)
           },
         ) {
-          val showLoadingCircle by playerPreferences.showLoadingCircle.collectAsState()
           val icon = AnimatedImageVector.animatedVectorResource(R.drawable.anim_play_to_pause)
           val interaction = remember { MutableInteractionSource() }
+          Row(
+            horizontalArrangement = Arrangement.spacedBy(spacing.small),
+            verticalAlignment = Alignment.CenterVertically,
+          ) {
+            FrameStepButton(
+              icon = ImageVector.vectorResource(R.drawable.ic_frame_step_backward_24),
+              contentDescription = stringResource(R.string.frame_step_backward),
+              forward = false,
+              onFrameStep = viewModel::frameStep,
+              modifier = Modifier.background(Color.Black.copy(alpha = 0.4f), CircleShape),
+            )
+            Image(
+              painter = rememberAnimatedVectorPainter(icon, paused == false),
+              modifier = Modifier
+                .size(96.dp)
+                .clip(CircleShape)
+                .background(Color.Black.copy(alpha = 0.4f), CircleShape)
+                .clickable(
+                  interaction,
+                  ripple(),
+                  onClick = viewModel::pauseUnpause,
+                )
+                .padding(MaterialTheme.spacing.medium),
+              contentDescription = null,
+            )
+            FrameStepButton(
+              icon = ImageVector.vectorResource(R.drawable.ic_frame_step_forward_24),
+              contentDescription = stringResource(R.string.frame_step_forward),
+              forward = true,
+              onFrameStep = viewModel::frameStep,
+              modifier = Modifier.background(Color.Black.copy(alpha = 0.4f), CircleShape),
+            )
+          }
+        }
+        AnimatedVisibility(
+          visible = gestureSeekAmount != null ||
+            (pausedForCache == true && showLoadingCircle),
+          enter = fadeIn(playerControlsEnterAnimationSpec()),
+          exit = fadeOut(playerControlsExitAnimationSpec()),
+          modifier = Modifier.constrainAs(playerStatusIndicator) {
+            end.linkTo(parent.absoluteRight)
+            start.linkTo(parent.absoluteLeft)
+            top.linkTo(parent.top)
+            bottom.linkTo(parent.bottom)
+          },
+        ) {
           when {
             gestureSeekAmount != null -> {
               Text(
@@ -398,21 +454,6 @@ fun PlayerControls(
                 strokeWidth = 6.dp,
               )
             }
-
-            controlsShown && !areControlsLocked -> Image(
-              painter = rememberAnimatedVectorPainter(icon, paused == false),
-              modifier = Modifier
-                .size(96.dp)
-                .clip(CircleShape)
-                .background(Color.Black.copy(alpha = 0.4f), CircleShape)
-                .clickable(
-                  interaction,
-                  ripple(),
-                  onClick = viewModel::pauseUnpause,
-                )
-                .padding(MaterialTheme.spacing.medium),
-              contentDescription = null,
-            )
           }
         }
         AnimatedVisibility(
@@ -570,9 +611,8 @@ fun PlayerControls(
             customButton = customButton,
             customButtonTitle = customButtonTitle,
             isPipAvailable = activity.isPipSupported,
-            onScreenshotSubsTap = { activity.requestScreenshot(withSubtitles = true) },
             onScreenshotRawTap = { activity.requestScreenshot(withSubtitles = false) },
-            onFrameStep = viewModel::frameStep,
+            onScreenshotSubsTap = { activity.requestScreenshot(withSubtitles = true) },
             onPipClick = activity::enterPipMode,
             onAspectClick = {
               viewModel.changeVideoAspect(
