@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 mpvKt 是 Android 上的 mpv/libmpv 播放器前端。这里只有 `:app` 一个 Gradle 模块；Kotlin 包名为 `live.mehiz.mpvkt`，applicationId 为 `live.ywpc05.mpvkt`。上游 mpv-android 的 Java/Kotlin 绑定来自 Maven 依赖 `io.github.100pangci:mpv-android-lib:0.1.13`（`gradle/libs.versions.toml`），其源码不在本仓库，类的包名是 `is.xyz.mpv`。
 
-这是原 mpvKt 的维护分支，README 要求 PR 以 `dev` 分支为目标。项目以 MPL-2.0 发布；原始代码为 Apache-2.0。
+本仓库是原 mpvKt 的独立功能增强分支，README 要求 PR 以 `dev` 分支为目标。项目以 MPL-2.0 发布；原始代码为 Apache-2.0。
 
 ## 命令
 

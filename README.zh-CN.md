@@ -12,8 +12,8 @@
 
 ## 关于本分支
 
-原版 [mpvKt](https://github.com/abdallahmehiz/mpvKt)（作者
-[@abdallahmehiz](https://github.com/abdallahmehiz)）已归档。本仓库是持续维护的延续分支，升级了 mpv 内核并持续修复问题、添加功能，开发进度见 `dev` 分支。
+原版 [mpvKt](https://github.com/abdallahmehiz/mpvKt) 由
+[@abdallahmehiz](https://github.com/abdallahmehiz) 创建。本仓库是独立维护的功能增强分支，升级了 mpv 内核并持续修复问题、添加功能；开发进度见 `dev` 分支。
 
 本分支目前的亮点：
 
@@ -132,5 +132,5 @@ PR。请以 `dev` 分支为目标，提交前先跑一遍
 ## 许可证
 
 本项目基于 [Mozilla Public License 2.0](LICENSE) 开源。
-它是 [mpvKt](https://github.com/abdallahmehiz/mpvKt) 的延续分支，原代码采用
+本项目 fork 自 [mpvKt](https://github.com/abdallahmehiz/mpvKt)，原始代码采用
 Apache License 2.0 许可。

@@ -12,10 +12,11 @@ English | [简体中文](README.zh-CN.md)
 
 ## About this fork
 
-The original [mpvKt](https://github.com/abdallahmehiz/mpvKt) by
-[@abdallahmehiz](https://github.com/abdallahmehiz) has been archived. This is a
-maintained continuation with an upgraded mpv core and a steady stream of fixes
-and features, tracked on the `dev` branch.
+This repository is an independently maintained, feature-enhanced fork of
+[mpvKt](https://github.com/abdallahmehiz/mpvKt) by
+[@abdallahmehiz](https://github.com/abdallahmehiz). It builds on the original
+with an upgraded mpv core, ongoing fixes, and additional features. Development
+is tracked on the `dev` branch.
 
 Highlights of this fork so far:
 
