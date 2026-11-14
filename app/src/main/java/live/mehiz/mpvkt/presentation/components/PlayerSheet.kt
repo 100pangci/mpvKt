@@ -1,3 +1,4 @@
+// Modified from upstream mpvKt; see LICENSE-APACHE.
 package live.mehiz.mpvkt.presentation.components
 
 import android.content.res.Configuration.ORIENTATION_LANDSCAPE

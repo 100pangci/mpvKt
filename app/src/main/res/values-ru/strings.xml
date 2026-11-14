@@ -1,3 +1,4 @@
+<!-- Modified from upstream mpvKt; see LICENSE-APACHE. -->
 <resources>
     <string name="home_playback_failed">Не удалось подготовить воспроизведение. Проверьте доступ к файлам и повторите попытку.</string>
     <string name="home_refresh_directory">Обновить папку</string>
@@ -184,6 +185,9 @@
     <string name="pref_about_summary">Благодарности, лицензии</string>
     <string name="pref_about_app_version">Версия приложения</string>
     <string name="pref_about_oss_libraries">Библиотеки с открытым исходным кодом</string>
+    <string name="pref_about_license_project">Лицензия кода проекта (MPL-2.0)</string>
+    <string name="pref_about_license_original">Лицензия исходного кода (Apache-2.0)</string>
+    <string name="pref_about_license_source">Открыть исходный код</string>
     <string name="pref_about_privacy_policy">Политика конфиденциальности</string>
 
     <string name="player_sheets_add_ext_sub">Добавить внешние субтитры</string>

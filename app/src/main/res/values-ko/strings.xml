@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Modified from upstream mpvKt; see LICENSE-APACHE. -->
 <!-- ko -->
 <resources>
     <string name="home_playback_failed">재생을 준비할 수 없습니다. 파일에 접근할 수 있는지 확인한 후 다시 시도해 주세요.</string>
@@ -172,6 +173,9 @@
     <string name="pref_about_summary">감사의 말, 라이선스</string>
     <string name="pref_about_app_version">앱 버전</string>
     <string name="pref_about_oss_libraries">오픈소스 라이브러리</string>
+    <string name="pref_about_license_project">프로젝트 코드 라이선스 (MPL-2.0)</string>
+    <string name="pref_about_license_original">원본 코드 라이선스 (Apache-2.0)</string>
+    <string name="pref_about_license_source">소스 코드 보기</string>
     <string name="pref_about_privacy_policy">개인정보 처리방침</string>
     <string name="player_sheets_add_ext_sub">외부 자막 추가</string>
     <string name="player_sheets_add_ext_audio">외부 오디오 트랙 추가</string>

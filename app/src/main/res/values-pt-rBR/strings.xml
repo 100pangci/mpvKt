@@ -1,3 +1,4 @@
+<!-- Modified from upstream mpvKt; see LICENSE-APACHE. -->
 <resources>
     <string name="home_playback_failed">Não foi possível preparar a reprodução. Verifique se os arquivos estão acessíveis e tente novamente.</string>
     <string name="home_refresh_directory">Atualizar pasta</string>
@@ -144,6 +145,9 @@
     <string name="pref_about_app_version">Versão do app</string>
     <string name="pref_about_app_version_formatted" translatable="false">%s %s</string>
     <string name="pref_about_oss_libraries">Bibliotecas de código aberto</string>
+    <string name="pref_about_license_project">Licença do código do projeto (MPL-2.0)</string>
+    <string name="pref_about_license_original">Licença do código original (Apache-2.0)</string>
+    <string name="pref_about_license_source">Ver código-fonte</string>
 
     <string name="player_sheets_add_ext_sub">Adicionar legendas externas</string>
     <string name="player_sheets_add_ext_audio">Adicionar faixas de áudio externas</string>

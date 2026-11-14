@@ -1,3 +1,4 @@
+// Modified from upstream mpvKt; see LICENSE-APACHE.
 package live.mehiz.mpvkt.di
 
 import live.mehiz.mpvkt.preferences.AdvancedPreferences

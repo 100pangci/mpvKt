@@ -1,3 +1,4 @@
+// Modified from upstream mpvKt; see LICENSE-APACHE.
 package live.mehiz.mpvkt.database.dao
 
 import androidx.room.Dao

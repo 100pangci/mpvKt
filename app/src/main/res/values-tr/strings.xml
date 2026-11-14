@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Modified from upstream mpvKt; see LICENSE-APACHE. -->
 <!-- tr -->
 <resources>
     <string name="home_playback_failed">Oynatma hazırlanamadı. Dosyalara erişilebildiğini kontrol edip yeniden deneyin.</string>
@@ -172,6 +173,9 @@
     <string name="pref_about_summary">Teşekkürler, lisanslar</string>
     <string name="pref_about_app_version">Uygulama sürümü</string>
     <string name="pref_about_oss_libraries">Açık kaynak kitaplıklar</string>
+    <string name="pref_about_license_project">Proje kodu lisansı (MPL-2.0)</string>
+    <string name="pref_about_license_original">Özgün kod lisansı (Apache-2.0)</string>
+    <string name="pref_about_license_source">Kaynak kodu görüntüle</string>
     <string name="pref_about_privacy_policy">Gizlilik politikası</string>
     <string name="player_sheets_add_ext_sub">Harici altyazı ekle</string>
     <string name="player_sheets_add_ext_audio">Harici ses parçası ekle</string>

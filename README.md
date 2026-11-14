@@ -1,3 +1,4 @@
+<!-- Modified from upstream mpvKt; see LICENSE-APACHE. -->
 # <img alt="app icon" src=".github/assets/app_icon.svg" width="48" /> mpvKt
 
 A media player for Android based on [mpv](https://mpv.io) / [mpv-android](https://github.com/mpv-android/mpv-android), aiming to provide a *nicer* user interface over the original.
@@ -153,5 +154,7 @@ singleton and `MPVView`) targets that API.
 ## License
 
 This project is licensed under the [Mozilla Public License 2.0](LICENSE).
-It is a fork of [mpvKt](https://github.com/abdallahmehiz/mpvKt), whose
-original code is licensed under the Apache License 2.0.
+It includes code derived from [mpvKt](https://github.com/abdallahmehiz/mpvKt),
+which was originally licensed under the Apache License 2.0. Redistribution of
+that derived code must also comply with applicable Apache-2.0 conditions; see
+[LICENSE-APACHE](LICENSE-APACHE).

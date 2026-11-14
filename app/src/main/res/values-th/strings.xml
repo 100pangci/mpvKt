@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Modified from upstream mpvKt; see LICENSE-APACHE. -->
 <!-- th -->
 <resources>
     <string name="home_playback_failed">ไม่สามารถเตรียมการเล่นได้ โปรดตรวจสอบว่าสามารถเข้าถึงไฟล์ได้แล้วลองอีกครั้ง</string>
@@ -172,6 +173,9 @@
     <string name="pref_about_summary">กิตติกรรมประกาศ ใบอนุญาต</string>
     <string name="pref_about_app_version">เวอร์ชันแอป</string>
     <string name="pref_about_oss_libraries">ไลบรารีโอเพนซอร์ส</string>
+    <string name="pref_about_license_project">ใบอนุญาตโค้ดของโปรเจกต์ (MPL-2.0)</string>
+    <string name="pref_about_license_original">ใบอนุญาตโค้ดต้นฉบับ (Apache-2.0)</string>
+    <string name="pref_about_license_source">ดูซอร์สโค้ด</string>
     <string name="pref_about_privacy_policy">นโยบายความเป็นส่วนตัว</string>
     <string name="player_sheets_add_ext_sub">เพิ่มคำบรรยายภายนอก</string>
     <string name="player_sheets_add_ext_audio">เพิ่มแทร็กเสียงภายนอก</string>

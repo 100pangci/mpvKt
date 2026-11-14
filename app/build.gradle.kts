@@ -1,5 +1,7 @@
+// Modified from upstream mpvKt; see LICENSE-APACHE.
 import com.android.build.api.variant.FilterConfiguration
 import io.gitlab.arturbosch.detekt.Detekt
+import org.gradle.api.tasks.Copy
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -104,6 +106,21 @@ android {
   androidResources {
     generateLocaleConfig = true
   }
+}
+
+val generatedProjectLicenseResources = layout.buildDirectory.dir("generated/project-license-resources")
+val copyProjectLicenses by tasks.registering(Copy::class) {
+  from(rootProject.file("LICENSE")) {
+    rename { "license_mpl_2_0.txt" }
+  }
+  from(rootProject.file("LICENSE-APACHE")) {
+    rename { "license_apache_2_0.txt" }
+  }
+  into(generatedProjectLicenseResources.map { it.dir("raw") })
+}
+android.sourceSets.getByName("main").res.srcDir(generatedProjectLicenseResources)
+tasks.named("preBuild").configure {
+  dependsOn(copyProjectLicenses)
 }
 
 kotlin {

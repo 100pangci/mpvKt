@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Modified from upstream mpvKt; see LICENSE-APACHE. -->
 <!-- hi -->
 <resources>
     <string name="home_playback_failed">प्लेबैक तैयार नहीं हो सका। जाँचें कि फ़ाइलों तक पहुँच है और फिर कोशिश करें।</string>
@@ -172,6 +173,9 @@
     <string name="pref_about_summary">आभार, लाइसेंस</string>
     <string name="pref_about_app_version">ऐप वर्शन</string>
     <string name="pref_about_oss_libraries">ओपन सोर्स लाइब्रेरी</string>
+    <string name="pref_about_license_project">प्रोजेक्ट कोड लाइसेंस (MPL-2.0)</string>
+    <string name="pref_about_license_original">मूल कोड लाइसेंस (Apache-2.0)</string>
+    <string name="pref_about_license_source">सोर्स कोड देखें</string>
     <string name="pref_about_privacy_policy">गोपनीयता नीति</string>
     <string name="player_sheets_add_ext_sub">बाहरी सबटाइटल जोड़ें</string>
     <string name="player_sheets_add_ext_audio">बाहरी ऑडियो ट्रैक जोड़ें</string>

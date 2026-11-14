@@ -1,3 +1,4 @@
+<!-- Modified from upstream mpvKt; see LICENSE-APACHE. -->
 <resources>
     <string name="home_playback_failed">再生を準備できませんでした。ファイルにアクセスできることを確認して、再試行してください。</string>
     <string name="home_refresh_directory">フォルダーを更新</string>
@@ -187,6 +188,9 @@
     <string name="pref_about_app_version">アプリバージョン</string>
     <string name="pref_about_app_version_formatted" translatable="false">%s %s</string>
     <string name="pref_about_oss_libraries">オープンソースライブラリ</string>
+    <string name="pref_about_license_project">プロジェクトコードのライセンス（MPL-2.0）</string>
+    <string name="pref_about_license_original">元のコードのライセンス（Apache-2.0）</string>
+    <string name="pref_about_license_source">ソースコードを表示</string>
     <string name="pref_about_privacy_policy">プライバシーポリシー</string>
 
     <string name="player_sheets_add_ext_sub">外部字幕を追加する</string>

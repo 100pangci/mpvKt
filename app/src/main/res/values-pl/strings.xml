@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Modified from upstream mpvKt; see LICENSE-APACHE. -->
 <!-- pl -->
 <resources>
     <string name="home_playback_failed">Nie udało się przygotować odtwarzania. Sprawdź dostęp do plików i spróbuj ponownie.</string>
@@ -172,6 +173,9 @@
     <string name="pref_about_summary">Podziękowania, licencje</string>
     <string name="pref_about_app_version">Wersja aplikacji</string>
     <string name="pref_about_oss_libraries">Biblioteki open source</string>
+    <string name="pref_about_license_project">Licencja kodu projektu (MPL-2.0)</string>
+    <string name="pref_about_license_original">Licencja oryginalnego kodu (Apache-2.0)</string>
+    <string name="pref_about_license_source">Zobacz kod źródłowy</string>
     <string name="pref_about_privacy_policy">Polityka prywatności</string>
     <string name="player_sheets_add_ext_sub">Dodaj zewnętrzne napisy</string>
     <string name="player_sheets_add_ext_audio">Dodaj zewnętrzne ścieżki audio</string>

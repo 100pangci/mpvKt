@@ -1,3 +1,4 @@
+# Modified from upstream mpvKt; see LICENSE-APACHE.
 name: Build
 
 on:

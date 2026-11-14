@@ -1,3 +1,4 @@
+<!-- Modified from upstream mpvKt; see LICENSE-APACHE. -->
 # <img alt="应用图标" src=".github/assets/app_icon.svg" width="48" /> mpvKt
 
 基于 [mpv](https://mpv.io) / [mpv-android](https://github.com/mpv-android/mpv-android) 的 Android 视频播放器，在原版之上提供更顺手的用户界面。
@@ -131,6 +132,7 @@ PR。请以 `dev` 分支为目标，提交前先跑一遍
 
 ## 许可证
 
-本项目基于 [Mozilla Public License 2.0](LICENSE) 开源。
-本项目 fork 自 [mpvKt](https://github.com/abdallahmehiz/mpvKt)，原始代码采用
-Apache License 2.0 许可。
+本项目按 [Mozilla Public License 2.0](LICENSE) 许可。
+本项目包含源自原版 [mpvKt](https://github.com/abdallahmehiz/mpvKt) 的代码，
+原项目采用 Apache-2.0；再分发这些派生代码时也须满足适用的 Apache-2.0
+条件，许可证全文见 [LICENSE-APACHE](LICENSE-APACHE)。

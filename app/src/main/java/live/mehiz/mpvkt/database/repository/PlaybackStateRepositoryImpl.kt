@@ -1,3 +1,4 @@
+// Modified from upstream mpvKt; see LICENSE-APACHE.
 package live.mehiz.mpvkt.database.repository
 
 import kotlinx.coroutines.flow.Flow

@@ -1,3 +1,4 @@
+<!-- Modified from upstream mpvKt; see LICENSE-APACHE. -->
 <resources>
     <string name="home_playback_failed">Tidak dapat menyiapkan pemutaran. Pastikan file dapat diakses lalu coba lagi.</string>
     <string name="home_refresh_directory">Segarkan folder</string>
@@ -187,6 +188,9 @@
     <string name="pref_about_app_version">Versi aplikasi</string>
     <string name="pref_about_app_version_formatted" translatable="false">%s %s</string>
     <string name="pref_about_oss_libraries">Pustaka Open Source</string>
+    <string name="pref_about_license_project">Lisensi kode proyek (MPL-2.0)</string>
+    <string name="pref_about_license_original">Lisensi kode asli (Apache-2.0)</string>
+    <string name="pref_about_license_source">Lihat kode sumber</string>
     <string name="pref_about_privacy_policy">Kebijakan Privasi</string>
 
     <string name="player_sheets_add_ext_sub">Tambah Subtitle Eksternal</string>
